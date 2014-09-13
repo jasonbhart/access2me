@@ -2,10 +2,12 @@
 
 require_once __DIR__ . "/boot.php";
 
+$db = new Database;
+
 if (!$_GET['code']) {
-    header('Location: https://www.linkedin.com/uas/oauth2/authorization?response_type=code&client_id=75dl362rayg47t&state=DCEEFWF45453sdffef424&redirect_uri=http://192.168.2.109/a2m/linkedin.php');
+    header('Location: https://www.linkedin.com/uas/oauth2/authorization?response_type=code&client_id=75dl362rayg47t&state=ECEEFWF45453sdffef424&redirect_uri=' . $localUrl . '/a2m/linkedin.php');
 } else {
-    $url = "https://www.linkedin.com/uas/oauth2/accessToken?grant_type=authorization_code&code=" . $_GET['code'] . "&redirect_uri=http://192.168.2.109/a2m/linkedin.php&client_id=75dl362rayg47t&client_secret=eCxKfjOpunoO9rSj";
+    $url = "https://www.linkedin.com/uas/oauth2/accessToken?grant_type=authorization_code&code=" . $_GET['code'] . "&redirect_uri=" . $localUrl . "/a2m/linkedin.php&client_id=75dl362rayg47t&client_secret=eCxKfjOpunoO9rSj";
 
     $cURL = curl_init();
 
@@ -25,7 +27,7 @@ if (!$_GET['code']) {
 
     $accessToken = (string) $json['access_token'];
 
-    $url = "https://api.linkedin.com/v1/people/~:(first-name,last-name,headline,industry,picture-url,site-standard-profile-request,location:(name))?oauth2_access_token=" . $accessToken;
+    $url = "https://api.linkedin.com/v1/people/~:(first-name,last-name,email-address,headline,industry,picture-url,site-standard-profile-request,location:(name))?oauth2_access_token=" . $accessToken;
 
     $cURL = curl_init();
 
@@ -45,28 +47,46 @@ if (!$_GET['code']) {
     foreach ($values AS $value) {
         switch ($value['tag']) {
             case 'FIRST-NAME':
-                $contact['first_name'] = $value['value'];
+                $contact['first_name'] = (string) $value['value'];
                 break;
             case 'LAST-NAME':
-                $contact['last_name'] = $value['value'];
+                $contact['last_name'] = (string) $value['value'];
+                break;
+            case 'EMAIL-ADDRESS':
+                $contact['email'] = (string) $value['value'];
                 break;
             case 'HEADLINE':
-                $contact['headline'] = $value['value'];
+                $contact['headline'] = (string) $value['value'];
                 break;
             case 'PICTURE-URL':
-                $contact['picture_url'] = $value['value'];
+                $contact['picture_url'] = (string) $value['value'];
                 break;
             case 'URL':
-                $contact['url'] = $value['value'];
+                $contact['url'] = (string) $value['value'];
                 break;
             case 'NAME':
-                $contact['location'] = $value['value'];
+                $contact['location'] = (string) $value['value'];
                 break;
             case 'INDUSTRY':
-                $contact['industry'] = $value['value'];
+                $contact['industry'] = (string) $value['value'];
                 break;
         }
     }
+
+    $db->insert(
+        'senders',
+        array(
+            'sender',
+            'service',
+            'oauth_key'
+        ),
+        array(
+            $contact['email'],
+            '1',
+            $accessToken
+        ),
+        true
+    );
 ?>
 
 <html>
@@ -75,6 +95,10 @@ if (!$_GET['code']) {
 </head>
 
 <center>
+
+<br />
+<h1>Congratulations, Access2.me Has Validated You!</h1>
+<h3>Your Email has been sent.</h3>
 
   <div class="box">
     <div class="userbox">
@@ -99,6 +123,7 @@ if (!$_GET['code']) {
 
 <?php
 
+    $db->updateOne('messages', 'status', '2', 'from_email', $contact['email']);
 }
 
 ?>
