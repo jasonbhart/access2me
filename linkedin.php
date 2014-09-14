@@ -5,9 +5,9 @@ require_once __DIR__ . "/boot.php";
 $db = new Database;
 
 if (!$_GET['code']) {
-    header('Location: https://www.linkedin.com/uas/oauth2/authorization?response_type=code&client_id=75dl362rayg47t&state=ECEEFWF45453sdffef424&redirect_uri=' . $localUrl . '/a2m/linkedin.php');
+    header('Location: https://www.linkedin.com/uas/oauth2/authorization?response_type=code&client_id=75dl362rayg47t&state=ECEEFWF45453sdffef424&redirect_uri=' . $localUrl . '/a2m/linkedin.php%3Fmessage_id%3d' . $_GET['message_id']);
 } else {
-    $url = "https://www.linkedin.com/uas/oauth2/accessToken?grant_type=authorization_code&code=" . $_GET['code'] . "&redirect_uri=" . $localUrl . "/a2m/linkedin.php&client_id=75dl362rayg47t&client_secret=eCxKfjOpunoO9rSj";
+    $url = "https://www.linkedin.com/uas/oauth2/accessToken?grant_type=authorization_code&code=" . $_GET['code'] . "&redirect_uri=" . $localUrl . "/a2m/linkedin.php%3Fmessage_id%3d" . $_GET['message_id'] . "&client_id=75dl362rayg47t&client_secret=eCxKfjOpunoO9rSj";
 
     $cURL = curl_init();
 
@@ -73,6 +73,9 @@ if (!$_GET['code']) {
         }
     }
 
+    $query = "SELECT `from_email` FROM `messages` WHERE `id` = '" . $_GET['message_id'] . "' LIMIT 1;";
+    $message = $db->getArray($query);
+
     $db->insert(
         'senders',
         array(
@@ -81,7 +84,7 @@ if (!$_GET['code']) {
             'oauth_key'
         ),
         array(
-            $contact['email'],
+            $message[0]['from_email'],
             '1',
             $accessToken
         ),
@@ -123,7 +126,7 @@ if (!$_GET['code']) {
 
 <?php
 
-    $db->updateOne('messages', 'status', '2', 'from_email', $contact['email']);
+    $db->updateOne('messages', 'status', '2', 'from_email', $message[0]['from_email']);
 }
 
 ?>

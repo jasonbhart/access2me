@@ -15,7 +15,6 @@ $imap = new IMAP($params);
 $messages = $imap->getInbox();
 
 echo "<pre>";
-print_r($messages);
 
 foreach($messages AS $message) {
     $current['messageId'] = (string) $message['header']->message_id;
@@ -27,14 +26,19 @@ foreach($messages AS $message) {
                             (string) $message['header']->from[0]->host;
     $current['body']      = (string) $message['body'];
 
-    $current['userId'] = 1;
+    $destination = explode('@', $current['to']);
+
+    $query = "SELECT `id` FROM `users` WHERE `mailbox` = '" . $destination[0] . "' LIMIT 1;";
+    $userId = $db->getArray($query);
+
+    $current['userId'] = $userId[0]['id'];
 
     print_r($current);
 
     $db->insert(
         'messages',
         array(
-            'id',
+            'message_id',
             'user_id',
             'from_name',
             'from_email',
