@@ -21,7 +21,7 @@ foreach ($messages AS $message) {
     if (!$key[0]['oauth_key']) {
         $append  = $user[0]['name'] . ' (' . $user[0]['mailbox'] . '@access2.me) has requested that you verify your identity before communicating with them.';
         $append .= "<br /><br />";
-        $append .= 'Please click <a href="' . $localUrl . '/linkedin.php?message_id=' . $message['id'] . '">here</a> to verify by logging into your LinkedIn account.';
+        $append .= 'Please click <a href="' . $localUrl . '/verify.php?message_id=' . $message['id'] . '">here</a> to verify your identity by logging into your LinkedIn or Facebook account.';
 
         $params = array(
             'host'     => 'smtp.spamarrest.com',

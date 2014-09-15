@@ -27,7 +27,30 @@ if (!$_GET['code']) {
 
     $accessToken = (string) $json['access_token'];
 
-    $url = "https://api.linkedin.com/v1/people/~:(first-name,last-name,email-address,headline,industry,picture-url,site-standard-profile-request,location:(name))?oauth2_access_token=" . $accessToken;
+    $url  = "https://api.linkedin.com/v1/people/~:(";
+    $url .= "first-name,";
+    $url .= "last-name,";
+    $url .= "email-address,";
+    $url .= "headline,";
+    $url .= "industry,";
+    $url .= "picture-url,";
+    $url .= "site-standard-profile-request,";
+    $url .= "num-connections,";
+    $url .= "summary,";
+    $url .= "specialties,";
+    $url .= "associations,";
+    $url .= "interests,";
+    $url .= "num-recommenders,";
+    $url .= "recommendations-received,";
+    $url .= "phone-numbers,";
+    $url .= "im-accounts,";
+    $url .= "main-address,";
+    $url .= "twitter-accounts,";
+    $url .= "primary-twitter-account,";
+    $url .= "group-memberships,";
+    $url .= "positions,";
+    $url .= "location:(name))";
+    $url .= "?oauth2_access_token=" . $accessToken;
 
     $cURL = curl_init();
 
@@ -40,37 +63,29 @@ if (!$_GET['code']) {
     $result = curl_exec($cURL);
     curl_close($cURL);
 
-    $parser = xml_parser_create();
-    xml_parse_into_struct($parser, $result, $values, $index);
-    xml_parser_free($parser);
+    $xml = new SimpleXMLElement($result);
+    $data = $xml->xpath('/person');
 
-    foreach ($values AS $value) {
-        switch ($value['tag']) {
-            case 'FIRST-NAME':
-                $contact['first_name'] = (string) $value['value'];
-                break;
-            case 'LAST-NAME':
-                $contact['last_name'] = (string) $value['value'];
-                break;
-            case 'EMAIL-ADDRESS':
-                $contact['email'] = (string) $value['value'];
-                break;
-            case 'HEADLINE':
-                $contact['headline'] = (string) $value['value'];
-                break;
-            case 'PICTURE-URL':
-                $contact['picture_url'] = (string) $value['value'];
-                break;
-            case 'URL':
-                $contact['url'] = (string) $value['value'];
-                break;
-            case 'NAME':
-                $contact['location'] = (string) $value['value'];
-                break;
-            case 'INDUSTRY':
-                $contact['industry'] = (string) $value['value'];
-                break;
-        }
+    $contact['first_name'] = (isset($data[0]->{'first-name'})) ? (string) $data[0]->{'first-name'} : null;
+    $contact['last_name'] = (isset($data[0]->{'last-name'})) ? (string) $data[0]->{'last-name'} : null;
+    $contact['email'] = (isset($data[0]->{'email-address'})) ? (string) $data[0]->{'email-address'} : null;
+    $contact['headline'] = (isset($data[0]->{'headline'})) ? (string) $data[0]->{'headline'} : null;
+    $contact['picture_url'] = (isset($data[0]->{'picture-url'})) ? (string) $data[0]->{'picture-url'} : null;
+    $contact['profile_url'] = (isset($data[0]->{'site-standard-profile-request'}->{'url'})) ? (string) $data[0]->{'site-standard-profile-request'}->{'url'} : null;
+    $contact['location'] = (isset($data[0]->{'location'}->{'name'})) ? (string) $data[0]->{'location'}->{'name'} : null;
+    $contact['industry'] = (isset($data[0]->{'industry'})) ? (string) $data[0]->{'industry'} : null;
+    $contact['self_summary'] = (isset($data[0]->{'summary'})) ? (string) $data[0]->{'summary'} : null;
+    $contact['specialties'] = (isset($data[0]->{'specialties'})) ? (string) $data[0]->{'specialties'} : null;
+    $contact['associations'] = (isset($data[0]->{'associations'})) ? (string) $data[0]->{'associations'} : null;
+    $contact['interests'] = (isset($data[0]->{'interests'})) ? (string) $data[0]->{'interests'} : null;
+    $contact['total_connections'] = (isset($data[0]->{'num-connections'})) ? (string) $data[0]->{'num-connections'} : null;
+    $contact['total_positions'] = (isset($data[0]->{'positions'}->attributes()['total'][0])) ? (string) $data[0]->{'positions'}->attributes()['total'][0] : null;
+
+    for ($x = 0; $x < $contact['total_positions']; $x++) {
+        $contact['positions'][$x]['company'] = (string) $data[0]->{'positions'}->{'position'}[$x]->{'company'}->{'name'};
+        $contact['positions'][$x]['title'] = (string) $data[0]->{'positions'}->{'position'}[$x]->{'title'};
+        $contact['positions'][$x]['summary'] = (string) $data[0]->{'positions'}->{'position'}[$x]->{'summary'};
+        $contact['positions'][$x]['is_current'] = (string) $data[0]->{'positions'}->{'position'}[$x]->{'is-current'};
     }
 
     $query = "SELECT `from_email` FROM `messages` WHERE `id` = '" . $_GET['message_id'] . "' LIMIT 1;";

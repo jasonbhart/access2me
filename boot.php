@@ -9,7 +9,7 @@ require_once __DIR__ . "/logging.php";
 require_once __DIR__ . "/config/database.php";
 require_once __DIR__ . "/database.php";
 
-$localUrl = 'http://localhost';
+$localUrl = 'http://localhost/a2m';
 
 $facebookAuth = array(
     'appId'       => '325592287614687',
