@@ -23,14 +23,16 @@ DROP TABLE IF EXISTS `messages`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `messages` (
-  `id` varchar(120) NOT NULL,
+  `id` int(9) NOT NULL AUTO_INCREMENT,
+  `message_id` varchar(120) NOT NULL,
   `user_id` int(8) NOT NULL,
   `from_name` tinytext NOT NULL,
   `from_email` tinytext NOT NULL,
   `subject` tinytext NOT NULL,
   `body` text NOT NULL,
   `status` int(1) NOT NULL DEFAULT '0',
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `message_id` (`message_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -80,7 +82,7 @@ CREATE TABLE `users` (
   `email` varchar(64) NOT NULL,
   `name` varchar(64) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -89,7 +91,7 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (1,'dom','dom@leadwrench.com','Domenic R. Merenda'),(2,'jason','jbh@domainmethods.com','Jason B. Hart');
+INSERT INTO `users` VALUES (1,'dom','dom@leadwrench.com','Domenic R. Merenda'),(2,'jason','jbh@domainmethods.com','Jason B. Hart'),(3,'bruce','bruce@escapeapp.com','Bruce Pisetzner');
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -102,4 +104,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2014-09-12 23:37:21
+-- Dump completed on 2014-09-14 16:05:18

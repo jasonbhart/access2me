@@ -87,7 +87,7 @@ foreach ($messages AS $message) {
     $smtp->sendEmail(
         $to[0]['email'],
         $contact['first_name'] . " " . $contact['last_name'] . " (via Access2.me)",
-        $contact['email'],
+        $message['from_email'],
         $message['subject'],
         $append . $message['body'],
         true,

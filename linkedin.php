@@ -5,9 +5,9 @@ require_once __DIR__ . "/boot.php";
 $db = new Database;
 
 if (!$_GET['code']) {
-    header('Location: https://www.linkedin.com/uas/oauth2/authorization?response_type=code&client_id=75dl362rayg47t&state=ECEEFWF45453sdffef424&redirect_uri=' . $localUrl . '/a2m/linkedin.php%3Fmessage_id%3d' . $_GET['message_id']);
+    header('Location: https://www.linkedin.com/uas/oauth2/authorization?response_type=code&client_id=75dl362rayg47t&state=ECEEFWF45453sdffef424&redirect_uri=' . $localUrl . '/linkedin.php%3Fmessage_id%3d' . $_GET['message_id']);
 } else {
-    $url = "https://www.linkedin.com/uas/oauth2/accessToken?grant_type=authorization_code&code=" . $_GET['code'] . "&redirect_uri=" . $localUrl . "/a2m/linkedin.php%3Fmessage_id%3d" . $_GET['message_id'] . "&client_id=75dl362rayg47t&client_secret=eCxKfjOpunoO9rSj";
+    $url = "https://www.linkedin.com/uas/oauth2/accessToken?grant_type=authorization_code&code=" . $_GET['code'] . "&redirect_uri=" . $localUrl . "/linkedin.php%3Fmessage_id%3d" . $_GET['message_id'] . "&client_id=75dl362rayg47t&client_secret=eCxKfjOpunoO9rSj";
 
     $cURL = curl_init();
 
