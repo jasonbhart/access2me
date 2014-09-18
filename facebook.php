@@ -47,7 +47,10 @@ $graphObject = $response->getGraphObject();
 
 echo '<br /><img src="' . $graphObject->getProperty('url') . '">';
 
+$query = "SELECT `from_email` FROM `messages` WHERE `id` = '" . $_GET['message_id'] . "' LIMIT 1;";
+$message = $db->getArray($query);
+
 } else {
     $login_url = $helper->getLoginUrl();
-    echo '<a href="'.$login_url.'">Login with Facebook</a>';
+    header("Location: " . $login_url);
 }
