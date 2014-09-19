@@ -95,4 +95,40 @@ class Filter
         return true;
     }
     //--------------------------------------------------------------------------
+
+
+    static public function getFiltersByUserId($userId, Database $db) {
+        if (!$db) {
+            return false;
+        }
+
+        $query = "SELECT * FROM `" . self::TABLE_NAME . "` WHERE `user_id` = '" . $userId . "'";
+        $filters = $db->getArray($query);
+
+        if (!empty($filters)) {
+            return $filters;
+        } else {
+            return false;
+        }
+    }
+    //--------------------------------------------------------------------------
+
+
+    static public function getConditionNameByType($type) {
+        switch ($type) {
+            case '1':
+                return 'Must be equal to';
+            break;
+            case '2':
+                return 'Must NOT be equal to';
+            break;
+            case '3':
+                return 'Must be greater than';
+            break;
+            case '4':
+                return 'Must NOT be greater than';
+            break;
+        }
+    }
+    //--------------------------------------------------------------------------
 }

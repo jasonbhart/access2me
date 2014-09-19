@@ -4,6 +4,12 @@ require_once __DIR__ . "/boot.php";
 
 $db = new Database;
 
+$filters = Filter::getFiltersByUserId('1', new Database);
+echo serialize($filters);
+
+die();
+
+
 $key = 'AQVt-gDM8Qsgi_0h-Aj3tlECRVokoGQ6EXJrqqO7V_VHH-EmIStHO9lndwJdTYp8tlJbbYySWOBI-7mIpw_7hNs39RFHX4-FIf_7dMPx7iUNDcO9sALQKkWX2OWgGfyuRWVnLrPk2oHYQHQwuxpT3J27K6A_xX_HTdw-A6j3BLrSY45laa0';
 
 $url  = "https://api.linkedin.com/v1/people/~:(";

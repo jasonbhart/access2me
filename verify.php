@@ -19,7 +19,7 @@ require_once __DIR__ . "/boot.php";
 	<meta name="author" content="" />
 
 	<!-- CSS -->
-	<link rel="stylesheet" href="style/style.css" media="screen,projection" type="text/css" />
+	<link rel="stylesheet" href="css/style.css" media="screen,projection" type="text/css" />
 
 </head>
 
