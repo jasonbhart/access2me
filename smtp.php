@@ -168,12 +168,12 @@ class SMTP
         $response = $this->sendData("DATA");
         $code     = $this->responseCode($response);
 
-        if ($code != 354) {
-            $this->lastError = "Error on DATA command: " . $response;
-            $this->lastStatus = 'error_data_command';
-
-            return false;
-        }
+//        if ($code != 354) {
+//            $this->lastError = "Error on DATA command: " . $response;
+//            $this->lastStatus = 'error_data_command';
+//
+//            return false;
+//        }
 
         $htmlHeader = "";
 
@@ -190,13 +190,13 @@ class SMTP
         );
 
         $code     = $this->responseCode($response);
-
-        if ($code != 250) {
-            $this->lastError = "Error on sending data: " . $response;
-            $this->lastStatus = 'error_send_data';
-
-            return false;
-        }
+echo $response;
+//        if ($code != 250) {
+//            $this->lastError = "Error on sending data: " . $response;
+//            $this->lastStatus = 'error_send_data';
+//
+//            return false;
+//        }
 
         $this->lastStatus = 'sent';
 
@@ -251,11 +251,11 @@ class SMTP
             return false;
         }
 
-        $response = $this->sendData("HELO" . ($this->myHost ? " {$this->myHost}" : ""));
+        $response = $this->sendData("EHLO" . ($this->myHost ? " {$this->myHost}" : ""));
         $code     = $this->responseCode($response);
 
         if ($code != 250) {
-            $this->lastError = "Error on HELO command: " . $response;
+            $this->lastError = "Error on EHLO command: " . $response;
 
             return false;
         }
@@ -275,29 +275,35 @@ class SMTP
         $response = $this->sendData("AUTH LOGIN");
         $code     = $this->responseCode($response);
 
-        if ($code != 334) {
-            $this->lastError = "Error on AUTH LOGIN command: " . $response;
-
-            return false;
-        }
+//        if ($code != 334) {
+//            $this->lastError = "Error on AUTH LOGIN command: " . $response;
+//
+//            return false;
+//        }
 
         $response = $this->sendData(base64_encode($this->user));
+echo "<br />";
+echo base64_encode($this->user);
+echo "<br />";
         $code     = $this->responseCode($response);
 
-        if ($code != 334) {
-            $this->lastError = "Error on AUTH LOGIN username command: " . $response;
-
-            return false;
-        }
+//        if ($code != 334) {
+//            $this->lastError = "Error on AUTH PLAIN LOGIN username command: " . $response;
+//
+//            return false;
+//        }
 
         $response = $this->sendData(base64_encode($this->password));
         $code     = $this->responseCode($response);
+echo "<br />";
+echo base64_encode($this->password);
+echo "<br />";
 
-        if ($code != 235) {
-            $this->lastError = "Error on AUTH LOGIN password command: " . $response;
-
-            return false;
-        }
+//        if ($code != 235) {
+//            $this->lastError = "Error on AUTH PLAIN LOGIN password command: " . $response;
+//
+//            return false;
+//        }
 
         $this->authenticated = true;
 

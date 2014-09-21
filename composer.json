@@ -2,6 +2,7 @@
   "require" : {
     "facebook/php-sdk-v4" : "4.0.*",
     "fkooman/guzzle-bearer-auth-plugin": "dev-master",
-    "fkooman/php-oauth-client": "dev-master"
+    "fkooman/php-oauth-client": "dev-master",
+    "phpmailer/phpmailer": "dev-master"
   }
 }

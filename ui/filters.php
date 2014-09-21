@@ -133,7 +133,5 @@ foreach ($filters AS $filter) {
                 <?php } ?>
             </table>
     </div>
-
-
 </body>
 </html>
