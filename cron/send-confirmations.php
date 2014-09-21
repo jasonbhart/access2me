@@ -23,26 +23,32 @@ foreach ($messages AS $message) {
         $append .= "<br /><br />";
         $append .= 'Please click <a href="' . $localUrl . '/verify.php?message_id=' . $message['id'] . '">here</a> to verify your identity by logging into your LinkedIn or Facebook account.';
 
-        $params = array(
-            'host'     => 'smtp.spamarrest.com',
-            'port'     => 587,
-            'user'     => 'dmerenda',
-            'password' => 'drm+jlm'
-        );
+        $mail = new PHPMailer;
 
-        $smtp = new SMTP($params);
+        $mail->isSMTP();
+        $mail->Host = 'mail.access2.me';
+        $mail->SMTPAuth = true;
+        $mail->Username = 'noreply@access2.me';
+        $mail->Password = 'access123';
+        $mail->SMTPSecure = 'tls';
+        $mail->Port = 587;
 
-        $smtp->sendEmail(
-            $message['from_email'],
-            'Access2.me Verification',
-            'catchall@access2.me',
-            'Please verify to contact ' . $user[0]['name'],
-            $append,
-            true,
-            null
-        );
+        $mail->From = 'noreply@access2.me';
+        $mail->FromName = 'Access2.ME';
+        $mail->addAddress($message['from_email']);
+        $mail->XMailer = ' ';
+        $mail->Hostname = 'access2.me';
 
-        $db->updateOne('messages', 'status', '1', 'id', $message['id']);
+        $mail->isHTML(true);
+
+        $mail->Subject = 'Access2.ME Verification';
+        $mail->Body    = $append;
+
+        if(!$mail->send()) {
+            echo 'Mailer Error: ' . $mail->ErrorInfo;
+        } else {
+            $db->updateOne('messages', 'status', '1', 'id', $message['id']);
+        }
     } else {
         $db->updateOne('messages', 'status', '2', 'id', $message['id']);
     }

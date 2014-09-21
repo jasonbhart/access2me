@@ -3,7 +3,6 @@
 session_start();
 
 require_once __DIR__ . "/vendor/autoload.php";
-require_once __DIR__ . "/smtp.php";
 require_once __DIR__ . "/imap.php";
 require_once __DIR__ . "/filter.php";
 require_once __DIR__ . "/logging.php";
