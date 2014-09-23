@@ -14,11 +14,16 @@ if (empty($messages)) {
 foreach ($messages AS $message) {
     $query = "SELECT `oauth_key` FROM `senders` WHERE `sender` = '" . $message['from_email'] . "' LIMIT 1";
     $key = $db->getArray($query);
-
+    
     $query = "SELECT `mailbox`,`name` FROM `users` WHERE `id` = '" . $message['user_id'] . "' LIMIT 1";
     $user = $db->getArray($query);
 
     if (!$key[0]['oauth_key']) {
+
+        // Skip, we should wait 7 days, to send another authentification ...
+        if(DomainMessage::SenderWithAuthPendingThisWeek())
+            continue;
+
         $append  = $user[0]['name'] . ' (' . $user[0]['mailbox'] . '@access2.me) has requested that you verify your identity before communicating with them.';
         $append .= "<br /><br />";
         $append .= 'Please click <a href="' . $localUrl . '/verify.php?message_id=' . $message['id'] . '">here</a> to verify your identity by logging into your LinkedIn or Facebook account.';

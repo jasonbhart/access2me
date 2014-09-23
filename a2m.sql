@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 5.5.28, for osx10.6 (i386)
+-- MySQL dump 10.13  Distrib 5.6.17, for Win64 (x86_64)
 --
 -- Host: localhost    Database: a2m
 -- ------------------------------------------------------
--- Server version	5.5.28
+-- Server version	5.6.17
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -31,19 +31,11 @@ CREATE TABLE `messages` (
   `subject` tinytext NOT NULL,
   `body` text NOT NULL,
   `status` int(1) NOT NULL DEFAULT '0',
+  `date_auth_sent` datetime NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `message_id` (`message_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `messages`
---
-
-LOCK TABLES `messages` WRITE;
-/*!40000 ALTER TABLE `messages` DISABLE KEYS */;
-/*!40000 ALTER TABLE `messages` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `senders`
@@ -61,15 +53,6 @@ CREATE TABLE `senders` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `senders`
---
-
-LOCK TABLES `senders` WRITE;
-/*!40000 ALTER TABLE `senders` DISABLE KEYS */;
-/*!40000 ALTER TABLE `senders` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `users`
 --
 
@@ -84,16 +67,6 @@ CREATE TABLE `users` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `users`
---
-
-LOCK TABLES `users` WRITE;
-/*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (1,'dom','dom@leadwrench.com','Domenic R. Merenda'),(2,'jason','jbh@domainmethods.com','Jason B. Hart'),(3,'bruce','bruce@escapeapp.com','Bruce Pisetzner');
-/*!40000 ALTER TABLE `users` ENABLE KEYS */;
-UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -104,4 +77,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2014-09-14 16:05:18
+-- Dump completed on 2014-09-23 22:15:34
