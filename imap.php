@@ -124,6 +124,27 @@ class IMAP
 
     //--------------------------------------------------------------------------
 
+    public function getInboxAttachments($filter = 'ALL')
+    {
+        $inbox = $this->connect(); // connect to imap server to get messages.
+        $output = array();
+
+        if (!empty($inbox)) {
+            $emails = imap_search($inbox, $filter);
+
+            /* if emails are returned, cycle through each... */
+            if ($emails) {
+                $output = $this->getEmailMessages($inbox, $emails);
+            }
+        }
+
+        $this->connectionClose($inbox); // connection close
+
+        return $output;
+    }
+
+    //--------------------------------------------------------------------------
+
     public function getSpam($filter='UNSEEN')
     {
         $spamMailBoxes = $this->getSpamMailBoxes();
@@ -183,14 +204,27 @@ class IMAP
         foreach ($emails as $email_number) {
 
             /* get information specific to this email */
-            $overview = imap_fetch_overview($inbox, $email_number, 0);
-            $header   = imap_headerinfo($inbox, $email_number);
-            $body     = imap_body($inbox, $email_number);
+            $overview     = imap_fetch_overview($inbox, $email_number, 0);
+            $header       = imap_headerinfo($inbox, $email_number);
+            $headerDetail = imap_fetchheader($inbox, $email_number);
+            $structure    = imap_fetchstructure($inbox, $email_number);
+
+            $body = trim(utf8_decode(quoted_printable_decode(imap_fetchbody($inbox, $email_number, 2.1))));
+
+            if (empty($body)) {
+                $body = trim(utf8_decode(quoted_printable_decode(imap_fetchbody($inbox, $email_number, 2))));
+            }
+
+            if (empty($body)) {
+                $body = trim(utf8_decode(quoted_printable_decode(imap_fetchbody($inbox, $email_number, 1))));
+            }
 
             $output[] = array(
-                'overview' => $overview,
-                'header' => $header,
-                'body' => $body
+                'overview'     => $overview,
+                'header'       => $header,
+                'headerDetail' => $headerDetail,
+                'body'         => $body,
+                'structure'    => $structure
             );
         }
 

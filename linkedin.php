@@ -115,8 +115,7 @@ if (!$_GET['code']) {
 <center>
 
 <br />
-<h1>Congratulations, Access2.me Has Validated You!</h1>
-<h3>Your Email has been sent.</h3>
+<h1 style="color: #ffffff;">Congratulations, Access2.me Has Validated You!</h1>
 
   <div class="box">
     <div class="userbox">

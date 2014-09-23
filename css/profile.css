@@ -1,8 +1,6 @@
 html{height:100%;}
 body{
-  background: -webkit-radial-gradient(center, ellipse cover, #0039ad 0%,#323e4c 100%);
-  background: -moz-radial-gradient(center, ellipse cover, #0039ad 0%,#323e4c 100%);
-	background: -o-radial-gradient(center, ellipse cover, #0039ad 0%,#323e4c 100%);
+  background-color: #000000;
   font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
   font-weight: 300;
   font-size: 15px;
