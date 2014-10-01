@@ -31,6 +31,7 @@ CREATE TABLE `messages` (
   `subject` tinytext NOT NULL,
   `body` text NOT NULL,
   `status` int(1) NOT NULL DEFAULT '0',
+  `verify_requested_at` datetime NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `message_id` (`message_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
