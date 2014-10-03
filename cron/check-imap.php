@@ -17,6 +17,12 @@ $messages = $imap->getInbox();
 echo "<pre>";
 
 foreach($messages AS $message) {
+
+    // filter out not suitable messages
+    if (!\Access2Me\Helper\Email::isSuitable($message)) {
+        continue;
+    }
+
     $current['messageId'] = (string) $message['header']->message_id;
     $current['subject']   = (string) $message['overview'][0]->subject;
     $current['to']        = (string) $message['overview'][0]->to;
