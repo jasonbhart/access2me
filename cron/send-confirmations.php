@@ -39,11 +39,12 @@ foreach ($messages AS $message) {
             $mail->SMTPSecure = 'tls';
             $mail->Port = 587;
 
-            $mail->From = 'noreply@access2.me';
+            $mail->From = '';
             $mail->FromName = 'Access2.ME';
             $mail->addAddress($message['from_email']);
             $mail->XMailer = ' ';
             $mail->Hostname = 'access2.me';
+            $mail->addCustomHeader('Auto-Submitted', 'auto-replied');
 
             $mail->isHTML(true);
 
@@ -56,6 +57,8 @@ foreach ($messages AS $message) {
                 Helper::setVerifyRequested($message['id'], $db);
                 $verifyRequested = true;
             }
+
+            break;
         }
 
         if ($verifyRequested) {
