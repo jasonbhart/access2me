@@ -12,7 +12,7 @@ class Email
      * @param string $email
      * @return bool
      */
-    public static function isEmailValid($email)
+    public static function isAddressValid($email)
     {
         return preg_match('/[^@]+@[^@]+/', $email);
     }
@@ -33,7 +33,7 @@ class Email
 
             // do we have just address ?
             if (count($args) < 2) {
-                if (self::isEmailValid($args[0])) {
+                if (self::isAddressValid($args[0])) {
                     $addresses[] = array('mailbox' => $args[0]);
                 }
             } else {

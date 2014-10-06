@@ -1,5 +1,7 @@
 <?php
 
+use Access2Me\Helper;
+
 require_once __DIR__ . "/../boot.php";
 
 $db = new Database;
@@ -19,7 +21,7 @@ echo "<pre>";
 foreach($messages AS $message) {
 
     // filter out not suitable messages
-    if (!\Access2Me\Helper\Email::isSuitable($message)) {
+    if (!Helper\Email::isSuitable($message)) {
         continue;
     }
 

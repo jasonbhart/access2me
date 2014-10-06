@@ -1,5 +1,7 @@
 <?php
 
+use Access2Me\Helper;
+
 require_once __DIR__ . "/../boot.php";
 
 $db = new Database;
@@ -22,7 +24,7 @@ foreach ($messages AS $message) {
     if (!$key[0]['oauth_key']) {
 
         // did we already requested verification ?
-        $verifyRequested = Helper::isVerifyRequested($message['from_email'], $db);
+        $verifyRequested = Helper\SenderAuthentication::isRequested($message['from_email'], $db);
 
         if (!$verifyRequested) {
             $append  = $user[0]['name'] . ' (' . $user[0]['mailbox'] . '@access2.me) has requested that you verify your identity before communicating with them.';
@@ -54,11 +56,9 @@ foreach ($messages AS $message) {
             if(!$mail->send()) {
                 echo 'Mailer Error: ' . $mail->ErrorInfo;
             } else {
-                Helper::setVerifyRequested($message['id'], $db);
+                Helper\SenderAuthentication::setRequested($message['id'], $db);
                 $verifyRequested = true;
             }
-
-            break;
         }
 
         if ($verifyRequested) {

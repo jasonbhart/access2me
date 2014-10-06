@@ -8,8 +8,8 @@ require_once __DIR__ . "/filter.php";
 require_once __DIR__ . "/logging.php";
 require_once __DIR__ . "/config/database.php";
 require_once __DIR__ . "/database.php";
-require_once __DIR__ . "/helper.php";
-require_once __DIR__ . "/helper/email.php";
+require_once __DIR__ . "/helper/Email.php";
+require_once __DIR__ . "/helper/SenderAuthentication.php";
 
 if (getenv('DOM_DEV_MACHINE')) {
     $localUrl = 'http://localhost/a2m';
