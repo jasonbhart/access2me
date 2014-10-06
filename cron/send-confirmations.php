@@ -57,8 +57,6 @@ foreach ($messages AS $message) {
                 Helper::setVerifyRequested($message['id'], $db);
                 $verifyRequested = true;
             }
-
-            break;
         }
 
         if ($verifyRequested) {
