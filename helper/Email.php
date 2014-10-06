@@ -121,15 +121,15 @@ class Email
      */
     public static function isSuitable($message)
     {
+        // parse headers
+        $headers = self::parseHeaders($message['headerDetail']);
+
         /*
          Check to see if from or return-path is NULL or:
             owner-*
             *-request
             MAILER-DAEMON
-         */
-
-        $headers = self::parseHeaders($message['headerDetail']);
-
+        */
         $from = isset($headers['from']) && count($headers['from']) > 0
             ? $headers['from'][0]['mailbox'] : null;
         $retPath = isset($headers['return-path']) && count($headers['return-path']) > 0
@@ -142,6 +142,11 @@ class Email
             || $retPath == null
             || preg_match($pattern, $retPath) != 0
         ) {
+            return false;
+        }
+
+        // do not respond to automatically submitted emails
+        if (isset($headers['auto-submitted']) && $headers['auto-submitted'] != 'no') {
             return false;
         }
 
