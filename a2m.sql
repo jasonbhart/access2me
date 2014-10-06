@@ -30,8 +30,7 @@ CREATE TABLE `messages` (
   `from_email` tinytext NOT NULL,
   `subject` tinytext NOT NULL,
   `body` text NOT NULL,
-  `status` int(1) NOT NULL DEFAULT '0',
-  `verify_requested_at` datetime NULL,
+  `status` int(1) NOT NULL DEFAULT '0'
   PRIMARY KEY (`id`),
   UNIQUE KEY `message_id` (`message_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -94,6 +93,30 @@ LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
 INSERT INTO `users` VALUES (1,'dom','dom@leadwrench.com','Domenic R. Merenda'),(2,'jason','jbh@domainmethods.com','Jason B. Hart'),(3,'bruce','bruce@escapeapp.com','Bruce Pisetzner');
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
+UNLOCK TABLES;
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+
+-
+-- Table structure for table `auth_requests`
+--
+
+DROP TABLE IF EXISTS `auth_requests`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `auth_requests` (
+  `sender` varchar(64) NOT NULL,
+  `requested_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`sender`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `auth_requests`
+--
+
+LOCK TABLES `auth_requests` WRITE;
+/*!40000 ALTER TABLE `auth_requests` DISABLE KEYS */;
+/*!40000 ALTER TABLE `auth_requests` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
