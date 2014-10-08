@@ -45,7 +45,7 @@ foreach ($messages AS $message) {
 
             $mail->From = '';
             $mail->FromName = 'Access2.ME';
-            $mail->addAddress($sender);
+            $mail->addAddress($message['reply_email']);
             $mail->XMailer = ' ';
             $mail->Hostname = 'access2.me';
             $mail->addCustomHeader('Auto-Submitted', 'auto-replied');

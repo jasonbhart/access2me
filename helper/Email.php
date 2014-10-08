@@ -45,8 +45,9 @@ class Email
                 // address is defined ?
                 if ($mailbox) {
                     $address = array('mailbox' => $mailbox);
-                    if ($name)
+                    if ($name) {
                         $address['name'] = $name;
+                    }
                     $addresses[] = $address;
                 }
             }

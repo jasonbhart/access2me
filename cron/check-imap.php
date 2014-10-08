@@ -34,6 +34,12 @@ foreach($messages AS $message) {
                             (string) $message['header']->from[0]->host;
     $current['body']      = (string) $message['body'];
 
+    // parse headers to find Return-Path or From for reply_email
+    // TODO: This parsing should be moved to IMAP class
+    $headers = Helper\Email::parseHeaders($message['headerDetail']);
+    $current['reply_email'] = isset($headers['return-path'])
+        ? $headers['return-path'][0]['mailbox'] : $headers['from'][0]['mailbox'];
+
     $destination = explode('@', $current['to']);
 
     $destination[0] = trim($destination[0], '"');
@@ -52,6 +58,7 @@ foreach($messages AS $message) {
             'user_id',
             'from_name',
             'from_email',
+            'reply_email',
             'subject',
             'body'
         ),
@@ -60,6 +67,7 @@ foreach($messages AS $message) {
             $current['userId'],
             $current['from'],
             $current['fromEmail'],
+            $current['reply_email'],
             $current['subject'],
             $current['body']
         ),
