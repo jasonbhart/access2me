@@ -150,6 +150,16 @@ class Email
             return false;
         }
 
+        // check if message contains Content-Type header
+        if (empty($headers['content-type'])) {
+            $msg = sprintf(
+                "Message(%s) doesn't contain Content-Type header",
+                $message['header']->message_id
+            );
+            \Logging::getLogger()->info($msg);
+            return false;
+        }
+
         return true;
     }
 
