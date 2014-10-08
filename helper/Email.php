@@ -34,17 +34,17 @@ class Email
             // do we have just address ?
             if (count($args) < 2) {
                 if (self::isAddressValid($args[0])) {
-                    $addresses[] = array('mailbox' => $args[0]);
+                    $addresses[] = array('email' => $args[0]);
                 }
             } else {
                 // we have something like: Name <address>
 
                 $name = trim($args[0]);
-                $mailbox = trim(rtrim($args[1], '>'));
+                $email = trim(rtrim($args[1], '>'));
 
                 // address is defined ?
-                if ($mailbox) {
-                    $address = array('mailbox' => $mailbox);
+                if ($email) {
+                    $address = array('email' => $email);
                     if ($name) {
                         $address['name'] = $name;
                     }
@@ -132,9 +132,9 @@ class Email
             MAILER-DAEMON
         */
         $from = isset($headers['from']) && count($headers['from']) > 0
-            ? $headers['from'][0]['mailbox'] : null;
+            ? $headers['from'][0]['email'] : null;
         $retPath = isset($headers['return-path']) && count($headers['return-path']) > 0
-            ? $headers['return-path'][0]['mailbox'] : null;
+            ? $headers['return-path'][0]['email'] : null;
 
         $pattern = '/^MAILER-DAEMON|owner-.*|.*-request$/i';
 

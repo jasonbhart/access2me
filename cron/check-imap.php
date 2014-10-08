@@ -38,7 +38,7 @@ foreach($messages AS $message) {
     // TODO: This parsing should be moved to IMAP class
     $headers = Helper\Email::parseHeaders($message['headerDetail']);
     $current['reply_email'] = isset($headers['return-path'])
-        ? $headers['return-path'][0]['mailbox'] : $headers['from'][0]['mailbox'];
+        ? $headers['return-path'][0]['email'] : $headers['from'][0]['email'];
 
     $destination = explode('@', $current['to']);
 
