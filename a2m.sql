@@ -30,7 +30,7 @@ CREATE TABLE `messages` (
   `from_email` tinytext NOT NULL,
   `subject` tinytext NOT NULL,
   `body` text NOT NULL,
-  `status` int(1) NOT NULL DEFAULT '0'
+  `status` int(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   UNIQUE KEY `message_id` (`message_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -96,7 +96,7 @@ INSERT INTO `users` VALUES (1,'dom','dom@leadwrench.com','Domenic R. Merenda'),(
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
--
+--
 -- Table structure for table `auth_requests`
 --
 
