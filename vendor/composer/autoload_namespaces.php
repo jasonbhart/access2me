@@ -10,6 +10,7 @@ return array(
     'fkooman\\OAuth\\Client' => array($vendorDir . '/fkooman/php-oauth-client/src'),
     'fkooman\\Guzzle\\Plugin\\BearerAuth' => array($vendorDir . '/fkooman/guzzle-bearer-auth-plugin/src'),
     'Symfony\\Component\\EventDispatcher\\' => array($vendorDir . '/symfony/event-dispatcher'),
+    'Psr\\Log\\' => array($vendorDir . '/psr/log'),
     'Guzzle\\Tests' => array($vendorDir . '/guzzle/guzzle/tests'),
     'Guzzle' => array($vendorDir . '/guzzle/guzzle/src'),
 );

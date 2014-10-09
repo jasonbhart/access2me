@@ -1,5 +1,7 @@
 <?php
 
+use Access2Me\Helper;
+
 require_once __DIR__ . "/../boot.php";
 
 $db = new Database;
@@ -18,13 +20,15 @@ foreach ($messages AS $message) {
     $query = "SELECT `mailbox`,`name` FROM `users` WHERE `id` = '" . $message['user_id'] . "' LIMIT 1";
     $user = $db->getArray($query);
 
-    // send verification request to sender
+    // send authentication request to sender
     if (!$key[0]['oauth_key']) {
 
-        // did we already requested verification ?
-        $verifyRequested = Helper::isVerifyRequested($message['from_email'], $db);
+        $sender = $message['from_email'];
+        
+        // did we already requested authentication ?
+        $isAuthRequested = Helper\SenderAuthentication::isRequested($sender, $db);
 
-        if (!$verifyRequested) {
+        if (!$isAuthRequested) {
             $append  = $user[0]['name'] . ' (' . $user[0]['mailbox'] . '@access2.me) has requested that you verify your identity before communicating with them.';
             $append .= "<br /><br />";
             $append .= 'Please click <a href="' . $localUrl . '/verify.php?message_id=' . $message['id'] . '">here</a> to verify your identity by logging into your LinkedIn or Facebook account.';
@@ -39,11 +43,12 @@ foreach ($messages AS $message) {
             $mail->SMTPSecure = 'tls';
             $mail->Port = 587;
 
-            $mail->From = 'noreply@access2.me';
+            $mail->From = '';
             $mail->FromName = 'Access2.ME';
-            $mail->addAddress($message['from_email']);
+            $mail->addAddress($message['reply_email']);
             $mail->XMailer = ' ';
             $mail->Hostname = 'access2.me';
+            $mail->addCustomHeader('Auto-Submitted', 'auto-replied');
 
             $mail->isHTML(true);
 
@@ -53,12 +58,12 @@ foreach ($messages AS $message) {
             if(!$mail->send()) {
                 echo 'Mailer Error: ' . $mail->ErrorInfo;
             } else {
-                Helper::setVerifyRequested($message['id'], $db);
-                $verifyRequested = true;
+                Helper\SenderAuthentication::setRequested($sender, $db);
+                $isAuthRequested = true;
             }
         }
 
-        if ($verifyRequested) {
+        if ($isAuthRequested) {
             $db->updateOne('messages', 'status', '1', 'id', $message['id']);
         }
     } else {

@@ -1,5 +1,7 @@
 <?php
 
+use Access2Me\Helper;
+
 require_once __DIR__ . "/../boot.php";
 
 $db = new Database;
@@ -17,6 +19,12 @@ $messages = $imap->getInbox();
 echo "<pre>";
 
 foreach($messages AS $message) {
+
+    // filter out not suitable messages
+    if (!Helper\Email::isSuitable($message)) {
+        continue;
+    }
+
     $current['messageId'] = (string) $message['header']->message_id;
     $current['subject']   = (string) $message['overview'][0]->subject;
     $current['to']        = (string) $message['overview'][0]->to;
@@ -25,6 +33,12 @@ foreach($messages AS $message) {
                             '@' .
                             (string) $message['header']->from[0]->host;
     $current['body']      = (string) $message['body'];
+
+    // parse headers to find Return-Path or From for reply_email
+    // TODO: This parsing should be moved to IMAP class
+    $headers = Helper\Email::parseHeaders($message['headerDetail']);
+    $current['reply_email'] = isset($headers['return-path'])
+        ? $headers['return-path'][0]['email'] : $headers['from'][0]['email'];
 
     $destination = explode('@', $current['to']);
 
@@ -44,6 +58,7 @@ foreach($messages AS $message) {
             'user_id',
             'from_name',
             'from_email',
+            'reply_email',
             'subject',
             'body'
         ),
@@ -52,6 +67,7 @@ foreach($messages AS $message) {
             $current['userId'],
             $current['from'],
             $current['fromEmail'],
+            $current['reply_email'],
             $current['subject'],
             $current['body']
         ),
