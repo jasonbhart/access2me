@@ -2,3 +2,4 @@
 *domtest*
 /nbproject/
 *.log
+*.DS_*
