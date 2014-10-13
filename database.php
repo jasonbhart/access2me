@@ -17,11 +17,21 @@ class Database
                 $credentials->getPass(),
                 array(
                     PDO::ATTR_EMULATE_PREPARES => false,
-                    PDO::ATTR_ERRMODE          => PDO::ERRMODE_EXCEPTION)
+                    PDO::ATTR_ERRMODE          => PDO::ERRMODE_EXCEPTION,
+                    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC)
             );
         } catch (PDOException $e) {
             Logging::logDBErrorAndExit($e->getMessage());
         }
+    }
+    //--------------------------------------------------------------------------
+
+    /**
+     * @return \PDO
+     */
+    public function getConnection()
+    {
+        return $this->link;
     }
     //--------------------------------------------------------------------------
 
