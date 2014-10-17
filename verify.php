@@ -51,6 +51,7 @@ require_once __DIR__ . "/boot.php";
 						<ul>
 							<li><a href="<?php echo $localUrl; ?>/linkedin.php?message_id=<?php echo $_GET['message_id']; ?>"><img src="images/linkedin.png"></a></li>
 							<li><a href="<?php echo $localUrl; ?>/facebook.php?message_id=<?php echo $_GET['message_id']; ?>"><img src="images/facebook.png"></a></li>
+                                                        <li><a href="<?php echo $localUrl; ?>/twitter.php?message_id=<?php echo $_GET['message_id']; ?>"><img src="images/twitter.png"></a></li>
 						</ul>
 
 						<div class="clear"></div>

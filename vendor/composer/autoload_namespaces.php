@@ -6,6 +6,7 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
+    'tmhOAuth' => array($vendorDir . '/themattharris/tmhoauth'),
     'fkooman\\OAuth\\Common\\' => array($vendorDir . '/fkooman/oauth-common/src'),
     'fkooman\\OAuth\\Client' => array($vendorDir . '/fkooman/php-oauth-client/src'),
     'fkooman\\Guzzle\\Plugin\\BearerAuth' => array($vendorDir . '/fkooman/guzzle-bearer-auth-plugin/src'),

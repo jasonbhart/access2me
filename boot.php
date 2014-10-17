@@ -10,6 +10,7 @@ require_once __DIR__ . "/config/database.php";
 require_once __DIR__ . "/database.php";
 require_once __DIR__ . "/helper/Email.php";
 require_once __DIR__ . "/helper/Facebook.php";
+require_once __DIR__ . "/helper/Twitter.php";
 require_once __DIR__ . "/helper/SenderAuthentication.php";
 require_once __DIR__ . "/model/MessageRepository.php";
 require_once __DIR__ . "/model/SenderRepository.php";
@@ -33,4 +34,11 @@ $facebookAuth = array(
 $linkedinAuth = array(
     'clientId'     => '75dl362rayg47t',
     'clientSecret' => 'eCxKfjOpunoO9rSj'
+);
+
+$twitterAuth = array(
+    'consumer_key' => 'eMnDyDghuEznqBGUE9C48LINs',
+    'consumer_secret' => 'MGbLx83IbgGeRcp5ColG8CcDY6KUgfK3xBmoXm1342aHj5rrmw',
+    'callback_url' => 'http://app.access2.me/twitter.php',
+    //'user_agent' => 'access2.me'
 );

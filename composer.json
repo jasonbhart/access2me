@@ -4,6 +4,7 @@
         "fkooman/guzzle-bearer-auth-plugin": "dev-master",
         "fkooman/php-oauth-client": "dev-master",
         "phpmailer/phpmailer": "dev-master",
-        "monolog/monolog": "~1.11"
+        "monolog/monolog": "~1.11",
+        "themattharris/tmhoauth": "~0.8"
     }
 }

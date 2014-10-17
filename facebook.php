@@ -53,9 +53,11 @@ try {
         $session = $session->getLongLivedSession();
         
         // store auth token for the later use
-        $sender['sender'] = $message['from_email'];
-        $sender['service'] = Model\SenderRepository::SERVICE_FACEBOOK;
-        $sender['oauth_key'] = $session->getToken();
+        $sender = array(
+            'sender' => $message['from_email'],
+            'service' => Model\SenderRepository::SERVICE_FACEBOOK,
+            'oauth_key' => $session->getToken()
+        );
 
         $senderRepo = new Model\SenderRepository($db);
         $senderRepo->insert($sender);
