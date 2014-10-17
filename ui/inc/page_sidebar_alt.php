@@ -75,7 +75,7 @@ $userData = $db->getArray($sql);
                         </div>
                     </div>
                     <div class="form-group remove-margin">
-                        <button type="submit" class="btn btn-effect-ripple btn-primary" onclick="App.sidebar('close-sidebar-alt');">Save</button>
+                        <button type="submit" class="btn btn-effect-ripple btn-primary" onclick="window.location.href='login.php?action=logout';">Logout</button>
                     </div>
                 </form>
             </div>

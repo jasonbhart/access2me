@@ -5,6 +5,7 @@
         "fkooman/php-oauth-client": "dev-master",
         "phpmailer/phpmailer": "dev-master",
         "monolog/monolog": "~1.11",
-        "themattharris/tmhoauth": "~0.8"
+        "themattharris/tmhoauth": "~0.8",
+        "google/apiclient": "1.0.*@beta"
     }
 }

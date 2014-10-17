@@ -30,6 +30,15 @@ if ($_POST) {
     }
 }
 
+if ($_GET['action'] == 'logout') {
+    unset($_COOKIE['a2muser']);
+    unset($_COOKIE['a2mauth']);
+    setcookie('a2muser', null, -1, '/');
+    setcookie('a2mauth', null, -1, '/');
+
+    header('Location: login.php');
+}
+
 ?>
 
 <?php include 'inc/config.php'; ?>

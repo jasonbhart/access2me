@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "b050f287396b687baeba605be88b26fc",
+    "hash": "3370e97e6a7fb2b71254e94677174186",
     "packages": [
         {
             "name": "facebook/php-sdk-v4",
@@ -136,12 +136,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/fkooman/php-oauth-client.git",
-                "reference": "f733d29c870df3852ee3d91f211e5f5ebc8847ed"
+                "reference": "9bd9cc3efa11f1ac5150d9b714545f71334779f7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/fkooman/php-oauth-client/zipball/f733d29c870df3852ee3d91f211e5f5ebc8847ed",
-                "reference": "f733d29c870df3852ee3d91f211e5f5ebc8847ed",
+                "url": "https://api.github.com/repos/fkooman/php-oauth-client/zipball/9bd9cc3efa11f1ac5150d9b714545f71334779f7",
+                "reference": "9bd9cc3efa11f1ac5150d9b714545f71334779f7",
                 "shasum": ""
             },
             "require": {
@@ -168,7 +168,52 @@
                 }
             ],
             "description": "PHP OAuth 2.0 Client",
-            "time": "2014-09-11 21:14:01"
+            "time": "2014-09-25 09:41:10"
+        },
+        {
+            "name": "google/apiclient",
+            "version": "1.0.6-beta",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/google/google-api-php-client.git",
+                "reference": "a41a9dc0662e36420030eaab802dbb1f85459479"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/google/google-api-php-client/zipball/a41a9dc0662e36420030eaab802dbb1f85459479",
+                "reference": "a41a9dc0662e36420030eaab802dbb1f85459479",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.2.1"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "3.7.*"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.0.x-dev"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "include-path": [
+                "src/"
+            ],
+            "license": [
+                "Apache-2.0"
+            ],
+            "description": "Client library for Google APIs",
+            "homepage": "http://developers.google.com/api-client-library/php",
+            "keywords": [
+                "google"
+            ],
+            "time": "2014-09-30 19:33:59"
         },
         {
             "name": "guzzle/guzzle",
@@ -340,12 +385,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHPMailer/PHPMailer.git",
-                "reference": "e43b2649175d076e01a695c3897c547d89ca05ed"
+                "reference": "09d40c428f11092f7cce16405594df3f0a348d5a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PHPMailer/PHPMailer/zipball/e43b2649175d076e01a695c3897c547d89ca05ed",
-                "reference": "e43b2649175d076e01a695c3897c547d89ca05ed",
+                "url": "https://api.github.com/repos/PHPMailer/PHPMailer/zipball/09d40c428f11092f7cce16405594df3f0a348d5a",
+                "reference": "09d40c428f11092f7cce16405594df3f0a348d5a",
                 "shasum": ""
             },
             "require": {
@@ -385,7 +430,7 @@
                 }
             ],
             "description": "PHPMailer is a full-featured email creation and transfer class for PHP",
-            "time": "2014-09-11 11:06:54"
+            "time": "2014-10-15 09:06:58"
         },
         {
             "name": "psr/log",
@@ -427,17 +472,17 @@
         },
         {
             "name": "symfony/event-dispatcher",
-            "version": "v2.5.4",
+            "version": "v2.5.5",
             "target-dir": "Symfony/Component/EventDispatcher",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/EventDispatcher.git",
-                "reference": "8faf5cc7e80fde74a650a36e60d32ce3c3e0457b"
+                "reference": "f6281337bf5f985f585d1db6a83adb05ce531f46"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/EventDispatcher/zipball/8faf5cc7e80fde74a650a36e60d32ce3c3e0457b",
-                "reference": "8faf5cc7e80fde74a650a36e60d32ce3c3e0457b",
+                "url": "https://api.github.com/repos/symfony/EventDispatcher/zipball/f6281337bf5f985f585d1db6a83adb05ce531f46",
+                "reference": "f6281337bf5f985f585d1db6a83adb05ce531f46",
                 "shasum": ""
             },
             "require": {
@@ -446,7 +491,7 @@
             "require-dev": {
                 "psr/log": "~1.0",
                 "symfony/config": "~2.0",
-                "symfony/dependency-injection": "~2.0",
+                "symfony/dependency-injection": "~2.0,<2.6.0",
                 "symfony/stopwatch": "~2.2"
             },
             "suggest": {
@@ -480,7 +525,7 @@
             ],
             "description": "Symfony EventDispatcher Component",
             "homepage": "http://symfony.com",
-            "time": "2014-07-28 13:20:46"
+            "time": "2014-09-28 15:56:11"
         },
         {
             "name": "themattharris/tmhoauth",
@@ -531,7 +576,8 @@
     "stability-flags": {
         "fkooman/guzzle-bearer-auth-plugin": 20,
         "fkooman/php-oauth-client": 20,
-        "phpmailer/phpmailer": 20
+        "phpmailer/phpmailer": 20,
+        "google/apiclient": 10
     },
     "prefer-stable": false,
     "platform": [],
