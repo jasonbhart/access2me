@@ -66,7 +66,7 @@ try {
         $contact = $fbHelper->getContactInfo();
         
         // show user auth completed
-        require_once 'views/auth_complete.html';
+        require_once 'views/auth_completed.html';
 
     } else {
         // not logged in - ask to login
