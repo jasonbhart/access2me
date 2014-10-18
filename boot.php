@@ -12,8 +12,10 @@ require_once __DIR__ . "/helper/Email.php";
 require_once __DIR__ . "/helper/Facebook.php";
 require_once __DIR__ . "/helper/Twitter.php";
 require_once __DIR__ . "/helper/SenderAuthentication.php";
+require_once __DIR__ . "/helper/SenderProfileProvider.php";
 require_once __DIR__ . "/model/MessageRepository.php";
 require_once __DIR__ . "/model/SenderRepository.php";
+require_once __DIR__ . "/model/Sender.php";
 
 if (getenv('DOM_DEV_MACHINE')) {
     $localUrl = 'http://localhost/a2m';
@@ -27,7 +29,12 @@ $facebookAuth = array(
     'redirect'    => $localUrl . '/facebook.php',
     'permissions' => array(
         'public_profile',
-        // 'user_location'
+        'email',
+//        'user_about_me',
+//        'user_birthday',
+//        'user_location',
+//        'user_website',
+//        'user_work_history'
     )
 );
 

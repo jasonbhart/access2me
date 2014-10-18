@@ -57,6 +57,8 @@ CREATE TABLE `senders` (
   `sender` varchar(64) NOT NULL,
   `service` int(3) NOT NULL,
   `oauth_key` tinytext NOT NULL,
+  `profile` text NULL,
+  `profile_date` datetime NULL,
   PRIMARY KEY (`sender`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
