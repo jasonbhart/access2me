@@ -104,6 +104,22 @@ class IMAP
 
     //--------------------------------------------------------------------------
 
+
+    public function deleteMessage($uid) {
+        try {
+            $inbox = $this->connect();
+
+            imap_delete($inbox, $uid, FT_UID);
+
+            return true;
+        } catch (Exception $e) {
+
+            return false;
+        }
+    }
+    //--------------------------------------------------------------------------
+
+
     public function getInbox($filter = 'ALL')
     {
         $inbox = $this->connect(); // connect to imap server to get messages.
