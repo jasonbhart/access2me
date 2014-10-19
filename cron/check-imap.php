@@ -40,11 +40,9 @@ foreach($messages AS $message) {
     $current['reply_email'] = isset($headers['return-path'])
         ? $headers['return-path'][0]['email'] : $headers['from'][0]['email'];
 
-    $destination = explode('@', $current['to']);
+    $destination = trim($current['to']);
 
-    $destination[0] = trim($destination[0], '"');
-
-    $query = "SELECT `id` FROM `users` WHERE `mailbox` = '" . $destination[0] . "' LIMIT 1;";
+    $query = "SELECT `id` FROM `users` WHERE `mailbox` = '" . $destination . "' LIMIT 1;";
     $userId = $db->getArray($query);
 
     $current['userId'] = $userId[0]['id'];

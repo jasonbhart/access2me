@@ -110,6 +110,7 @@ class IMAP
             $inbox = $this->connect();
 
             imap_delete($inbox, $uid, FT_UID);
+            imap_expunge($inbox);
 
             return true;
         } catch (Exception $e) {
