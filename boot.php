@@ -12,12 +12,17 @@ require_once __DIR__ . "/config/database.php";
 require_once __DIR__ . "/database.php";
 require_once __DIR__ . "/helper/Email.php";
 require_once __DIR__ . "/helper/Facebook.php";
+require_once __DIR__ . "/helper/Linkedin.php";
 require_once __DIR__ . "/helper/Twitter.php";
 require_once __DIR__ . "/helper/SenderAuthentication.php";
 require_once __DIR__ . "/helper/SenderProfileProvider.php";
 require_once __DIR__ . "/model/MessageRepository.php";
 require_once __DIR__ . "/model/SenderRepository.php";
 require_once __DIR__ . "/model/Sender.php";
+require_once __DIR__ . "/ProfileProvider/ProfileProviderInterface.php";
+require_once __DIR__ . "/ProfileProvider/Facebook.php";
+require_once __DIR__ . "/ProfileProvider/Linkedin.php";
+require_once __DIR__ . "/ProfileProvider/Twitter.php";
 
 if (getenv('DOM_DEV_MACHINE')) {
     $localUrl = 'http://localhost/a2m';

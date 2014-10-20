@@ -44,7 +44,7 @@ try {
         }
 
         // upgrade token to Access token
-        $authToken = $twitter->upgradeToAccessToken(
+        $authToken = $twitter->upgradeRequestToken(
             $tempToken,
             $verifier
         );
