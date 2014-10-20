@@ -6,16 +6,70 @@ use Facebook\FacebookRequest;
 use Facebook\FacebookSession;
 use Facebook\GraphUser;
 
+/**
+ * Facebook internally requires appId/secret,
+ * but for some methods there is no way to specify them.
+ * So you need to call
+ * FacebookSession::setDefaultApplication($appId, $appSecret);
+ * before calling methods of this class.
+ */
 class Facebook
 {
+    protected $session;
+
+    /**
+     * @param string|Facebook\FacebookSession $oauthToken oauth token or session object
+     */
+    public function __construct($oauthToken)
+    {
+        if ($oauthToken instanceof FacebookSession) {
+            $this->session = $oauthToken;
+        } else {
+            $this->session = new FacebookSession($oauthToken);
+        }
+    }
+
+    public function getSession()
+    {
+        return $this->session;
+    }
+    
+    /**
+     * Validates facebook session
+     * 
+     * @return boolean
+     */
+    public function validate()
+    {
+        return $this->getSession()->validate();
+    }
+
+    public function getPictureUrl()
+    {
+        $request = new FacebookRequest(
+            $this->getSession(),
+            'GET',
+            '/me/picture',
+            array(
+                'redirect' => false,
+                'height' => '200',
+                'type' => 'normal',
+                'width' => '200',
+            )
+        );
+        
+        $response = $request->execute();
+        $graphObject = $response->getGraphObject();
+        
+        return $graphObject->getProperty('url');
+    }
+    
     /**
      * Collect data for showing to user after successful authentication
-     * 
-     * @param Facebook\FacebookSession $session
      */
-    public static function getContactInfo(FacebookSession $session)
+    public function getContactInfo()
     {
-        $request = new FacebookRequest($session, 'GET', '/me');
+        $request = new FacebookRequest($this->getSession(), 'GET', '/me');
         $userProfile = $request->execute()->getGraphObject(GraphUser::className());
 
         $contact = array(
@@ -29,22 +83,7 @@ class Facebook
             ? self::formatLocation($userProfile->getLocation()) : null;
 
         // fetch picture
-        $request = new FacebookRequest(
-            $session,
-            'GET',
-            '/me/picture',
-            array(
-                'redirect' => false,
-                'height' => '200',
-                'type' => 'normal',
-                'width' => '200',
-            )
-        );
-
-        $response = $request->execute();
-        $graphObject = $response->getGraphObject();
-
-        $contact['picture_url'] = $graphObject->getProperty('url');
+        $contact['picture_url'] = $this->getPictureUrl();
         
         return $contact;
     }
@@ -89,22 +128,50 @@ class Facebook
     /**
      * Check that user allowed required permission
      * 
+     * @param array $requiredPerms required permissions
      * @return boolean
      */
-    public static function validatePermissions(FacebookSession $session, $requiredPerms)
+    public function validatePermissions($requiredPerms)
     {
-        $request = new FacebookRequest($session, 'GET', '/me/permissions');
+        $request = new FacebookRequest($this->getSession(), 'GET', '/me/permissions');
         $data = $request->execute()->getGraphObject();
 
         $permissions = array();
         foreach ($data->getPropertyNames() as $name) {
             $perm = $data->getProperty($name);
-            $permissions[] = $perm->getProperty('permission');
+            if ($perm->getProperty('status') == 'granted') {
+                $permissions[] = $perm->getProperty('permission');
+            }
         }
 
         $missing = array_diff($requiredPerms, $permissions);
 
         return count($missing) == 0;
+    }
+
+    /**
+     * Returns data required for profile page
+     */
+    public function getProfile()
+    {
+        $request = new FacebookRequest($this->getSession(), 'GET', '/me');
+        $gobject = $request->execute()->getGraphObject();
+
+        // get profile data
+        $profile = array(
+            'name' => $gobject->getProperty('name'),
+            'email' => $gobject->getProperty('email'),
+            'biography' => $gobject->getProperty('bio'),
+            'birthday' => $gobject->getProperty('birthday'),
+            'gender' => $gobject->getProperty('gender'),
+            'link' => $gobject->getProperty('link'),
+            'location' => $gobject->getProperty('location'),
+            'website' => $gobject->getProperty('website'),
+            'work' => $gobject->getProperty('work'),
+            'picture_url' => $this->getPictureUrl()
+        );
+        
+        return $profile;
     }
     
 }

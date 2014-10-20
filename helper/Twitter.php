@@ -4,11 +4,6 @@ namespace Access2Me\Helper;
 
 class TwitterException extends \Exception
 {
-//    public function __construct($message, $code, $previous)
-//    {
-//        parent::__construct($message, $code, $previous);
-//    }
-    
     public function __toString()
     {
         return 'Twitter exception: ' . $this->message;
@@ -253,5 +248,10 @@ class Twitter
         );
         
         return $contact;
+    }
+
+    public function getProfile($token)
+    {
+        
     }
 }

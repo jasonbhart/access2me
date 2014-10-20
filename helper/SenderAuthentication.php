@@ -21,9 +21,13 @@ class SenderAuthentication
      */
     private static function getRequestedAt($email, \Database $db)
     {
-        // FIXME: sql injection possibility
-        $query = "SELECT `requested_at` FROM `auth_requests` WHERE `sender` = '" . $email . "'";
-        $result = $db->getArray($query);
+        $query = "SELECT `requested_at` FROM `auth_requests` WHERE `sender` = :email";
+
+        $conn = $db->getConnection();
+        $st = $conn->prepare($query);
+        $st->bindValue(':email', $email);
+        $st->execute();
+        $result = $st->fetchAll();
 
         if ($result !== false) {
             $result = $result[0]['requested_at'];

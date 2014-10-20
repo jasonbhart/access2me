@@ -44,8 +44,9 @@ try {
 
     // are we logged in to facebook ?
     if ($session) {
+        $fbHelper = new Helper\Facebook($session);
         // validate permissions
-        if (!Helper\Facebook::validatePermissions($session, $facebookAuth['permissions'])) {
+        if (!$fbHelper->validatePermissions($facebookAuth['permissions'])) {
             throw new \Exception('Missing some required permissions!');
         }
 
@@ -53,20 +54,19 @@ try {
         $session = $session->getLongLivedSession();
         
         // store auth token for the later use
-        $sender = array(
-            'sender' => $message['from_email'],
-            'service' => Model\SenderRepository::SERVICE_FACEBOOK,
-            'oauth_key' => $session->getToken()
-        );
+        $sender = new Model\Sender();
+        $sender->setSender($message['from_email']);
+        $sender->setService(Model\SenderRepository::SERVICE_FACEBOOK);
+        $sender->setOAuthKey($session->getToken());
 
         $senderRepo = new Model\SenderRepository($db);
         $senderRepo->insert($sender);
 
         // get data for congratulation page
-        $contact = Helper\Facebook::getContactInfo($session);
+        $contact = $fbHelper->getContactInfo();
         
         // show user auth completed
-        require_once 'views/auth_complete.html';
+        require_once 'views/auth_completed.html';
 
     } else {
         // not logged in - ask to login

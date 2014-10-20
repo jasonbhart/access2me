@@ -18,10 +18,76 @@ class SenderRepository
     }
 
     /**
+     * OAuthKey is stored in json format because
+     * Facebook's auth token is string and Twitter's token consists of
+     * two values so it is array.
+     * 
+     * @param string|array $oauthKey
+     */
+    protected function encodeOAuthKey($oauthKey)
+    {
+        return json_encode($oauthKey);
+    }
+
+    protected function decodeOAuthKey($encodedOAuthKey)
+    {
+        return json_decode($encodedOAuthKey, true);
+    }
+
+     /**
+     * Encodes profile to be stored in database
+     * 
+     * @param string|array $profile
+     */
+    protected function encodeProfile($profile)
+    {
+        return json_encode($profile);
+    }
+
+    protected function decodeProfile($profile)
+    {
+        return json_decode($profile, true);
+    }
+
+    protected function encodeProfileDate($dt)
+    {
+        return $dt instanceof \DateTime ? $dt->format('Y-m-d H:i:s') : null;
+    }
+
+    protected function decodeProfileDate($dt)
+    {
+        try {
+            return !empty($dt) ? new \DateTime($dt) : null;
+        } catch (\Exception $ex) {
+            return null;
+        }
+    }
+    
+    /**
+     * Helper method to decode values in all passed objects
+     * 
+     * @param Sender|Sender[] $senders
+     */
+    protected function decodeSenders($senders)
+    {
+        if (is_object($senders)) {
+            $senders->setOAuthKey($this->decodeOAuthKey($senders->getOAuthKey()));
+            $senders->setProfile($this->decodeProfile($senders->getProfile()));
+            $senders->setProfileDate($this->decodeProfileDate($senders->getProfileDate()));
+        } else {
+            foreach ($senders as $sender) {
+                $sender->setOAuthKey($this->decodeOAuthKey($sender->getOAuthKey()));
+                $sender->setProfile($this->decodeProfile($sender->getProfile()));
+                $sender->setProfileDate($this->decodeProfileDate($sender->getProfileDate()));
+            }
+        }
+    }
+
+    /**
      * Returns list of sender authenticated services
      * 
      * @param string $email
-     * @return array
+     * @return Sender[]
      */
     public function getByEmail($email)
     {
@@ -29,11 +95,14 @@ class SenderRepository
         
         $conn = $this->db->getConnection();
         $st = $conn->prepare($query);
+        $st->setFetchMode(\PDO::FETCH_CLASS, '\\Access2Me\\Model\\Sender');
         $st->bindValue(':email', $email);
         $st->execute();
-        $sender = $st->fetchAll();
+        $senders = $st->fetchAll();
+
+        $this->decodeSenders($senders);
         
-        return $sender;
+        return $senders;
     }
 
     /**
@@ -50,15 +119,21 @@ class SenderRepository
 
         $conn = $this->db->getConnection();
         $st = $conn->prepare($query);
+        $st->setFetchMode(\PDO::FETCH_CLASS, '\\Access2Me\\Model\\Sender');
         $st->bindValue(':email', $email);
         $st->bindValue(':service', $service, \PDO::PARAM_INT);
         $st->execute();
         $sender = $st->fetch();
         $st->closeCursor();
         
+        $this->decodeSenders($sender);
+
         return $sender !== false ? $sender : null;
     }
 
+    /**
+     * @param Sender $sender
+     */
     public function insert($sender)
     {
         $this->db->insert(
@@ -66,14 +141,40 @@ class SenderRepository
             array(
                 'sender',
                 'service',
-                'oauth_key'
+                'oauth_key',
+                'profile',
+                'profile_date'
             ),
             array(
-                $sender['sender'],
-                $sender['service'],
-                $sender['oauth_key']
+                $sender->getSender(),
+                $sender->getService(),
+                $this->encodeOAuthKey($sender->getOAuthKey()),
+                $this->encodeProfile($sender->getProfile()),
+                $this->encodeProfileDate($sender->getProfileDate())
             ),
             true
         );
+    }
+
+    /**
+     * @param Sender $sender
+     */
+    public function update($sender)
+    {
+        $query = "UPDATE `" . self::TABLE_NAME ."`"
+            . ' SET'
+            . ' oauth_key = :oauth_key, '
+            . ' profile = :profile, '
+            . ' profile_date = :profile_date '
+            . ' WHERE `sender` = :sender AND `service` = :service';
+
+            $conn = $this->db->getConnection();
+        $st = $conn->prepare($query);
+        $st->bindValue(':oauth_key', $this->encodeOAuthKey($sender->getOAuthKey()));
+        $st->bindValue(':profile', $this->encodeProfile($sender->getProfile()));
+        $st->bindValue(':profile_date', $this->encodeProfileDate($sender->getProfileDate()));
+        $st->bindValue(':sender', $sender->getSender());
+        $st->bindValue(':service', $sender->getService());
+        $st->execute();
     }
 }
