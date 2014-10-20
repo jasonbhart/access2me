@@ -84,6 +84,8 @@ CREATE TABLE `users` (
   `mailbox` varchar(64) NOT NULL,
   `email` varchar(64) NOT NULL,
   `name` varchar(64) NOT NULL,
+  `username` varchar(64) NOT NULL,
+  `password` varchar(64) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -94,10 +96,38 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (1,'dom','dom@leadwrench.com','Domenic R. Merenda'),(2,'jason','jbh@domainmethods.com','Jason B. Hart'),(3,'bruce','bruce@escapeapp.com','Bruce Pisetzner');
+INSERT INTO `users` (`id`, `mailbox`, `email`, `name`, `username`, `password`) VALUES
+(1, 'dmerenda@gmail.com', 'dom@leadwrench.com', 'Domenic R. Merenda', 'edgeprod', '41141571bb2bb18ad03a1a9227794489'),
+(2, 'jasonbhart@gmail.com', 'jbh@domainmethods.com', 'Jason B. Hart', 'souther', '1822701cf2c52534d591b08ccbe25a83'),
+(3, 'brpisetzner@gmail.com', 'brpisetzner@gmail.com', 'Bruce Pisetzner', '', '');
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
-/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+
+--
+-- Table structure for table `filters`
+--
+
+DROP TABLE IF EXISTS `filters`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE IF NOT EXISTS `filters` (
+  `id` int(9) NOT NULL AUTO_INCREMENT,
+  `user_id` int(9) NOT NULL,
+  `type` int(1) NOT NULL,
+  `field` varchar(100) NOT NULL,
+  `value` varchar(100) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=5 ;
+
+--
+-- Dumping data for table `filters`
+--
+
+INSERT INTO `filters` (`id`, `user_id`, `type`, `field`, `value`) VALUES
+(1, 1, 3, 'total_positions', '3'),
+(2, 1, 4, 'total_connections', '50'),
+(3, 1, 2, 'industry', 'Recruiting'),
+(4, 1, 1, 'location', 'San Francisco Bay Area');
 
 --
 -- Table structure for table `auth_requests`
