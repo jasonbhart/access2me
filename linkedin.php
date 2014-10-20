@@ -1,6 +1,11 @@
 <?php
+/**
+ * TODO: seems we don't exchange auth code to auth token
+ */
 
 require_once __DIR__ . "/boot.php";
+
+use Access2Me\Model;
 
 $db = new Database;
 
@@ -91,20 +96,14 @@ if (!$_GET['code']) {
     $query = "SELECT `from_email` FROM `messages` WHERE `id` = '" . $_GET['message_id'] . "' LIMIT 1;";
     $message = $db->getArray($query);
 
-    $db->insert(
-        'senders',
-        array(
-            'sender',
-            'service',
-            'oauth_key'
-        ),
-        array(
-            $message[0]['from_email'],
-            '1',
-            $accessToken
-        ),
-        true
-    );
+    // store auth token for the later use
+    $sender = new Model\Sender();
+    $sender->setSender($message[0]['from_email']);
+    $sender->setService(Model\SenderRepository::SERVICE_LINKEDIN);
+    $sender->setOAuthKey($accessToken);
+
+    $senderRepo = new Model\SenderRepository($db);
+    $senderRepo->insert($sender);
 ?>
 
 <html>

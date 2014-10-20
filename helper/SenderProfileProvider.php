@@ -2,19 +2,19 @@
 
 namespace Access2Me\Helper;
 
-use Facebook\FacebookSession;
-use Facebook\FacebookRequest;
-use Facebook\FacebookRequestException;
 use Access2Me\Model;
 use Logging;
 
 class SenderProfileProvider
 {
-    private $servicesConfig;
+    /**
+     * @var \Access2Me\ProfileProvider\ProfileProviderInterface[] 
+     */
+    private $providers;
     
-    public function __construct(array $servicesConfig)
+    public function __construct($providers = array())
     {
-        $this->servicesConfig = $servicesConfig;
+        $this->providers = $providers;
     }
 
     /**
@@ -105,55 +105,12 @@ class SenderProfileProvider
      */
     protected function fetchProfile(Model\Sender $sender)
     {
-        switch ($sender->getService()) {
-            case Model\SenderRepository::SERVICE_LINKEDIN:
-                return $this->fetchLinkedinProfile(
-                    $sender,
-                    Model\SenderRepository::SERVICE_LINKEDIN
-                );
+        $serviceId = $sender->getService();
 
-            case Model\SenderRepository::SERVICE_FACEBOOK:
-                return $this->fetchFacebookProfile(
-                    $sender,
-                    $this->servicesConfig[Model\SenderRepository::SERVICE_FACEBOOK]
-                );
-
-            case Model\SenderRepository::SERVICE_TWITTER:
-                return $this->fetchTwitterProfile(
-                    $sender,
-                    Model\SenderRepository::SERVICE_TWITTER
-                );
-
-            default:
-                throw new Exception('Unknown service ' . $sender->getService());
+        if (!isset($this->providers[$serviceId])) {
+            throw new \Exception('Unknown service ' . $serviceId);
         }
-    }
 
-    
-    public function fetchFacebookProfile($sender, $serviceConfig)
-    {
-        try {
-            // initialize facebook session
-            FacebookSession::setDefaultApplication(
-                $serviceConfig['appId'],
-                $serviceConfig['appSecret']
-            );
-            $facebook = new Facebook($sender->getOAuthKey());
-
-            // validate session
-            $facebook->validate();
-
-            // get sender profile
-            $profile = $facebook->getProfile();
-
-            return $profile;
-
-        } catch (FacebookRequestException $ex) {
-            Logging::getLogger()->error(
-                $ex->getMessage(),
-                array('exception' => $ex)
-            );
-            return false;
-        }
+        return $this->providers[$serviceId]->fetchProfile($sender);
     }
 }

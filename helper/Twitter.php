@@ -169,7 +169,7 @@ class Twitter
      * @param string $verificationCode
      * @return array
      */
-    public function upgradeToAccessToken($token, $verificationCode)
+    public function upgradeRequestToken($token, $verificationCode)
     {
         $oauth = $this->getOAuth();
 
@@ -205,13 +205,7 @@ class Twitter
         );
     }
 
-    /**
-     * Returns user's contact info
-     * 
-     * @param array $token
-     * @throws TwitterException
-     */
-    public function getContactInfo($token)
+    protected function getUserRepresentation($token)
     {
         $oauth = $this->getOAuth();
 
@@ -236,7 +230,18 @@ class Twitter
             throw $this->responseToException($response);
         }
 
-        $data = json_decode($response, true);
+        return json_decode($response, true);
+    }
+
+    /**
+     * Returns user's contact info
+     * 
+     * @param array $token
+     * @throws TwitterException
+     */
+    public function getContactInfo($token)
+    {
+        $data = $this->getUserRepresentation($token);
         
         $contact = array(
             'first_name' => $data['name'],
@@ -252,6 +257,16 @@ class Twitter
 
     public function getProfile($token)
     {
+        $data = $this->getUserRepresentation($token);
         
+        $profile = array(
+            'name' => $data['name'],
+            'description' => $data['description'],
+            'location' => $data['location'],
+            'profile_image_url' => $data['profile_image_url'],
+            'screen_name' => $data['screen_name'],
+        );
+        
+        return $profile;
     }
 }

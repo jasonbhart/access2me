@@ -4,6 +4,7 @@ require_once __DIR__ . "/../boot.php";
 
 use Access2Me\Helper;
 use Access2Me\Model;
+use Access2Me\ProfileProvider;
 
 try {
 
@@ -22,13 +23,13 @@ try {
         throw new Exception('No such sender');
     }
 
-    $servicesConfig = array(
-        Model\SenderRepository::SERVICE_LINKEDIN => $linkedinAuth,
-        Model\SenderRepository::SERVICE_FACEBOOK => $facebookAuth,
-        Model\SenderRepository::SERVICE_TWITTER => $twitterAuth
+    $providers = array(
+        Model\SenderRepository::SERVICE_FACEBOOK => new ProfileProvider\Facebook($facebookAuth),
+        Model\SenderRepository::SERVICE_LINKEDIN => new ProfileProvider\Linkedin($linkedinAuth),
+        Model\SenderRepository::SERVICE_TWITTER => new ProfileProvider\Twitter($twitterAuth)
     );
     
-    $provider = new Helper\SenderProfileProvider($servicesConfig);
+    $provider = new Helper\SenderProfileProvider($providers);
     $profile = $provider->getProfile($senders);
 
     // save just fetched profiles

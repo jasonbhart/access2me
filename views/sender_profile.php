@@ -21,7 +21,7 @@ function out($value, $default='Unavailable') {
 
 <div class="container">
     <div class="page-header">
-        <h1>Profile page of <?php echo htmlspecialchars($profile['sender']); ?><span class="pull-right label label-default">Access2.me</span></h1>
+        <h1>Profile of <?php echo htmlspecialchars($profile['sender']); ?><span class="pull-right label label-default">Access2.me</span></h1>
     </div>
 
     <?php
@@ -31,15 +31,78 @@ function out($value, $default='Unavailable') {
     <div class="panel panel-default">
         <div class="panel-heading">Linkedin</div>
         <table class="table">
+            <?php if (!empty($data['picture_url'])): ?>
             <tr>
-                <td>Name</td><td><?php out($data['name']); ?></td>
+                <td>Picture</td><td><img src="<?php out($data['picture_url']); ?>" /></td>
+            </tr>
+            <?php endif; ?>
+            <tr>
+                <td>First Name</td><td><?php out($data['first_name']); ?></td>
+            </tr>
+            <tr>
+                <td>Last Name</td><td><?php out($data['last_name']); ?></td>
             </tr>
             <tr>
                 <td>Email</td><td><?php out($data['email']); ?></td>
             </tr>
             <tr>
-                <td>Website</td><td><?php out($data['website']); ?></td>
+                <td>Link to profile</td><td><a href="<?php out($data['profile_url']); ?>">link</a></td>
             </tr>
+            <tr>
+                <td>Headline</td><td><?php out($data['headline']); ?></td>
+            </tr>
+            <tr>
+                <td>Location</td><td><?php out($data['location']); ?></td>
+            </tr>
+            <tr>
+                <td>Industry</td><td><?php out($data['industry']); ?></td>
+            </tr>
+            <tr>
+                <td>Self summary</td><td><?php out($data['self_summary']); ?></td>
+            </tr>
+            <tr>
+                <td>Specialties</td><td><?php out($data['specialties']); ?></td>
+            </tr>
+            <tr>
+                <td>Associations</td><td><?php out($data['associations']); ?></td>
+            </tr>
+            <tr>
+                <td>Interests</td><td><?php out($data['interests']); ?></td>
+            </tr>
+            <tr>
+                <td>Total connections</td><td><?php out($data['total_connections']); ?></td>
+            </tr>
+            <tr>
+                <td>Total positions</td><td><?php out($data['total_positions']); ?></td>
+            </tr>
+
+            <?php if (!empty($data['positions'])) : ?>
+            <tr>
+                <td>Positions</td>
+                <td>
+                    <?php foreach ($data['positions'] as $position): ?>
+                    <table class="table">
+                        <tr>
+                            <td>Company</td>
+                            <td><?php out($position['company']); ?></td>
+                        </tr>
+                        <tr>
+                            <td>Title</td>
+                            <td><?php out($position['title']); ?></td>
+                        </tr>
+                        <tr>
+                            <td>Summary</td>
+                            <td><?php out($position['summary']); ?></td>
+                        </tr>
+                        <tr>
+                            <td>Is current</td>
+                            <td><?php out($position['is_current']); ?></td>
+                        </tr>
+                    </table>
+                    <?php endforeach; ?>
+                </td>
+            </tr>
+            <?php endif; ?>
         </table>
     </div>
     <?php endif; ?>
@@ -73,13 +136,10 @@ function out($value, $default='Unavailable') {
                 <td>Link to profile</td><td><?php out($data['link']); ?></td>
             </tr>
             <tr>
-                <td>Email</td><td><?php out($data['location']); ?></td>
+                <td>Location</td><td><?php out($data['location']); ?></td>
             </tr>
             <tr>
                 <td>Website</td><td><?php out($data['website']); ?></td>
-            </tr>
-            <tr>
-                
             </tr>
         </table>
     </div>
@@ -93,30 +153,20 @@ function out($value, $default='Unavailable') {
         <div class="panel-heading">Twitter</div>
         <table class="table">
             <tr>
+                <td>Picture</td><td><img src="<?php out($data['profile_image_url']); ?>" /></td>
+            </tr>
+            <tr>
                 <td>Name</td><td><?php out($data['name']); ?></td>
             </tr>
             <tr>
-                <td>Email</td><td><?php out($data['email']); ?></td>
+                <td>Screen name</td><td><?php out($data['screen_name']); ?></td>
             </tr>
             <tr>
-                <td>Biography</td><td><?php out($data['biography']); ?></td>
+                <td>Description</td><td><?php out($data['description']); ?></td>
             </tr>
             <tr>
-                <td>Birthday</td><td><?php out($data['birthday']); ?></td>
+                <td>Location</td><td><?php out($data['location']); ?></td>
             </tr>
-            <tr>
-                <td>Gender</td><td><?php out($data['gender']); ?></td>
-            </tr>
-            <tr>
-                <td>Link to profile</td><td><?php out($data['link']); ?></td>
-            </tr>
-            <tr>
-                <td>Email</td><td><?php out($data['location']); ?></td>
-            </tr>
-            <tr>
-                <td>Website</td><td><?php out($data['website']); ?></td>
-            </tr>
-            <tr></tr>
         </table>
     </div>
     <?php endif; ?>

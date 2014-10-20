@@ -26,6 +26,11 @@ class SenderRepository
      */
     protected function encodeOAuthKey($oauthKey)
     {
+        // store null values as NULL in databases instead of json "null"
+        if ($oauthKey === null) {
+            return null;
+        }
+
         return json_encode($oauthKey);
     }
 
@@ -41,6 +46,11 @@ class SenderRepository
      */
     protected function encodeProfile($profile)
     {
+        // store null values as NULL in databases instead of json "null"
+        if ($profile === null) {
+            return null;
+        }
+
         return json_encode($profile);
     }
 
@@ -70,6 +80,10 @@ class SenderRepository
      */
     protected function decodeSenders($senders)
     {
+        if ($senders === false) {
+            return;
+        }
+
         if (is_object($senders)) {
             $senders->setOAuthKey($this->decodeOAuthKey($senders->getOAuthKey()));
             $senders->setProfile($this->decodeProfile($senders->getProfile()));
@@ -110,7 +124,7 @@ class SenderRepository
      * 
      * @param string $email
      * @param SenderRepository::SERVICE_* $service
-     * @return array|null
+     * @return Sender|null
      */
     public function getByEmailAndService($email, $service)
     {
