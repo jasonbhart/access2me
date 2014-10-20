@@ -29,7 +29,8 @@ class SenderAuthentication
         $st->execute();
         $result = $st->fetchAll();
 
-        if ($result !== false) {
+        // no error and not empty
+        if ($result != false) {
             $result = $result[0]['requested_at'];
             return \DateTime::createFromFormat('Y-m-d H:i:s', $result);
         }

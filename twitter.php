@@ -50,11 +50,10 @@ try {
         );
 
         // store auth token for the later use
-        $sender = array(
-            'sender' => $message['from_email'],
-            'service' => Model\SenderRepository::SERVICE_TWITTER,
-            'oauth_key' => json_encode($authToken)
-        );
+        $sender = new Model\Sender();
+        $sender->setSender($message['from_email']);
+        $sender->setService(Model\SenderRepository::SERVICE_TWITTER);
+        $sender->setOAuthKey($authToken);
 
         $senderRepo = new Model\SenderRepository($db);
         $senderRepo->insert($sender);
@@ -63,7 +62,7 @@ try {
         $contact = $twitter->getContactInfo($authToken);
         
         // show user auth completed
-        require_once 'views/auth_complete.html';
+        require_once 'views/auth_completed.html';
 
     } else {
         if (isset($_SESSION['oauth'])) {
