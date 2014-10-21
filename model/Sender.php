@@ -9,6 +9,7 @@ namespace Access2Me\Model;
  */
 class Sender
 {
+    private $id;
     private $sender;
     private $service;
     private $oauth_key;
@@ -19,6 +20,11 @@ class Sender
      */
     private $profile_date;
 
+    public function getId()
+    {
+        return $this->id;
+    }
+    
     public function getSender()
     {
         return $this->sender;

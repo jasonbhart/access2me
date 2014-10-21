@@ -54,12 +54,13 @@ DROP TABLE IF EXISTS `senders`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `senders` (
+  `id` int AUTO_INCREMENT NOT NULL,
   `sender` varchar(64) NOT NULL,
   `service` int(3) NOT NULL,
   `oauth_key` tinytext NOT NULL,
   `profile` text NULL,
   `profile_date` datetime NULL,
-  PRIMARY KEY (`sender`)
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 

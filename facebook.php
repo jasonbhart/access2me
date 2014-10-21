@@ -52,15 +52,25 @@ try {
 
         // extend auth token
         $session = $session->getLongLivedSession();
-        
-        // store auth token for the later use
-        $sender = new Model\Sender();
-        $sender->setSender($message['from_email']);
-        $sender->setService(Model\SenderRepository::SERVICE_FACEBOOK);
-        $sender->setOAuthKey($session->getToken());
 
+        // store auth token for the later use
+        // create new or update existing sender
+        $email = $message['from_email'];
         $senderRepo = new Model\SenderRepository($db);
-        $senderRepo->insert($sender);
+        $sender = $senderRepo->getByEmailAndService($email, Model\SenderRepository::SERVICE_FACEBOOK);
+
+        if ($sender == null) {
+            $sender = new Model\Sender();
+            $sender->setSender($email);
+            $sender->setService(Model\SenderRepository::SERVICE_FACEBOOK);
+            $sender->setOAuthKey($session->getToken());
+        } else {
+            $sender->setOAuthKey($session->getToken());
+            $sender->setProfile(null);
+            $sender->setProfileDate(null);
+        }
+
+        $senderRepo->save($sender);
 
         // get data for congratulation page
         $contact = $fbHelper->getContactInfo();

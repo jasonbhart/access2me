@@ -96,14 +96,25 @@ if (!$_GET['code']) {
     $query = "SELECT `from_email` FROM `messages` WHERE `id` = '" . $_GET['message_id'] . "' LIMIT 1;";
     $message = $db->getArray($query);
 
+    
     // store auth token for the later use
-    $sender = new Model\Sender();
-    $sender->setSender($message[0]['from_email']);
-    $sender->setService(Model\SenderRepository::SERVICE_LINKEDIN);
-    $sender->setOAuthKey($accessToken);
-
+    // create new or update existing sender
+    $email = $message[0]['from_email'];
     $senderRepo = new Model\SenderRepository($db);
-    $senderRepo->insert($sender);
+    $sender = $senderRepo->getByEmailAndService($email, Model\SenderRepository::SERVICE_LINKEDIN);
+
+    if ($sender == null) {
+        $sender = new Model\Sender();
+        $sender->setSender($email);
+        $sender->setService(Model\SenderRepository::SERVICE_LINKEDIN);
+        $sender->setOAuthKey($accessToken);
+    } else {
+        $sender->setOAuthKey($accessToken);
+        $sender->setProfile(null);
+        $sender->setProfileDate(null);
+    }
+
+    $senderRepo->save($sender);
 ?>
 
 <html>
