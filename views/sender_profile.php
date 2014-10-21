@@ -73,7 +73,7 @@ function out($value, $default='Unavailable') {
                 <td>Total connections</td><td><?php out($data['total_connections']); ?></td>
             </tr>
             <tr>
-                <td>Total positions</td><td><?php out($data['total_positions']); ?></td>
+                <td>Total positions</td><td><?php out(count($data['positions'])); ?></td>
             </tr>
 
             <?php if (!empty($data['positions'])) : ?>

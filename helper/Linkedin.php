@@ -2,6 +2,14 @@
 
 namespace Access2Me\Helper;
 
+class LinkedinException extends \Exception
+{
+    public function __toString()
+    {
+        return 'Linkedin exception: ' . $this->message;
+    }
+}
+
 class Linkedin
 {
     /**
@@ -97,8 +105,12 @@ class Linkedin
         $result = curl_exec($cURL);
         curl_close($cURL);
 
-        $xml = new \SimpleXMLElement($result);
-        $data = $xml->xpath('/person');
+        try {
+            $xml = new \SimpleXMLElement($result);
+            $data = $xml->xpath('/person');
+        } catch (\Exception $ex) {
+            throw new LinkedinException($ex->getMessage(), $ex->getCode(), $ex);
+        }
 
         $profile = $this->parseProfileData($data);
         return $profile;
