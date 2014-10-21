@@ -22,9 +22,15 @@ class Linkedin
         $this->config = $config;
     }
 
-    public function parseProfileData($data)
+    public function parseProfileData($xml)
     {
-        $person = $data[0];
+        $person = $xml->xpath('/person');
+
+        if (!isset($person[0])) {
+            return false;
+        }
+
+        $person = $person[0];
         $profile = array();
         
         $profile['first_name'] = isset($person->{'first-name'}) ? (string) $person->{'first-name'} : null;
@@ -94,25 +100,24 @@ class Linkedin
         $url .= "location:(name))";
         $url .= "?oauth2_access_token=" . urlencode($token);
 
-        $cURL = curl_init();
-
-        curl_setopt($cURL, CURLOPT_VERBOSE, true);
-        curl_setopt($cURL, CURLOPT_URL, $url);
-        curl_setopt($cURL, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($cURL, CURLOPT_HTTPGET, true);
-        curl_setopt($cURL, CURLOPT_RETURNTRANSFER, 1);
-
-        $result = curl_exec($cURL);
-        curl_close($cURL);
-
         try {
+            $cURL = curl_init();
+
+            curl_setopt($cURL, CURLOPT_VERBOSE, true);
+            curl_setopt($cURL, CURLOPT_URL, $url);
+            curl_setopt($cURL, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($cURL, CURLOPT_HTTPGET, true);
+            curl_setopt($cURL, CURLOPT_RETURNTRANSFER, 1);
+
+            $result = curl_exec($cURL);
+            curl_close($cURL);
+
             $xml = new \SimpleXMLElement($result);
-            $data = $xml->xpath('/person');
         } catch (\Exception $ex) {
             throw new LinkedinException($ex->getMessage(), $ex->getCode(), $ex);
         }
 
-        $profile = $this->parseProfileData($data);
+        $profile = $this->parseProfileData($xml);
         return $profile;
     }
 }
