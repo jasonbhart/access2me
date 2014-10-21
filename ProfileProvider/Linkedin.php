@@ -22,9 +22,16 @@ class Linkedin implements ProfileProviderInterface
      */
     public function fetchProfile($sender)
     {
-        $linkedin = new Helper\Linkedin($this->serviceConfig);
-        $profile = $linkedin->getProfile($sender->getOAuthKey());
-        
-        return $profile;
+        try {
+            $linkedin = new Helper\Linkedin($this->serviceConfig);
+            $profile = $linkedin->getProfile($sender->getOAuthKey());
+            return $profile;
+        } catch (\Exception $ex) {
+            \Logging::getLogger()->error(
+                $ex->getMessage(),
+                array('exception' => $ex)
+            );
+            return $false;
+        }
     }
 }
