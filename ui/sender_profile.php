@@ -44,7 +44,7 @@ try {
             if ($service !== null && $service['cached'] == false) {
                 $map[$id]->setProfile($service['profile']);
                 $map[$id]->setProfileDate(new \DateTime());
-                $senderRepo->update($map[$id]);
+                $senderRepo->save($map[$id]);
             }
         }
     }

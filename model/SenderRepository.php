@@ -177,18 +177,30 @@ class SenderRepository
     {
         $query = "UPDATE `" . self::TABLE_NAME ."`"
             . ' SET'
-            . ' oauth_key = :oauth_key, '
-            . ' profile = :profile, '
-            . ' profile_date = :profile_date '
-            . ' WHERE `sender` = :sender AND `service` = :service';
+            . ' sender = :sender,'
+            . ' service = :service,'
+            . ' oauth_key = :oauth_key,'
+            . ' profile = :profile,'
+            . ' profile_date = :profile_date'
+            . ' WHERE id = :id';
 
-            $conn = $this->db->getConnection();
+        $conn = $this->db->getConnection();
         $st = $conn->prepare($query);
+        $st->bindValue(':id', $sender->getId(), \PDO::PARAM_INT);
         $st->bindValue(':oauth_key', $this->encodeOAuthKey($sender->getOAuthKey()));
         $st->bindValue(':profile', $this->encodeProfile($sender->getProfile()));
         $st->bindValue(':profile_date', $this->encodeProfileDate($sender->getProfileDate()));
         $st->bindValue(':sender', $sender->getSender());
-        $st->bindValue(':service', $sender->getService());
+        $st->bindValue(':service', $sender->getService(), \PDO::PARAM_INT);
         $st->execute();
+    }
+
+    public function save($sender)
+    {
+        if ($sender->getId() === null) {
+            $this->insert($sender);
+        } else {
+            $this->update($sender);
+        }
     }
 }

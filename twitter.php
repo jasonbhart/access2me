@@ -50,13 +50,23 @@ try {
         );
 
         // store auth token for the later use
-        $sender = new Model\Sender();
-        $sender->setSender($message['from_email']);
-        $sender->setService(Model\SenderRepository::SERVICE_TWITTER);
-        $sender->setOAuthKey($authToken);
-
+        // create new or update existing sender
+        $email = $message['from_email'];
         $senderRepo = new Model\SenderRepository($db);
-        $senderRepo->insert($sender);
+        $sender = $senderRepo->getByEmailAndService($email, Model\SenderRepository::SERVICE_TWITTER);
+
+        if ($sender == null) {
+            $sender = new Model\Sender();
+            $sender->setSender($email);
+            $sender->setService(Model\SenderRepository::SERVICE_TWITTER);
+            $sender->setOAuthKey($authToken);
+        } else {
+            $sender->setOAuthKey($authToken);
+            $sender->setProfile(null);
+            $sender->setProfileDate(null);
+        }
+
+        $senderRepo->save($sender);
 
         // get data for congratulation page
         $contact = $twitter->getContactInfo($authToken);
