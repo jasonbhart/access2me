@@ -90,9 +90,7 @@ foreach ($messages AS $message) {
             'access123',
             587
         );
-        $smtp = new \ezcMailSmtpTransport(
-            'imap.loc'
-        );
+
         $smtp->senderHost = 'access2.me';
         $smtp->options->connectionType = \ezcMailSmtpTransport::CONNECTION_TLS;
 
