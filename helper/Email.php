@@ -118,44 +118,40 @@ class Email
      * Usually operates on data obtained from IMAP
      *
      * @param array $message array containing following keys:
-     *   overview, header, headerDetail, body, structure
+     *   raw_header, raw_body, mail
      */
     public static function isSuitable($message)
     {
-        // parse headers
-        $headers = self::parseHeaders($message['headerDetail']);
-
+        $mail = $message['mail'];
         /*
          Check to see if from or return-path is NULL or:
             owner-*
             *-request
             MAILER-DAEMON
         */
-        $from = isset($headers['from']) && count($headers['from']) > 0
-            ? $headers['from'][0]['email'] : null;
-        $retPath = isset($headers['return-path']) && count($headers['return-path']) > 0
-            ? $headers['return-path'][0]['email'] : null;
+        $from = isset($mail->from) ? $mail->from->email : null;
+        $returnPath = isset($mail->returnPath) ? $mail->returnPath->email : null;
 
         $pattern = '/^MAILER-DAEMON|owner-.*|.*-request$/i';
 
         if ($from == NULL
             || preg_match($pattern, $from) != 0
-            || $retPath == null
-            || preg_match($pattern, $retPath) != 0
+            || $returnPath == null
+            || preg_match($pattern, $returnPath) != 0
         ) {
             return false;
         }
 
         // do not respond to automatically submitted emails
-        if (isset($headers['auto-submitted']) && $headers['auto-submitted'] != 'no') {
+        if (isset($mail->headers['auto-submitted']) && $mail->headers['auto-submitted'] != 'no') {
             return false;
         }
 
         // check if message contains Content-Type header
-        if (empty($headers['content-type'])) {
+        if (empty($mail->headers['content-type'])) {
             $msg = sprintf(
                 "Message(%s) doesn't contain Content-Type header",
-                $message['header']->message_id
+                $mail->messageId
             );
             \Logging::getLogger()->info($msg);
             return false;
@@ -164,4 +160,65 @@ class Email
         return true;
     }
 
+    /**
+     * Converts parsed email to the form to be stored in the database
+     *
+     * @param array $mail
+     */
+    public static function toDatabaseRecord($message)
+    {
+        $mail = $message['mail'];
+        $record = array();
+
+        $record['messageId'] = $mail->messageId;
+        $record['subject']   = $mail->subject;
+        $record['to']        = $mail->to[0]->email;
+        $record['from']      = $mail->from->name;
+        $record['fromEmail'] = $mail->from->email;
+        $record['header']    = $message['raw_header'];
+        $record['body']      = $message['raw_body'];
+
+        // parse headers to find Return-Path or From for reply_email
+        $record['replyEmail'] = isset($mail->returnPath)
+            ? $mail->returnPath->email : $mail->from->email;
+        
+        return $record;
+    }
+
+    /**
+     * Parses raw message and returns just message body with needed headers
+     * that describe content like Content-Type, Content-Disposition,
+     * Content-Transfer-Encoding, Content-ID
+     * 
+     * Use this method to build new email where you want to
+     * include body of another email
+     * 
+     * @param string $message raw email message with headers
+     * @return \ezcMailPart
+     */
+    public static function getMessageBody($rawMessage)
+    {
+        // parse raw message
+        $message = new \ezcMailVariableSet($rawMessage);
+        $parser = new \ezcMailParser();
+        $mail = $parser->parseMail($message);
+
+        // build body
+        $body = $mail[0]->body;
+        // if body is not multipart then copy global headers to it
+        if (!($body instanceof \ezcMailMultipart)) {
+
+            $headers = $mail[0]->headers;
+            $required = array('Content-ID', 'Content-Type', 'Content-Disposition', 'Content-Transfer-Encoding');
+
+            // copy headers
+            foreach ($headers->getCaseSensitiveArray() as $header => $value) {
+                if (in_array($header, $required)) {
+                    $body->headers->offsetSet($header, $value);
+                }
+            }
+        }
+        
+        return $body;
+    }
 }

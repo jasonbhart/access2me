@@ -29,8 +29,9 @@ CREATE TABLE `messages` (
   `from_name` tinytext NOT NULL,
   `from_email` tinytext NOT NULL,
   `reply_email` tinytext NOT NULL,
-  `subject` tinytext NOT NULL,
-  `body` text NOT NULL,
+  `subject` tinytext character set utf8 NOT NULL,
+  `header` text NULL,
+  `body` mediumtext NOT NULL,
   `status` int(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   UNIQUE KEY `message_id` (`message_id`)

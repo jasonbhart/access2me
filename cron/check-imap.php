@@ -14,10 +14,28 @@ $params = array(
 
 $imap = new IMAP($params);
 
-$messages = $imap->getInbox();
-
 echo "<pre>";
 
+// get raw messages
+$rawMessages = $imap->getInboxRaw();
+$messages = array();
+
+// parse raw messages
+$parser = new \ezcMailParser();
+foreach ($rawMessages as $raw) {
+    $tmp = $raw['header'] . "\r\n" . $raw['body']; 
+    $mail = $parser->parseMail(new ezcMailVariableSet($tmp));
+
+    if (isset($mail[0])) {
+        $messages[] = array(
+            'raw_header' => $raw['header'],
+            'raw_body' => $raw['body'],
+            'mail' => $mail[0]
+        );
+    }   
+}
+
+// process messages and save them into the database
 foreach($messages AS $message) {
 
     // filter out not suitable messages
@@ -25,29 +43,15 @@ foreach($messages AS $message) {
         continue;
     }
 
-    $current['messageId'] = (string) $message['header']->message_id;
-    $current['subject']   = (string) $message['overview'][0]->subject;
-    $current['to']        = (string) $message['overview'][0]->to;
-    $current['from']      = (string) $message['overview'][0]->from;
-    $current['fromEmail'] = (string) $message['header']->from[0]->mailbox .
-                            '@' .
-                            (string) $message['header']->from[0]->host;
-    $current['body']      = (string) $message['body'];
+    $record = Helper\Email::toDatabaseRecord($message);
 
-    // parse headers to find Return-Path or From for reply_email
-    // TODO: This parsing should be moved to IMAP class
-    $headers = Helper\Email::parseHeaders($message['headerDetail']);
-    $current['reply_email'] = isset($headers['return-path'])
-        ? $headers['return-path'][0]['email'] : $headers['from'][0]['email'];
-
-    $destination = trim($current['to']);
-
-    $query = "SELECT `id` FROM `users` WHERE `mailbox` = '" . $destination . "' LIMIT 1;";
+    // TODO: don't store messages for not existing users
+    $query = "SELECT `id` FROM `users` WHERE `mailbox` = '" . $record['to'] . "' LIMIT 1;";
     $userId = $db->getArray($query);
 
-    $current['userId'] = $userId[0]['id'];
+    $record['userId'] = $userId[0]['id'];
 
-    print_r($current);
+    print_r($record);
 
     $db->insert(
         'messages',
@@ -58,16 +62,18 @@ foreach($messages AS $message) {
             'from_email',
             'reply_email',
             'subject',
+            'header',
             'body'
         ),
         array(
-            $current['messageId'],
-            $current['userId'],
-            $current['from'],
-            $current['fromEmail'],
-            $current['reply_email'],
-            $current['subject'],
-            $current['body']
+            $record['messageId'],
+            $record['userId'],
+            $record['from'],
+            $record['fromEmail'],
+            $record['replyEmail'],
+            $record['subject'],
+            $record['header'],
+            $record['body']
         ),
         true
     );

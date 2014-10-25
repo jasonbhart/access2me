@@ -138,7 +138,25 @@ class IMAP
 
         return $output;
     }
+    //--------------------------------------------------------------------------
 
+    public function getInboxRaw($filter = 'ALL')
+    {
+        $inbox = $this->connect(); // connect to imap server to get messages.
+        $output = array();
+
+        if (!empty($inbox)) {
+            $emails = imap_search($inbox, $filter);
+
+            /* if emails are returned, cycle through each... */
+            if ($emails) {
+                $output = $this->getEmailMessagesRaw($inbox, $emails);
+            }
+        }
+        $this->connectionClose($inbox); // connection close
+
+        return $output;
+    }
     //--------------------------------------------------------------------------
 
     public function getInboxAttachments($filter = 'ALL')
@@ -248,6 +266,30 @@ class IMAP
         return $output;
     }
 
+    //--------------------------------------------------------------------------
+
+    protected function getEmailMessagesRaw($inbox, $emails)
+    {
+        /* begin output var */
+        $output = array();
+        /* put the newest emails on top */
+        rsort($emails);
+
+        /* for every email... */
+        foreach ($emails as $email_number) {
+
+            /* get information specific to this email */
+            $header = imap_fetchheader($inbox, $email_number);
+            $body = imap_body($inbox, $email_number);
+
+            $output[] = array(
+                'header' => $header,
+                'body' => $body
+            );
+        }
+
+        return $output;
+    }
     //--------------------------------------------------------------------------
 
     protected function decodeImapText($var)
