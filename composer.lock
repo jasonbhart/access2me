@@ -385,12 +385,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHPMailer/PHPMailer.git",
-                "reference": "09d40c428f11092f7cce16405594df3f0a348d5a"
+                "reference": "2000bbb41f7cbb4db766436ab7c996907a8c1c31"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PHPMailer/PHPMailer/zipball/09d40c428f11092f7cce16405594df3f0a348d5a",
-                "reference": "09d40c428f11092f7cce16405594df3f0a348d5a",
+                "url": "https://api.github.com/repos/PHPMailer/PHPMailer/zipball/2000bbb41f7cbb4db766436ab7c996907a8c1c31",
+                "reference": "2000bbb41f7cbb4db766436ab7c996907a8c1c31",
                 "shasum": ""
             },
             "require": {
@@ -430,7 +430,7 @@
                 }
             ],
             "description": "PHPMailer is a full-featured email creation and transfer class for PHP",
-            "time": "2014-10-15 09:06:58"
+            "time": "2014-10-23 20:25:25"
         },
         {
             "name": "psr/log",
@@ -472,17 +472,17 @@
         },
         {
             "name": "symfony/event-dispatcher",
-            "version": "v2.5.5",
+            "version": "v2.5.6",
             "target-dir": "Symfony/Component/EventDispatcher",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/EventDispatcher.git",
-                "reference": "f6281337bf5f985f585d1db6a83adb05ce531f46"
+                "reference": "804eb28dbbfba9ffdab21fe2066744906cea2212"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/EventDispatcher/zipball/f6281337bf5f985f585d1db6a83adb05ce531f46",
-                "reference": "f6281337bf5f985f585d1db6a83adb05ce531f46",
+                "url": "https://api.github.com/repos/symfony/EventDispatcher/zipball/804eb28dbbfba9ffdab21fe2066744906cea2212",
+                "reference": "804eb28dbbfba9ffdab21fe2066744906cea2212",
                 "shasum": ""
             },
             "require": {
@@ -525,7 +525,7 @@
             ],
             "description": "Symfony EventDispatcher Component",
             "homepage": "http://symfony.com",
-            "time": "2014-09-28 15:56:11"
+            "time": "2014-10-01 15:43:05"
         },
         {
             "name": "themattharris/tmhoauth",

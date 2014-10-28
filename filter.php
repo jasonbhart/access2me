@@ -33,24 +33,26 @@ class Filter
 
 
     public function processFilters() {
-        foreach ($this->filters AS $filter) {
-            switch ($filter['type']) {
-                case "1":
-                    $response = $this->mustBe($filter);
-                    break;
-                case "2":
-                    $response = $this->mustNotBe($filter);
-                    break;
-                case "3":
-                    $response = $this->mustBeGreater($filter);
-                    break;
-                case "4":
-                    $response = $this->mustNotBeGreater($filter);
-                    break;
-            }
+        if (isset($this->filters)) {
+            foreach ($this->filters AS $filter) {
+                switch ($filter['type']) {
+                    case "1":
+                        $response = $this->mustBe($filter);
+                        break;
+                    case "2":
+                        $response = $this->mustNotBe($filter);
+                        break;
+                    case "3":
+                        $response = $this->mustBeGreater($filter);
+                        break;
+                    case "4":
+                        $response = $this->mustNotBeGreater($filter);
+                        break;
+                }
 
-            if (isset($response) && $response === false) {
-                $this->status = false;
+                if (isset($response) && $response === false) {
+                    $this->status = false;
+                }
             }
         }
     }

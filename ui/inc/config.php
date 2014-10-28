@@ -52,6 +52,11 @@ $primary_nav = array(
         'name'  => 'Dashboard',
         'url'   => 'index.php',
         'icon'  => 'gi gi-compass'
+    ),
+    array(
+        'name'  => 'Gmail Settings',
+        'url'   => 'gmail-config.php',
+        'icon'  => 'fa fa-rocket'
     )
 );
 

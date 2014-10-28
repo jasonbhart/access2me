@@ -1,41 +1,40 @@
 <?php
 
 require_once __DIR__ . "/boot.php";
-require_once __DIR__ . '/imap-new.php';
+
+use Access2Me\Model;
 
 $db = new Database;
 
+if (!$_GET['code']) {
+    header('Location: https://accounts.google.com/o/oauth2/auth?response_type=code&client_id=523467224320-5evqo2ovdnqqntulu3531298cp8hfh12.apps.googleusercontent.com&redirect_uri=http%3A%2F%2Fwww.access2.me%2Fgmailoauth.php&access_type=offline&scope=profile');
+} else {
+    $url = "https://accounts.google.com/o/oauth2/auth?code=" . $_GET['code'] . "&redirect_uri=http%3A%2F%2Fwww.access2.me%2Fgmailoauth.php&client_id=523467224320-5evqo2ovdnqqntulu3531298cp8hfh12.apps.googleusercontent.com&client_secret=8s74XEEucknNhYb6keO0yzBw&grant_type=authorization_code";
 
-$paramters = array(
-    'host' => 'mail.access2.me',
-    'user' => 'catchall@access2.me',
-    'pass' => 'catch123'
-);
+    $cURL = curl_init();
 
-$imap = new IMAP_New($paramters);
-$imap->connect();
+    curl_setopt($cURL, CURLOPT_VERBOSE, true);
+    curl_setopt($cURL, CURLOPT_URL, $url);
+    curl_setopt($cURL, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt($cURL, CURLOPT_HTTPGET, true);
+    curl_setopt($cURL, CURLOPT_RETURNTRANSFER, 1);
+    curl_setopt($cURL, CURLOPT_HTTPHEADER, array(
+        'Content-Type: application/json',
+        'Accept: application/json'
+    ));
 
-//$imap->createFolder($imap->connection, 'a2mverified');
-$imap->moveMessage(imap_uid($imap->connection, 2), $imap->connection, 'A2M_Verified');
+    $result = curl_exec($cURL);
+    curl_close($cURL);
+    $json = json_decode($result, true);
 
-/*
+    $accessToken = (string)$json['access_token'];
 
-echo "<pre>";
-//print_r($imap->getMessageSubject(1));
-//print_r($imap->getMessageTo(1));
-//print_r($imap->getMessageFrom(1));
+print_r($json);
+}
 
-echo $imap->getBodyNew(imap_uid($imap->connection, 1), $imap->connection);
 
-$params = array(
-    'host'     => 'mail.access2.me',
-    'user'     => 'catchall@access2.me',
-    'password' => 'catch123'
-);
-
-$imap = new IMAP($params);
-
-$messages = $imap->getInbox();
-
-echo (string) $messages[4]['body'];
- */
+//CLIENT ID 523467224320-5evqo2ovdnqqntulu3531298cp8hfh12.apps.googleusercontent.com
+//EMAIL ADDRESS 523467224320-5evqo2ovdnqqntulu3531298cp8hfh12@developer.gserviceaccount.com
+//CLIENT SECRET 8s74XEEucknNhYb6keO0yzBw
+//REDIRECT URIS http://www.access2.me/gmailoauth
+// JAVASCRIPT ORIGINS http://www.access2.me
