@@ -51,12 +51,13 @@ class SenderRepository
             return null;
         }
 
-        return json_encode($profile);
+        return serialize($profile);
     }
 
     protected function decodeProfile($profile)
     {
-        return json_decode($profile, true);
+        $data = unserialize($profile);
+        return $data === false ? null : $data;
     }
 
     protected function encodeProfileDate($dt)

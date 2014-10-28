@@ -205,7 +205,7 @@ class Twitter
         );
     }
 
-    protected function getUserRepresentation($token)
+    public function getUserRepresentation($token)
     {
         $oauth = $this->getOAuth();
 
@@ -233,40 +233,8 @@ class Twitter
         return json_decode($response, true);
     }
 
-    /**
-     * Returns user's contact info
-     * 
-     * @param array $token
-     * @throws TwitterException
-     */
-    public function getContactInfo($token)
+    public static function getProfileUrl($userId)
     {
-        $data = $this->getUserRepresentation($token);
-        
-        $contact = array(
-            'first_name' => $data['name'],
-            'last_name' => '',
-            'headline' => null,
-            'industry' => null,
-            'location' => $data['location'],
-            'picture_url' => $data['profile_image_url']
-        );
-        
-        return $contact;
-    }
-
-    public function getProfile($token)
-    {
-        $data = $this->getUserRepresentation($token);
-        
-        $profile = array(
-            'name' => $data['name'],
-            'description' => $data['description'],
-            'location' => $data['location'],
-            'profile_image_url' => $data['profile_image_url'],
-            'screen_name' => $data['screen_name'],
-        );
-        
-        return $profile;
+        return 'https://twitter.com/intent/user?user_id=' . $userId;
     }
 }
