@@ -4,8 +4,9 @@ namespace Access2Me\Model;
 
 /**
  * Description of Sender
- *
- * @author yup
+
+ * @todo This needs to be renamed to SenderService
+ *      as it actually links sender with authenticated services
  */
 class Sender
 {

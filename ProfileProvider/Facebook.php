@@ -5,6 +5,7 @@ namespace Access2Me\ProfileProvider;
 use Facebook\FacebookSession;
 use Facebook\FacebookRequestException;
 use Access2Me\Helper;
+use Access2Me\Model\Profile;
 
 class Facebook implements ProfileProviderInterface
 {
@@ -34,9 +35,7 @@ class Facebook implements ProfileProviderInterface
 
             // validate session
             $facebook->validate();
-
-            // get sender profile
-            $profile = $facebook->getProfile();
+            $profile = $this->buildProfile($facebook);
 
             return $profile;
 
@@ -47,5 +46,36 @@ class Facebook implements ProfileProviderInterface
             );
             return false;
         }
+    }
+
+    protected function buildProfile($fbHelper)
+    {
+        // get profile data
+        $gobject = $fbHelper->getProfile();
+
+        $profile = new Profile\Profile();
+        $profile->fullName = $gobject->getProperty('name');
+        $profile->email = $gobject->getProperty('email');
+        $profile->biography = $gobject->getProperty('bio');
+        $profile->birthday = $gobject->getProperty('birthday');
+        $profile->gender = $gobject->getProperty('gender');
+        $profile->profileUrl = $gobject->getProperty('link');
+        $profile->website = $gobject->getProperty('website');
+
+        $profile->pictureUrl = $fbHelper->getPictureUrl();
+
+        $location = $gobject->getProperty('location');
+        if ($location) {
+            $profile->location = Helper\Facebook::formatLocation($location);
+        }
+        
+        $work = $gobject->getProperty('work');
+        if ($work) {
+            $position = new Profile\Position();
+            $position->summary = $work;
+            $profile->positions[] = $position;
+        }
+        
+        return $profile;
     }
 }

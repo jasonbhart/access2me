@@ -14,11 +14,15 @@ require_once __DIR__ . "/helper/Email.php";
 require_once __DIR__ . "/helper/Facebook.php";
 require_once __DIR__ . "/helper/Linkedin.php";
 require_once __DIR__ . "/helper/Twitter.php";
+require_once __DIR__ . "/helper/ProfileCombiner.php";
 require_once __DIR__ . "/helper/SenderAuthentication.php";
 require_once __DIR__ . "/helper/SenderProfileProvider.php";
+require_once __DIR__ . "/helper/Template.php";
 require_once __DIR__ . "/model/MessageRepository.php";
 require_once __DIR__ . "/model/SenderRepository.php";
 require_once __DIR__ . "/model/Sender.php";
+require_once __DIR__ . "/model/Profile/Profile.php";
+require_once __DIR__ . "/model/Profile/Position.php";
 require_once __DIR__ . "/ProfileProvider/ProfileProviderInterface.php";
 require_once __DIR__ . "/ProfileProvider/Facebook.php";
 require_once __DIR__ . "/ProfileProvider/Linkedin.php";
@@ -56,3 +60,11 @@ $twitterAuth = array(
     'callback_url' => 'http://app.access2.me/twitter.php',
     //'user_agent' => 'access2.me'
 );
+
+$profileProviders = array(
+    Access2Me\Model\SenderRepository::SERVICE_FACEBOOK => new Access2Me\ProfileProvider\Facebook($facebookAuth),
+    Access2Me\Model\SenderRepository::SERVICE_LINKEDIN => new Access2Me\ProfileProvider\Linkedin($linkedinAuth),
+    Access2Me\Model\SenderRepository::SERVICE_TWITTER => new Access2Me\ProfileProvider\Twitter($twitterAuth)
+);
+
+$defaultProfileProvider = new Access2Me\Helper\SenderProfileProvider($profileProviders);
