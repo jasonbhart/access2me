@@ -4,115 +4,6 @@ namespace Access2Me\Helper;
 
 class Email
 {
-
-    /**
-     * Check if email is valid
-     * Very simple validation.
-     *
-     * @param string $email
-     * @return bool
-     */
-    public static function isAddressValid($email)
-    {
-        return preg_match('/[^@]+@[^@]+/', $email);
-    }
-
-    /**
-     * Parses address string into array of addresses
-     *
-     * @param string $data
-     */
-    public static function parseAddressList($data)
-    {
-        // we can have few addresses
-        $records = explode(',', $data);
-        $addresses = array();
-
-        foreach ($records as $record) {
-            $args = explode('<', $record, 2);
-
-            // do we have just address ?
-            if (count($args) < 2) {
-                if (self::isAddressValid($args[0])) {
-                    $addresses[] = array('email' => $args[0]);
-                }
-            } else {
-                // we have something like: Name <address>
-
-                $name = trim($args[0]);
-                $email = trim(rtrim($args[1], '>'));
-
-                // address is defined ?
-                if ($email) {
-                    $address = array('email' => $email);
-                    if ($name) {
-                        $address['name'] = $name;
-                    }
-                    $addresses[] = $address;
-                }
-            }
-        }
-
-        return $addresses;
-    }
-
-    /**
-     * Parse headers from a string
-     *
-     * @param string $data raw email headers
-     * @return array an associative array
-     */
-    public static function parseHeaders($data)
-    {
-        $lines = explode("\r\n", $data);
-        $records = array();
-
-        foreach ($lines as $line) {
-            // line that begins with a whitespace is continuation of the current header
-            $continuation = preg_match('/^\s+/', $line);
-
-            $line = trim($line);
-
-            if (!$line)
-                continue;
-
-            if ($continuation) {
-                if ($records) {
-                    $records[count($records) - 1] .= ' ' .$line;
-                }
-            }
-            else {
-                $records[] = $line;
-            }
-        }
-
-        // this headers will be parse specially
-        $addressHeaders = array(
-            'to', 'from', 'cc', 'bcc', 'reply-to', 'sender', 'return-path'
-        );
-
-        // parse records to get headers
-        $headers = array();
-        foreach ($records as $record) {
-            $args = explode(':', $record, 2);
-            if (count($args) != 2)
-                continue;
-
-            $name = trim(strtolower($args[0]));
-            $data = trim($args[1]);
-
-            // some records contain addresses
-            if (in_array($name, $addressHeaders)) {
-                $headers[$name] = self::parseAddressList($data);
-            }
-            else {
-                $headers[$name] = $data;
-            }
-        }
-
-        return $headers;
-    }
-
     /**
      * Checks that message fits the rules. (Suitable for processing)
      * Usually operates on data obtained from IMAP
@@ -220,5 +111,75 @@ class Email
         }
         
         return $body;
+    }
+
+    /**
+     * Get content of access2.me info header
+     * 
+     * @param array $contact
+     * @return \ezcMailMultipartAlternative
+     */
+    public static function getInfoHeader($profComb)
+    {
+        // data for template
+        $contact = array(
+            'picture_url' => $profComb->getFirst('pictureUrl'),
+            'profile_urls' => $profComb->profileUrl,
+            'email' => $profComb->getFirst('email'),
+            'full_name' => $profComb->getFirst('fullName'),
+            'headline' => $profComb->getFirst('headline'),
+            'location' => $profComb->getFirst('location')
+        );
+
+        ob_start();
+        include '../views/email_info_header.html';
+        $infoText = ob_get_clean();
+        
+        // build our info header
+        $altInfoBody = new \ezcMailText('This is the body in plain text for non-HTML mail clients');
+        $infoBody = new \ezcMailText($infoText);
+        $infoBody->subType = 'html';
+
+        $info = new \ezcMailMultipartAlternative($altInfoBody, $infoBody);
+        
+        return $info;
+    }
+
+    /**
+     * Builds new message ready to be send to user
+     * by prepending info header to original message and filling in
+     * all required info 
+     * 
+     * @param array $to user entity
+     * @param \Access2Me\Helper\ProfileCombiner $fromContact contact build from profile
+     * @param array $message message entity
+     * @return \ezcMail
+     */
+    public static function buildVerifiedMessage($to, $profComb, $message)
+    {
+        // get message body of the original message
+        $body = self::getMessageBody(
+            $message['header'] . "\r\n" . $message['body']
+        );
+
+        // join our header and content of the original message
+        $info = self::getInfoHeader($profComb);
+        $newBody = new \ezcMailMultipartMixed($info, $body);
+
+        // build new message
+        $fromName = $profComb->getFirst('fullName');
+ 
+        $newMail = new \ezcMail();
+        $newMail->from = new \ezcMailAddress('noreply@access2.me', $fromName);
+        $newMail->to = array(new \ezcMailAddress($to['email']));
+        $newMail->setHeader('Reply-To', $message['reply_email']);
+        $newMail->setHeader('X-Mailer', '');
+        $newMail->subject = $message['subject'];
+        $newMail->body = $newBody;
+
+        // do not include User-Agent header in the mail
+        $newMail->appendExcludeHeaders(array('User-Agent'));
+        
+        return $newMail;
     }
 }

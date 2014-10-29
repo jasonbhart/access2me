@@ -21,13 +21,7 @@ class Filter
         $query = "SELECT * FROM `" . $this->tableName . "` WHERE `user_id` = '" . $userId . "'";
         $filters = $db->getArray($query);
 
-        if (!empty($filters)) {
-            $this->filters = $filters;
-        } else {
-            return false;
-        }
-
-        return true;
+        $this->filters = !empty($filter) ? $filters : array();
     }
     //--------------------------------------------------------------------------
 

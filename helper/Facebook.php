@@ -44,6 +44,17 @@ class Facebook
         return $this->getSession()->validate();
     }
 
+    /**
+     * Returns data required for profile page
+     */
+    public function getProfile()
+    {
+        $request = new FacebookRequest($this->getSession(), 'GET', '/me');
+        $gobject = $request->execute()->getGraphObject();
+        
+        return $gobject;
+    }
+
     public function getPictureUrl()
     {
         $request = new FacebookRequest(
@@ -63,31 +74,7 @@ class Facebook
         
         return $graphObject->getProperty('url');
     }
-    
-    /**
-     * Collect data for showing to user after successful authentication
-     */
-    public function getContactInfo()
-    {
-        $request = new FacebookRequest($this->getSession(), 'GET', '/me');
-        $userProfile = $request->execute()->getGraphObject(GraphUser::className());
 
-        $contact = array(
-            'first_name' => $userProfile->getFirstName(),
-            'last_name' => $userProfile->getLastName(),
-            'headline' => null,
-            'industry' => null
-        );
-
-        $contact['location'] = $userProfile->getLocation() !== null
-            ? self::formatLocation($userProfile->getLocation()) : null;
-
-        // fetch picture
-        $contact['picture_url'] = $this->getPictureUrl();
-        
-        return $contact;
-    }
-    
     /**
      * Formats location
      * 
@@ -148,30 +135,4 @@ class Facebook
 
         return count($missing) == 0;
     }
-
-    /**
-     * Returns data required for profile page
-     */
-    public function getProfile()
-    {
-        $request = new FacebookRequest($this->getSession(), 'GET', '/me');
-        $gobject = $request->execute()->getGraphObject();
-
-        // get profile data
-        $profile = array(
-            'name' => $gobject->getProperty('name'),
-            'email' => $gobject->getProperty('email'),
-            'biography' => $gobject->getProperty('bio'),
-            'birthday' => $gobject->getProperty('birthday'),
-            'gender' => $gobject->getProperty('gender'),
-            'link' => $gobject->getProperty('link'),
-            'location' => $gobject->getProperty('location'),
-            'website' => $gobject->getProperty('website'),
-            'work' => $gobject->getProperty('work'),
-            'picture_url' => $this->getPictureUrl()
-        );
-        
-        return $profile;
-    }
-    
 }

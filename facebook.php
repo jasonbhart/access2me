@@ -63,17 +63,25 @@ try {
             $sender = new Model\Sender();
             $sender->setSender($email);
             $sender->setService(Model\SenderRepository::SERVICE_FACEBOOK);
-            $sender->setOAuthKey($session->getToken());
-        } else {
-            $sender->setOAuthKey($session->getToken());
-            $sender->setProfile(null);
-            $sender->setProfileDate(null);
         }
+        
+        $sender->setOAuthKey($session->getToken());
+
+        // fetch user's profile
+        $senders = array($sender);
+        $profiles = $defaultProfileProvider->getProfiles($senders, false);
+        $profile = $defaultProfileProvider->getProfileByServiceId(
+            $profiles,
+            Model\SenderRepository::SERVICE_FACEBOOK
+        );
+
+        if ($profile == null) {
+            throw new \Exception('Can\'t retrieve profile');
+        }
+        
+        $defaultProfileProvider->storeProfiles($senders, $profiles);
 
         $senderRepo->save($sender);
-
-        // get data for congratulation page
-        $contact = $fbHelper->getContactInfo();
         
         // show user auth completed
         require_once 'views/auth_completed.html';
