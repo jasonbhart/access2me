@@ -13,23 +13,35 @@
     <h1 style="color: #ffffff;">Congratulations, Access2.me Has Validated You!</h1>
 
       <div class="box">
-        <?php if ($contact['picture_url']): ?>
+        <?php if ($profile->pictureUrl): ?>
         <div class="userbox">
-          <div class="pic"><img src="<?php echo htmlentities($contact['picture_url']); ?>"></div>
+            <div class="pic"><img src="<?php echo htmlentities($profile->pictureUrl); ?>"></div>
         </div>
         <?php endif; ?>
         <p>
             <span class="user">
-               <strong><?php echo htmlentities($contact['first_name']) . " " . htmlentities($contact['last_name']); ?></strong>
-               <br />
-               <?php if ($contact['headline'] && $contact['industry']): ?>
-               <?php echo htmlentities($contact['headline']) . " (" . htmlentities($contact['industry']) . ")"; ?>
-               <?php endif; ?>
-               <br />
-               <?php if ($contact['location']): ?>
-               <?php echo htmlentities($contact['location']); ?>
-               <?php endif; ?>
-               <br />
+                <strong><?php echo htmlentities($profile->fullName); ?></strong>
+                <br />
+                <?php if ($profile->profileUrl): ?>
+                Profile: <a href="<?php echo htmlentities($profile->profileUrl); ?>" target="_blank">link</a>
+                <?php endif; ?>
+                <br />
+                <?php if ($profile->summary): ?>
+                Summary: <?php echo htmlentities($profile->summary); ?>
+                <?php endif; ?>
+                <br />
+                <?php if ($profile->biography): ?>
+                Biography: <?php echo htmlentities($profile->biography); ?>
+                <?php endif; ?>
+                <br />
+                <?php if ($profile->location): ?>
+                Location: <?php echo htmlentities($profile->location); ?>
+                <?php endif; ?>
+                <br />
+                <?php if ($profile->website): ?>
+                Website: <?php echo htmlentities($profile->website); ?>
+                <?php endif; ?>
+                <br />
             </span>
         </p>
       </div>

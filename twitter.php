@@ -59,18 +59,26 @@ try {
             $sender = new Model\Sender();
             $sender->setSender($email);
             $sender->setService(Model\SenderRepository::SERVICE_TWITTER);
-            $sender->setOAuthKey($authToken);
-        } else {
-            $sender->setOAuthKey($authToken);
-            $sender->setProfile(null);
-            $sender->setProfileDate(null);
         }
+
+        $sender->setOAuthKey($authToken);
+
+        // fetch user's profile
+        $senders = array($sender);
+        $profiles = $defaultProfileProvider->getProfiles($senders, false);
+        $profile = $defaultProfileProvider->getProfileByServiceId(
+            $profiles,
+            Model\SenderRepository::SERVICE_TWITTER
+        );
+
+        if ($profile == null) {
+            throw new \Exception('Can\'t retrieve profile');
+        }
+
+        $defaultProfileProvider->storeProfiles($senders, $profiles);
 
         $senderRepo->save($sender);
 
-        // get data for congratulation page
-        $contact = $twitter->getContactInfo($authToken);
-        
         // show user auth completed
         require_once 'views/auth_completed.html';
 

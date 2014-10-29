@@ -22,57 +22,6 @@ class Linkedin
         $this->config = $config;
     }
 
-    public function parseProfileData($xml)
-    {
-        $person = $xml->xpath('/person');
-
-        if (!isset($person[0])) {
-            return false;
-        }
-
-        $person = $person[0];
-        $profile = array();
-        
-        $profile['first_name'] = isset($person->{'first-name'}) ? (string) $person->{'first-name'} : null;
-        $profile['last_name'] = isset($person->{'last-name'}) ? (string) $person->{'last-name'} : null;
-        $profile['email'] = isset($person->{'email-address'}) ? (string) $person->{'email-address'} : null;
-        $profile['headline'] = isset($person->{'headline'}) ? (string) $person->{'headline'} : null;
-        $profile['picture_url'] = isset($person->{'picture-url'}) ? (string) $person->{'picture-url'} : null;
-        $profile['profile_url'] = isset($person->{'site-standard-profile-request'}->{'url'}) ? (string) $person->{'site-standard-profile-request'}->{'url'} : null;
-        $profile['location'] = isset($person->{'location'}->{'name'}) ? (string) $person->{'location'}->{'name'} : null;
-        $profile['industry'] = isset($person->{'industry'}) ? (string) $person->{'industry'} : null;
-        $profile['self_summary'] = isset($person->{'summary'}) ? (string) $person->{'summary'} : null;
-        $profile['specialties'] = isset($person->{'specialties'}) ? (string) $person->{'specialties'} : null;
-        $profile['associations'] = isset($person->{'associations'}) ? (string) $person->{'associations'} : null;
-        $profile['interests'] = isset($person->{'interests'}) ? (string) $person->{'interests'} : null;
-        $profile['total_connections'] = isset($person->{'num-connections'}) ? (string) $person->{'num-connections'} : null;
-
-        // parse positions
-        $positions = array();
-        if (isset($person->positions)
-            && isset($person->positions->position)
-        ) {
-            foreach ($person->positions->position as $position) {
-                $item = array();
-                
-                if (isset($position->company) && isset($position->company->name)) {
-                    $item['company'] = (string)$position->company->name;
-                }
-
-                $item['title'] = isset($position->title) ? (string)$position->title : NULL;
-                $item['summary'] = isset($position->summary) ? (string)$position->summary : NULL;
-                $item['is_current'] = isset($position->{'is-current'})
-                    ? (string)$position->{'is-current'} : false;
-                
-                $positions[] = $item;
-            }
-        }
-
-        $profile['positions'] = $positions;
-
-        return $profile;
-    }
-
     public function getProfile($token)
     {
         $url = "https://api.linkedin.com/v1/people/~:(";
@@ -113,11 +62,12 @@ class Linkedin
             curl_close($cURL);
 
             $xml = new \SimpleXMLElement($result);
+            $person = $xml->xpath('/person');
+
+            return isset($person[0]) ? $person[0] : false;
+
         } catch (\Exception $ex) {
             throw new LinkedinException($ex->getMessage(), $ex->getCode(), $ex);
         }
-
-        $profile = $this->parseProfileData($xml);
-        return $profile;
     }
 }

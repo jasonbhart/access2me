@@ -23,34 +23,28 @@ try {
         throw new Exception('No such sender');
     }
 
-    $providers = array(
-        Model\SenderRepository::SERVICE_FACEBOOK => new ProfileProvider\Facebook($facebookAuth),
-        Model\SenderRepository::SERVICE_LINKEDIN => new ProfileProvider\Linkedin($linkedinAuth),
-        Model\SenderRepository::SERVICE_TWITTER => new ProfileProvider\Twitter($twitterAuth)
-    );
-    
-    $provider = new Helper\SenderProfileProvider($providers);
-    $profile = $provider->getProfile($senders);
+    // get all profiles of the sender
+    $profiles = $defaultProfileProvider->getProfiles($senders);
+
+    if ($profiles == null) {
+        $errMsg = sprintf(
+            'Can\'t retrieve profile of %s (message id: %d)',
+            $message['email_from'],
+            $message['id']
+        );
+        throw new \Exception($errMsg);
+    }
 
     // save just fetched profiles
+    $defaultProfileProvider->storeProfiles($senders, $profiles);
 
-    if ($profile) {
-        $map = array();
-        foreach ($senders as $sender) {
-            $map[$sender->getService()] = $sender;
-        }
-        
-        foreach ($profile['services'] as $id => $service) {
-            if ($service !== null && $service['cached'] == false) {
-                $map[$id]->setProfile($service['profile']);
-                $map[$id]->setProfileDate(new \DateTime());
-                $senderRepo->save($map[$id]);
-            }
-        }
+    // commit changes
+    foreach ($senders as $sender) {
+        $senderRepo->save($sender);
     }
 
     // show profile
-    require_once '../views/sender_profile.php';
+    require_once '../views/sender_profile.html';
 
 } catch (\Exception $ex) {
     Logging::getLogger()->error($ex->getMessage(), array('exception' => $ex));
