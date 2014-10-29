@@ -4,7 +4,6 @@ require_once __DIR__ . "/../boot.php";
 
 use Access2Me\Model;
 use Access2Me\Helper;
-use Access2Me\Model;
 
 $db = new Database;
 
