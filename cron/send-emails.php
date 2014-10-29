@@ -38,7 +38,7 @@ foreach ($messages AS $message) {
     $profComb = $defaultProfileProvider->getCombiner($profiles);
     
     // FIXME until Filter will be fixed
-    $contact = $profiles['services'][Model\SenderRepository::SERVICE_LINKEDIN]['profile'];
+    $contact = new Model\Profile\Profile();
 
     $filter = new Filter($message['user_id'], $contact, $db);
     $filter->processFilters();
