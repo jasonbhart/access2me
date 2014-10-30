@@ -132,7 +132,7 @@ class Email
         );
 
         ob_start();
-        include '../views/email_info_header.html';
+        include __DIR__ . '/../views/email_info_header.html';
         $infoText = ob_get_clean();
         
         // build our info header
