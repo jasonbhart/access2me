@@ -56,7 +56,7 @@ foreach ($messages AS $message) {
                     
             // connect to gmail
             $email = $to['email'];
-            $accessToken = $to['gmail_access_token'] . '1';
+            $accessToken = $to['gmail_access_token'];
             try {
                 $imap = Helper\GmailImap::getImap($email, $accessToken);
             } catch (\Exception $ex) {
