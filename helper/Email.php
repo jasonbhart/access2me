@@ -171,7 +171,7 @@ class Email
  
         $newMail = new \ezcMail();
         $newMail->from = new \ezcMailAddress('noreply@access2.me', $fromName);
-        $newMail->to = array(new \ezcMailAddress($to['email']));
+        $newMail->to = array(new \ezcMailAddress($to['mailbox']));
         $newMail->setHeader('Reply-To', $message['reply_email']);
         $newMail->setHeader('X-Mailer', '');
         $newMail->subject = $message['subject'];

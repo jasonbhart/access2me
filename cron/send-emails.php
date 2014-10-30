@@ -15,7 +15,7 @@ if (empty($messages)) {
 }
 
 foreach ($messages AS $message) {
-    $query = "SELECT `id`, `email`,`gmail_access_token`, `gmail_refresh_token` FROM `users` WHERE `id` = '" . $message['user_id'] . "' LIMIT 1";
+    $query = "SELECT `id`, `mailbox`,`gmail_access_token`, `gmail_refresh_token` FROM `users` WHERE `id` = '" . $message['user_id'] . "' LIMIT 1";
     $tmp = $db->getArray($query);
     
     if ($tmp === false) {
@@ -55,10 +55,10 @@ foreach ($messages AS $message) {
             $mail = Helper\Email::buildVerifiedMessage($to, $profComb, $message);
                     
             // connect to gmail
-            $email = $to['email'];
+            $mailbox = $to['mailbox'];
             $accessToken = $to['gmail_access_token'];
             try {
-                $imap = Helper\GmailImap::getImap($email, $accessToken);
+                $imap = Helper\GmailImap::getImap($mailbox, $accessToken);
             } catch (\Exception $ex) {
                 // check that token is valid
                 // if not try to refresh it
@@ -69,7 +69,7 @@ foreach ($messages AS $message) {
                     $db->updateOne('users', 'gmail_access_token', $accessToken, 'id', $to['id']);
 
                     // try again
-                    $imap = Helper\GmailImap::getImap($email, $accessToken);
+                    $imap = Helper\GmailImap::getImap($mailbox, $accessToken);
                 }
             }
 
