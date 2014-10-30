@@ -36,7 +36,7 @@ if (!empty($result[0]['gmail_access_token'])) {
 } else {
         // Get a new Token
         if (!$_GET['code']) {
-            header('Location: https://accounts.google.com/o/oauth2/auth?response_type=code&client_id=523467224320-5evqo2ovdnqqntulu3531298cp8hfh12.apps.googleusercontent.com&redirect_uri=http%3A%2F%2Fapp.access2.me%2Fui%2Fgmail-config.php&access_type=offline&scope=https%3A%2F%2Fmail.google.com%2F');
+            header('Location: https://accounts.google.com/o/oauth2/auth?response_type=code&client_id=523467224320-5evqo2ovdnqqntulu3531298cp8hfh12.apps.googleusercontent.com&redirect_uri=http%3A%2F%2Fapp.access2.me%2Fui%2Fgmail-config.php&access_type=offline&approval_prompt=force&scope=https%3A%2F%2Fmail.google.com%2F');
         } else {
         $url = 'https://accounts.google.com/o/oauth2/token';
         $fields = array(
@@ -72,7 +72,7 @@ if (!empty($result[0]['gmail_access_token'])) {
 
         if (!empty($refreshToken)) {
             // Store the refresh code in the DB
-            $db->updateOne('users', 'gmail_refresh_token', $refreshToken, 'username', $_COOKIE['a2mauth']);
+            $db->updateOne('users', 'gmail_refresh_token', $refreshToken, 'username', $_COOKIE['a2muser']);
         }
 
         header('Location: gmail-config.php');

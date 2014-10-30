@@ -136,18 +136,18 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/fkooman/php-oauth-client.git",
-                "reference": "9bd9cc3efa11f1ac5150d9b714545f71334779f7"
+                "reference": "4b2c322a9c61adedc36f066db804e4700874d985"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/fkooman/php-oauth-client/zipball/9bd9cc3efa11f1ac5150d9b714545f71334779f7",
-                "reference": "9bd9cc3efa11f1ac5150d9b714545f71334779f7",
+                "url": "https://api.github.com/repos/fkooman/php-oauth-client/zipball/4b2c322a9c61adedc36f066db804e4700874d985",
+                "reference": "4b2c322a9c61adedc36f066db804e4700874d985",
                 "shasum": ""
             },
             "require": {
                 "ext-openssl": "*",
-                "fkooman/oauth-common": "0.5.*",
-                "guzzle/guzzle": "~3.8",
+                "fkooman/oauth-common": "~0.5.0",
+                "guzzle/guzzle": "~3.9",
                 "php": ">=5.3.3"
             },
             "type": "library",
@@ -168,7 +168,7 @@
                 }
             ],
             "description": "PHP OAuth 2.0 Client",
-            "time": "2014-09-25 09:41:10"
+            "time": "2014-10-27 16:14:28"
         },
         {
             "name": "google/apiclient",
