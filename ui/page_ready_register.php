@@ -30,8 +30,7 @@ if ($_POST) {
         $errors['email'] = 'Please enter a valid email address';
     }
 
-    $gmailPattern = $emailPattern = '/^[a-zA-Z0-9.!#$%&\'*+\/=?^_`{|}~-]+@gmail\.com$/';
-    if (!preg_match($gmailPattern, $mailbox)) {
+    if (!preg_match($emailPattern, $mailbox)) {
         $errors['mailbox'] = 'Please enter a valid Gmail address';
     }
 

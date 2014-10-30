@@ -7,7 +7,7 @@ use Access2Me\Helper;
 
 $db = new Database;
 
-$query = "SELECT * FROM `messages` WHERE id in (9,10,11)"; //`status` = '2'";
+$query = "SELECT * FROM `messages` WHERE `status` = '2'";
 $messages = $db->getArray($query);
 
 if (empty($messages)) {
