@@ -7,7 +7,7 @@ use Access2Me\Helper;
 
 $db = new Database;
 
-$query = "SELECT * FROM `messages` WHERE id in (9,10,11)"; //`status` = '2'";
+$query = "SELECT * FROM `messages` WHERE `status` = '2'";
 $messages = $db->getArray($query);
 
 if (empty($messages)) {
@@ -15,15 +15,16 @@ if (empty($messages)) {
 }
 
 foreach ($messages AS $message) {
-    $query = "SELECT `email`,`gmail_access_token` FROM `users` WHERE `id` = '" . $message['user_id'] . "' LIMIT 1";
-    $to = $db->getArray($query)[0];
+    $query = "SELECT `id`, `email`,`gmail_access_token`, `gmail_refresh_token` FROM `users` WHERE `id` = '" . $message['user_id'] . "' LIMIT 1";
+    $tmp = $db->getArray($query);
     
-
-    if ($to === false) {
+    if ($tmp === false) {
         $message = sprintf('No user exists for message id: %d', $message['id']);
         Logging::getLogger()->info($message);
         continue;
     }
+
+    $to = $tmp[0];
 
     // get all service sender is authenticated with
     $repo = new Model\SenderRepository($db);
@@ -55,9 +56,22 @@ foreach ($messages AS $message) {
                     
             // connect to gmail
             $email = $to['email'];
-            $accessToken = $to['gmail_access_token'];
-            $imap = new Helper\GmailImap('imap.gmail.com', '993', 'ssl');
-            $imap->loginOAuth2($email, $accessToken);
+            $accessToken = $to['gmail_access_token'] . '1';
+            try {
+                $imap = Helper\GmailImap::getImap($email, $accessToken);
+            } catch (\Exception $ex) {
+                // check that token is valid
+                // if not try to refresh it
+                if (!Helper\Google::isTokenValid($accessToken)) {
+                    $accessToken = Helper\Google::requestAuthToken($to['gmail_refresh_token']);
+                    
+                    // save token back to user
+                    $db->updateOne('users', 'gmail_access_token', $accessToken, 'id', $to['id']);
+
+                    // try again
+                    $imap = Helper\GmailImap::getImap($email, $accessToken);
+                }
+            }
 
             // append message to mailbox
             $storage = new \Zend\Mail\Storage\Imap($imap);
