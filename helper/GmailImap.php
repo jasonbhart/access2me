@@ -36,4 +36,11 @@ class GmailImap extends Protocol\Imap
             }
         }
     }
+
+    public static function getImap($email, $accessToken)
+    {
+        $imap = new self('imap.gmail.com', '993', 'ssl');
+        $imap->loginOAuth2($email, $accessToken);
+        return $imap;
+    }
 }

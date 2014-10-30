@@ -12,6 +12,7 @@ require_once __DIR__ . "/config/database.php";
 require_once __DIR__ . "/database.php";
 require_once __DIR__ . "/helper/Auth.php";
 require_once __DIR__ . "/helper/GmailImap.php";
+require_once __DIR__ . "/helper/Google.php";
 require_once __DIR__ . "/helper/Email.php";
 require_once __DIR__ . "/helper/Facebook.php";
 require_once __DIR__ . "/helper/Linkedin.php";
