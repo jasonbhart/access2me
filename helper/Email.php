@@ -69,9 +69,11 @@ class Email
         $record['header']    = $message['raw_header'];
         $record['body']      = $message['raw_body'];
 
+        $replyTo = \ezcMailTools::parseEmailAddress($mail->getHeader('Reply-To'));
+        
         // parse headers to find Return-Path or From for reply_email
-        $record['replyEmail'] = isset($mail->returnPath)
-            ? $mail->returnPath->email : $mail->from->email;
+        $record['replyEmail'] = isset($replyTo)
+            ? $replyTo->email : $mail->from->email;
         
         return $record;
     }
