@@ -17,17 +17,16 @@ class GmailImap extends Protocol\Imap
             $this->constructAuthString($username, $accessToken)
         );
         $this->sendRequest('AUTHENTICATE', $authenticateParams);
+
         while (true) {
             $response = "";
             $is_plus = $this->readLine($response, '+', true);
             if ($is_plus) {
-                error_log("got an extra server challenge: $response");
+                \Logging::getLogger()->addDebug('got an extra server challenge: ' . $response);
                 // Send empty client response.
                 $this->sendRequest('');
             } else {
-                if (preg_match('/^NO /i', $response) ||
-                    preg_match('/^BAD /i', $response)
-                ) {
+                if (preg_match('/^NO /i', $response) || preg_match('/^BAD /i', $response)) {
                     throw new \Exception("got failure response: $response");
                 } else if (preg_match("/^OK /i", $response)) {
                     return true;
