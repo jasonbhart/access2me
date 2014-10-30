@@ -15,8 +15,9 @@ if (empty($messages)) {
 }
 
 foreach ($messages AS $message) {
-    $query = "SELECT `email` FROM `users` WHERE `id` = '" . $message['user_id'] . "' LIMIT 1";
-    $to = $db->getArray($query);
+    $query = "SELECT `email`,`gmail_access_token` FROM `users` WHERE `id` = '" . $message['user_id'] . "' LIMIT 1";
+    $to = $db->getArray($query)[0];
+    
 
     // get all service sender is authenticated with
     $repo = new Model\SenderRepository($db);
@@ -38,27 +39,25 @@ foreach ($messages AS $message) {
     $profComb = $defaultProfileProvider->getCombiner($profiles);
     
     // FIXME until Filter will be fixed
-    $contact = $profiles['services'][Model\SenderRepository::SERVICE_LINKEDIN]['profile'];
+    $contact = new Model\Profile\Profile();
 
     $filter = new Filter($message['user_id'], $contact, $db);
     $filter->processFilters();
     if ($filter->status === true || true) {
-
-        $mail = Helper\Email::buildVerifiedMessage($to[0], $profComb, $message);
-
-        // send new message
-        $smtp = new \ezcMailSmtpTransport(
-            'mail.access2.me',
-            'noreply@access2.me',
-            'access123',
-            587
-        );
-
-        $smtp->senderHost = 'access2.me';
-        $smtp->options->connectionType = \ezcMailSmtpTransport::CONNECTION_TLS;
-
         try {
-            $smtp->send($mail);
+            $mail = Helper\Email::buildVerifiedMessage($to, $profComb, $message);
+                    
+            // connect to gmail
+            $email = $to['email'];
+            $accessToken = $to['gmail_access_token'];
+            $imap = new Helper\GmailImap('imap.gmail.com', '993', 'ssl');
+            $imap->loginOAuth2($email, $accessToken);
+
+            // append message to mailbox
+            $storage = new \Zend\Mail\Storage\Imap($imap);
+            $newMessage = $mail->generate();
+            $storage->appendMessage($newMessage, null, array(\Zend\Mail\Storage::FLAG_RECENT));
+
             $db->updateOne('messages', 'status', '3', 'id', $message['id']);
         } catch (Exception $ex) {
             Logging::getLogger()->error(
