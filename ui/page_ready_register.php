@@ -1,6 +1,87 @@
 <?php include 'inc/config.php'; ?>
 <?php include 'inc/template_start.php'; ?>
 
+<?php
+
+if ($_POST) {
+    require_once __DIR__ . "/../boot.php";
+
+    $username = isset($_POST['register-username']) ? $_POST['register-username'] : null;
+    $fullName = isset($_POST['register-fullname']) ? $_POST['register-fullname'] : null;
+    $email = isset($_POST['register-email']) ? $_POST['register-email'] : null;
+    $mailbox = isset($_POST['register-mailbox']) ? $_POST['register-mailbox'] : null;
+    $password = isset($_POST['register-password']) ? $_POST['register-password'] : null;
+    $password2 = isset($_POST['register-password-verify']) ? $_POST['register-password-verify'] : null;
+    $terms = isset($_POST['register-terms']) ? (bool)$_POST['register-terms'] : false;
+
+    // very basic verification
+    $errors = array();
+    if (!preg_match('/^\w{3,}$/', $username)) {
+        $errors['username'] = 'Please enter a username';
+    }
+
+    if (!preg_match('/^[\w ]{5,}$/', $fullName)) {
+        $errors['name'] = 'Please enter your full name';
+    }
+
+    // took from jquery.validation
+    $emailPattern = '/^[a-zA-Z0-9.!#$%&\'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/';
+    if (!preg_match($emailPattern, $email)) {
+        $errors['email'] = 'Please enter a valid email address';
+    }
+
+    $gmailPattern = $emailPattern = '/^[a-zA-Z0-9.!#$%&\'*+\/=?^_`{|}~-]+@gmail\.com$/';
+    if (!preg_match($gmailPattern, $mailbox)) {
+        $errors['mailbox'] = 'Please enter a valid Gmail address';
+    }
+
+    if (mb_strlen($password) < 5 || $password != $password2) {
+        $errors['password'] = 'Your password must be at least 5 characters long';
+    }
+
+    if (!$terms) {
+        $errors['terms'] = 'Please accept the terms!';
+    }
+
+    // create user
+    if (count($errors) == 0) {
+        $db = new Database();
+        $auth = new \Access2Me\Helper\Auth($db);
+
+        $passwordHash = $auth->encodePassword($password);
+
+        // create user
+        $db->insert(
+            'users',
+            array(
+                'mailbox',
+                'email',
+                'name',
+                'username',
+                'password',
+            ),
+            array(
+                $mailbox,
+                $email,
+                $fullName,
+                $username,
+                $passwordHash
+            ),
+            true
+        );
+
+        try {
+            // login user and authenticate him with gmail
+            $auth->login($username, $password);
+            header('Location: gmailoauth.php');
+            exit;
+        } catch (\Access2Me\Helper\AuthException $ex) {
+            Logging::getLogger()->debug('Can\' register user', array('exception' => $ex));
+        }
+    }
+}
+?>
+
 <!-- Login Container -->
 <div id="login-container">
     <!-- Register Header -->
@@ -23,13 +104,31 @@
         <!-- Register Form -->
         <form id="form-register" action="page_ready_register.php" method="post" class="form-horizontal">
             <div class="form-group">
+                <?php if (isset($errors)) {
+                    foreach ($errors as $error) { ?>
+                    <div>
+                        <?php echo $error; ?>
+                    </div>
+                <?php }}; ?>
+            </div>
+            <div class="form-group">
                 <div class="col-xs-12">
                     <input type="text" id="register-username" name="register-username" class="form-control" placeholder="Username">
                 </div>
             </div>
             <div class="form-group">
                 <div class="col-xs-12">
+                    <input type="text" id="register-fullname" name="register-fullname" class="form-control" placeholder="Full name">
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-xs-12">
                     <input type="text" id="register-email" name="register-email" class="form-control" placeholder="Email">
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-xs-12">
+                    <input type="text" id="register-mailbox" name="register-mailbox" class="form-control" placeholder="Gmail address">
                 </div>
             </div>
             <div class="form-group">

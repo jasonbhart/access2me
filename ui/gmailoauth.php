@@ -34,7 +34,7 @@ if (!empty($result[0]['gmail_access_token'])) {
 
     // If not, refresh the token if we have a refresh token
 } else {
-    // Get a new Token
+        // Get a new Token
         if (!$_GET['code']) {
             header('Location: https://accounts.google.com/o/oauth2/auth?response_type=code&client_id=523467224320-5evqo2ovdnqqntulu3531298cp8hfh12.apps.googleusercontent.com&redirect_uri=http%3A%2F%2Fapp.access2.me%2Fui%2Fgmail-config.php&access_type=offline&scope=https%3A%2F%2Fmail.google.com%2F');
         } else {

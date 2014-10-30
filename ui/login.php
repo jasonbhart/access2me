@@ -1,42 +1,34 @@
 <?php
 
+require_once __DIR__ . "/../boot.php";
+
+use Access2Me\Helper\Auth;
+use Access2Me\Helper\AuthException;
+
+$db = new Database;
+$auth = new Auth($db);
+
 if ($_POST) {
 
-    require_once __DIR__ . "/../boot.php";
-    $db = new Database;
-
-    if ($_POST['login-username']) {
-        $sql = "SELECT `password` FROM `users` WHERE `username` = '" . $_POST['login-username'] . "' LIMIT 1;";
-        $password = $db->getArray($sql);
-
-        if (!isset($password[0]['password'])) {
-            $errorMessage = 'Invalid username';
-        } else {
-            if ($password[0]['password'] == md5('bacon' . $_POST['login-password'])) {
-                if (isset($_POST['remember'])) {
-                    $expire = time()+(60 * 60 * 24 * 30);
-                } else {
-                    $expire = time()+3600;
-                }
-
-                setcookie('a2muser', $_POST['login-username'], $expire);
-                setcookie('a2mauth', md5('bacon' . $_POST['login-password']), $expire);
-
-                header('Location: index.php');
-            } else {
-                $errorMessage = 'Invalid password';
-            }
+    $username = isset($_POST['login-username']) ? $_POST['login-username'] : null;
+    $password = isset($_POST['login-password']) ? $_POST['login-password'] : null;
+    $remember = isset($_POST['login-remember-me']) ? (bool)$_POST['login-remember-me'] : false;
+    
+    if ($username && $password) {
+        try {
+            $auth->login($username, $password, $remember);
+            header('Location: index.php');
+            exit;
+        } catch (AuthException $ex) {
+            $errorMessage = $ex->getMessage();
         }
     }
 }
 
-if ($_GET['action'] == 'logout') {
-    unset($_COOKIE['a2muser']);
-    unset($_COOKIE['a2mauth']);
-    setcookie('a2muser', null, -1, '/');
-    setcookie('a2mauth', null, -1, '/');
-
+if (isset($_GET['action']) && $_GET['action'] == 'logout') {
+    $auth->logout();
     header('Location: login.php');
+    exit;
 }
 
 ?>

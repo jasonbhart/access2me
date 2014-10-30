@@ -1,21 +1,14 @@
 <?php
 
 require_once __DIR__ . "/../boot.php";
+
+use Access2Me\Helper\Auth;
+use Access2Me\Helper\AuthException;
+
 $db = new Database;
+$auth = new Auth($db);
 
-if (!isset($_COOKIE['a2muser'])) {
+if (!$auth->isAuthenticated()) {
     header('Location: login.php');
-} else {
-    if (!isset($_COOKIE['a2mauth'])) {
-        header('Location: login.php');
-    } else {
-        $sql = "SELECT `password` FROM `users` WHERE `username` = '" . $_COOKIE['a2muser'] . "' LIMIT 1;";
-        $password = $db->getArray($sql);
-
-        if ($password[0]['password'] == $_COOKIE['a2mauth']) {
-            // authorized
-        } else {
-            header('Location: login.php');
-        }
-    }
+    exit;
 }
