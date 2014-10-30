@@ -7,7 +7,7 @@ use Access2Me\Helper;
 
 $db = new Database;
 
-$query = "SELECT * FROM `messages` WHERE `status` = '2'";
+$query = "SELECT * FROM `messages` WHERE id in (9,10,11)"; //`status` = '2'";
 $messages = $db->getArray($query);
 
 if (empty($messages)) {
@@ -18,6 +18,12 @@ foreach ($messages AS $message) {
     $query = "SELECT `email`,`gmail_access_token` FROM `users` WHERE `id` = '" . $message['user_id'] . "' LIMIT 1";
     $to = $db->getArray($query)[0];
     
+
+    if ($to === false) {
+        $message = sprintf('No user exists for message id: %d', $message['id']);
+        Logging::getLogger()->info($message);
+        continue;
+    }
 
     // get all service sender is authenticated with
     $repo = new Model\SenderRepository($db);

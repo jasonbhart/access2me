@@ -36,7 +36,15 @@ var ReadyRegister = function() {
                         required: true,
                         minlength: 3
                     },
+                    'register-fullname': {
+                        required: true,
+                        minlength: 5
+                    },
                     'register-email': {
+                        required: true,
+                        email: true
+                    },
+                    'register-mailbox': {
                         required: true,
                         email: true
                     },
@@ -57,7 +65,12 @@ var ReadyRegister = function() {
                         required: 'Please enter a username',
                         minlength: 'Please enter a username'
                     },
+                    'register-fullname': {
+                        required: 'Please enter your full name',
+                        minlength: 'Please enter your full name'
+                    },
                     'register-email': 'Please enter a valid email address',
+                    'register-mailbox': 'Please enter a valid Gmail address',
                     'register-password': {
                         required: 'Please provide a password',
                         minlength: 'Your password must be at least 5 characters long'
