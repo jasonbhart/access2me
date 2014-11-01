@@ -130,7 +130,8 @@ class Email
             'email' => $profComb->getFirst('email'),
             'full_name' => $profComb->getFirst('fullName'),
             'headline' => $profComb->getFirst('headline'),
-            'location' => $profComb->getFirst('location')
+            'location' => $profComb->getFirst('location'),
+            'summary'  => $profComb->getFirst('summary')
         );
 
         ob_start();

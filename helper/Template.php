@@ -9,9 +9,9 @@ class Template
     public static function getServiceImage($serviceId)
     {
         $images = array(
-            SenderRepository::SERVICE_LINKEDIN => 'linkedin-22x17-bw.gif',
-            SenderRepository::SERVICE_FACEBOOK => 'facebook.png',
-            SenderRepository::SERVICE_TWITTER => 'twitter.png',
+            SenderRepository::SERVICE_LINKEDIN => '16-linkedin.png',
+            SenderRepository::SERVICE_FACEBOOK => '16-facebook.png',
+            SenderRepository::SERVICE_TWITTER => '16-twitter.png'
         );
 
         if (!isset($images[$serviceId])) {

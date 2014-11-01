@@ -23,9 +23,7 @@ use Access2Me\Helper\Template;
                         <td width="7"></td>
                         <td width="370" align="left">
                             <?php foreach ($contact['profile_urls'] as $sid => $url): ?>
-                            <a href="<?php echo htmlentities($url); ?>">
-                                <img src="http://app.access2.me/images/<?php echo htmlentities(Template::getServiceImage($sid)); ?>" nosend="1" border="0" width="22" height="17" alt="LinkedIn">
-                            </a>
+                            <a href="<?php echo htmlentities($url); ?>"><img src="http://app.access2.me/images/<?php echo htmlentities(Template::getServiceImage($sid)); ?>" nosend="1" border="0" width="16" height="16"></a>
                             <?php endforeach; ?>
                             <img src="http://app.access2.me/images/clear.gif" nosend="1" border="0" width="3" height="1">
                             <span style="text-align: right; margin-top: 0px; color: #808080; font-size: 8pt; font-weight: bold; font-family: 'Calibri', sans-serif;">
@@ -69,13 +67,20 @@ use Access2Me\Helper\Template;
                     </tr>
                 </table>
             </td>
+           <td>
+              <img src="http://app.access2.me/img/a2mbanner.png" border="0">
+           </td>
         </tr>
     </table>
 
     <table cellspacing="0" cellpadding="0" border="0">
         <tr>
-            <td style="padding-left: 0px;">
-                <span style="color: #8A8A8A; font-family: 'Calibri', sans-serif; font-size: 8pt; font-weight: regular;"></span>
+            <td style="padding-left: 0px;" with="400">
+                <span style="color: #8A8A8A; font-family: 'Calibri', sans-serif; font-size: 8pt; font-weight: regular;">
+                   <?php if (!empty($contact['summary'])): ?>
+                   <strong><?php echo htmlentities($contact['summary']); ?></strong>
+                   <?php endif; ?>
+                </span>
             </td>
         </tr>
     </table>
@@ -84,10 +89,7 @@ use Access2Me\Helper\Template;
             <td style="padding-left: 0px;"></td>
         </tr>
     </table>
-
-    <span style="background-color: #0000ff; font-weight: bold; color: #ffffff;">
-        &nbsp;&nbsp;&nbsp;This contact has been verified by Access2.me&nbsp;&nbsp;&nbsp;
-    </span>
-    <br /><br />
+    <hr>
+ <br /><br />
 </body>
 </html>
