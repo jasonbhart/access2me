@@ -58,8 +58,8 @@ $linkedinAuth = array(
 );
 
 $twitterAuth = array(
-    'consumer_key' => 'eMnDyDghuEznqBGUE9C48LINs',
-    'consumer_secret' => 'MGbLx83IbgGeRcp5ColG8CcDY6KUgfK3xBmoXm1342aHj5rrmw',
+    'consumer_key' => 'gEBjjVorzsmQy4Jar9TpM9NJ2',
+    'consumer_secret' => 'Kkon0Upg19osKOOskjsSw8ZpCZDNLlp72hfVyXNpLEEvhZu9To',
     'callback_url' => 'http://app.access2.me/twitter.php',
     //'user_agent' => 'access2.me'
 );
@@ -71,3 +71,15 @@ $profileProviders = array(
 );
 
 $defaultProfileProvider = new Access2Me\Helper\SenderProfileProvider($profileProviders);
+
+$appConfig = array(
+    'imap' => array(
+        'host'     => 'mail.access2.me',
+        'user'     => 'catchall@access2.me',
+        'password' => 'catch123'
+    )
+);
+
+if (file_exists(__DIR__ . '/boot.local.php')) {
+    require_once __DIR__ . '/boot.local.php';
+}

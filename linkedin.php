@@ -9,10 +9,27 @@ use Access2Me\Model;
 
 $db = new Database;
 
-if (!$_GET['code']) {
-    header('Location: https://www.linkedin.com/uas/oauth2/authorization?response_type=code&client_id=75dl362rayg47t&state=ECEEFWF45453sdffef424&redirect_uri=' . $localUrl . '/linkedin.php%3Fmessage_id%3d' . $_GET['message_id']);
+if (!isset($_GET['code'])) {
+    $params = array(
+        'response_type' => 'code',
+        'client_id' => $linkedinAuth['clientId'],
+        'state' => 'ECEEFWF45453sdffef424',
+        'redirect_uri' => $localUrl . '/linkedin.php?message_id=' . $_GET['message_id']
+    );
+
+    $query = http_build_query($params);
+    header('Location: https://www.linkedin.com/uas/oauth2/authorization?' . $query);
 } else {
-    $url = "https://www.linkedin.com/uas/oauth2/accessToken?grant_type=authorization_code&code=" . $_GET['code'] . "&redirect_uri=" . $localUrl . "/linkedin.php%3Fmessage_id%3d" . $_GET['message_id'] . "&client_id=75dl362rayg47t&client_secret=eCxKfjOpunoO9rSj";
+    $params = array(
+        'grant_type' => 'authorization_code',
+        'code' => $_GET['code'],
+        'redirect_uri' => $localUrl . '/linkedin.php?message_id=' . $_GET['message_id'],
+        'client_id' => $linkedinAuth['clientId'],
+        'client_secret' => $linkedinAuth['clientSecret']
+    );
+    
+    $query = http_build_query($params);
+    $url = "https://www.linkedin.com/uas/oauth2/accessToken?" . $query;
 
     $cURL = curl_init();
 
@@ -66,46 +83,10 @@ if (!$_GET['code']) {
     
     // commit changes
     $senderRepo->save($sender);
-?>
 
-<html>
-<head>
-    <link rel="stylesheet" type="text/css" href="css/profile.css">
-</head>
-
-<center>
-
-<br />
-<h1 style="color: #ffffff;">Congratulations, Access2.me Has Validated You!</h1>
-
-  <div class="box">
-    <div class="userbox">
-        <div class="pic">
-            <?php if (!empty($profile->pictureUrl)): ?>
-            <img src="<?php echo htmlentities($profile->pictureUrl); ?>">
-            <?php endif; ?>
-        </div>
-    </div>
-    <p>
-        <span class="user">
-           <?php echo "<strong>" . htmlentities($profile->fullName) . "</strong>"; ?>
-           <?php echo "<br />"; ?>
-           <?php echo htmlentities($profile->headline) . " (" . htmlentities($profile->industry) . ")"; ?>
-           <?php echo "<br />"; ?>
-           <?php echo htmlentities($profile->location); ?>
-
-           <br />
-        </span>
-    </p>
-  </div>
-
-</center>
-
-</html>
-
-<?php
-
+    // sender is verified, mark message as allowed to be processed (filtering, sending to recipient)
     $db->updateOne('messages', 'status', '2', 'from_email', $email);
+    
+    require_once 'views/auth_completed.html';
 }
 
-?>
