@@ -82,7 +82,10 @@ try {
         $defaultProfileProvider->storeProfiles($senders, $profiles);
 
         $senderRepo->save($sender);
-        
+
+        // sender is verified, mark message as allowed to be processed (filtering, sending to recipient)
+        $db->updateOne('messages', 'status', '2', 'from_email', $email);
+
         // show user auth completed
         require_once 'views/auth_completed.html';
 
