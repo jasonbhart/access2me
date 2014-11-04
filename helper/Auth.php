@@ -13,17 +13,18 @@ class Auth
         $this->db = $db;
     }
 
-    public function encodePassword($password)
+    public static function encodePassword($password)
     {
         return md5('bacon' . $password);
     }
 
-    protected function getPassword($username)
+    protected function getUser($username)
     {
-        $sql = "SELECT `password` FROM `users` WHERE `username` = '" . $username . "' LIMIT 1;";
-        $password = $this->db->getArray($sql);
+        $sql = "SELECT `id`, `mailbox`, `email`, `name`, `username`, `password`, `gmail_access_token`, `gmail_refresh_token`"
+                . " FROM `users` WHERE `username` = '" . $username . "' LIMIT 1;";
+        $user = $this->db->getArray($sql);
         
-        return $password !== false ? $password[0]['password'] : false;
+        return $user !== false ? $user[0] : null;
     }
 
     /**
@@ -36,16 +37,16 @@ class Auth
      */
     public function login($username, $password, $remember = false)
     {
-        $savedPw = $this->getPassword($username);
+        $user = $this->getUser($username);
 
         // check user ?
-        if ($savedPw === false) {
+        if ($user === null) {
             throw new AuthException('Invalid username');
         }
 
         // check password
         $hash = self::encodePassword($password);
-        if ($savedPw != $hash) {
+        if ($user['password'] != $hash) {
             throw new AuthException('Invalid password');
         }
 
@@ -58,6 +59,9 @@ class Auth
 
         setcookie('a2muser', $username, $expire);
         setcookie('a2mauth', $hash, $expire);
+
+        session_destroy();        
+        $_SESSION['user'] = $user;
     }
 
     public function isAuthenticated()
@@ -66,7 +70,9 @@ class Auth
             return false;
         }
 
-        return $this->getPassword($_COOKIE['a2muser']) === $_COOKIE['a2mauth'];
+        $user = $this->getLoggedUser();
+        
+        return $user['password'] === $_COOKIE['a2mauth'];
     }
 
     public function logout()
@@ -75,5 +81,17 @@ class Auth
         unset($_COOKIE['a2mauth']);
         setcookie('a2muser', null, -1);
         setcookie('a2mauth', null, -1);
+        session_destroy();
+    }
+
+    public function getLoggedUser()
+    {
+        // user may not be fully authenticated (entered credentials in this session)
+        $user = isset($_SESSION['user']) ? $_SESSION['user'] : $this->getUser($_COOKIE['a2muser']);
+        if ($user != null) {
+            $_SESSION['user'] = $user;
+        }
+        
+        return $user;
     }
 }

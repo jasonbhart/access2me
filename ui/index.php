@@ -4,13 +4,13 @@
 <?php include 'inc/page_head.php'; ?>
 
 <?php
+use Access2Me\Helper;
 
 $db = new Database;
+$auth = new Helper\Auth($db);
+$user = $auth->getLoggedUser();
 
-$sql = "SELECT `id` FROM `users` WHERE `username` = '" . $_COOKIE['a2muser'] . "' LIMIT 1;";
-$userId = $db->getArray($sql);
-
-$messageSql = "SELECT `id`, `from_email`, `from_name`, `subject` FROM `messages` WHERE `user_id` = '" . $userId[0]['id'] . "' LIMIT 10;";
+$messageSql = "SELECT `id`, `from_email`, `from_name`, `subject` FROM `messages` WHERE `user_id` = '" . $user['id'] . "' LIMIT 10;";
 $messages = $db->getArray($messageSql);
 
 foreach ($messages AS &$message) {
