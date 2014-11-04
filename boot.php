@@ -26,6 +26,7 @@ require_once __DIR__ . "/model/SenderRepository.php";
 require_once __DIR__ . "/model/Sender.php";
 require_once __DIR__ . "/model/Profile/Profile.php";
 require_once __DIR__ . "/model/Profile/Position.php";
+require_once __DIR__ . "/model/Profile/ProfileRepository.php";
 require_once __DIR__ . "/ProfileProvider/ProfileProviderInterface.php";
 require_once __DIR__ . "/ProfileProvider/Facebook.php";
 require_once __DIR__ . "/ProfileProvider/Linkedin.php";
@@ -73,6 +74,7 @@ $profileProviders = array(
 $defaultProfileProvider = new Access2Me\Helper\SenderProfileProvider($profileProviders);
 
 $appConfig = array(
+    'siteUrl' => $localUrl,
     'imap' => array(
         'host'     => 'mail.access2.me',
         'user'     => 'catchall@access2.me',

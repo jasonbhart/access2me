@@ -34,7 +34,7 @@
             </a>
         </div>
         <div class="col-sm-6 col-lg-3">
-            <a href="javascript:void(0)" class="widget">
+            <a href="<?php echo htmlentities($appConfig['siteUrl'] . '/ui/filters.php'); ?>" class="widget">
                 <div class="widget-content widget-content-mini themed-background-danger text-light-op">
                     <i class="fa fa-clock-o"></i> <strong>Filtering</strong>
                 </div>

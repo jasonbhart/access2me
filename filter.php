@@ -1,5 +1,7 @@
 <?php
 
+use Access2Me\Model\Profile;
+
 class Filter
 {
 
@@ -10,6 +12,18 @@ class Filter
 
     protected $tableName = 'filters';
     const     TABLE_NAME = 'filters';
+
+    const EQUAL_TO = 1;
+    const NOT_EQUAL_TO = 2;
+    const GREATER_THAN = 3;
+    const NOT_GREATER_THAN = 4;
+
+    private static $types = array(
+        self::EQUAL_TO,
+        self::NOT_EQUAL_TO,
+        self::GREATER_THAN,
+        self::NOT_GREATER_THAN
+    );
 
     public function __construct($userId, $contact, Database $db) {
         if (!empty($contact)) {
@@ -127,4 +141,34 @@ class Filter
         }
     }
     //--------------------------------------------------------------------------
+
+    public static function getTypes()
+    {
+        return self::$types;
+    }
+
+    public static function getDescriptions($filters)
+    {
+        $descriptions = array();
+
+        $fields = Profile\ProfileRepository::getFilterableFields();
+        $filterTypes = self::getTypes();
+
+        foreach ($filters as $filter) {
+            if (!isset($fields[$filter['field']]) || !isset($filterTypes[$filter['type']])) {
+                continue;
+            }
+
+            $descriptions[] = array(
+                'filter' => $filter,
+                'description' => array(
+                    'field' => $fields[$filter['field']],
+                    'action' => self::getConditionNameByType($filter['type']),
+                    'value' => $filter['value']
+                ) 
+            );
+        }
+
+        return $descriptions;
+    }
 }
