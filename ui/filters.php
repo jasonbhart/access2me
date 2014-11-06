@@ -5,13 +5,21 @@
 
 <?php
 use Access2Me\Helper;
-use Access2Me\Model;
 
 $db = new Database;
 $auth = new Helper\Auth($db);
 $userId = $auth->getLoggedUser()['id'];
-$records = Filter::getFiltersByUserId($userId, $db);
-$filters = $records ? Filter::getDescriptions($records) : array();
+
+// prepare filters for render
+$filters = array();
+foreach (Filter::getFiltersByUserId($userId, $db) as $filter) {
+    $filters[] = array(
+        'id' => $filter['id'],
+        'field' => $filter['field'],
+        'type' => $filter['type'],
+        'value' => $filter['value']
+    );
+}
 
 ?>
 
@@ -24,28 +32,34 @@ $filters = $records ? Filter::getDescriptions($records) : array();
             <h1>Filtering</h1>
         </div>
 
-        <button id="add-new-filter" class="btn-effect-ripple btn-success btn-sm">Add new filter</button>
+        <div>
+            <button id="filter-new" class="btn-effect-ripple btn-success btn-sm">Add new filter</button>
+        </div>
         
-        <form id="form-filter-edit" class="form-inline" style="display: block">
+        <form id="form-filter-edit" class="form-inline" style="display: none">
+            <input type="hidden" class="filter-id" />
             <div class="form-group" style="vertical-align: top">
-                <select id="field-name" name="field-name" class="form-control">
-                    <?php foreach (Model\Profile\ProfileRepository::getFilterableFields() as $prop=>$name): ?>
-                        <option value="<?php echo htmlentities($prop); ?>"><?php echo htmlentities($name); ?></option>
+                <select name="field-name" class="field-name form-control">
+                    <?php foreach (Filter::getFilterableFields() as $field=>$name): ?>
+                        <option value="<?php echo htmlentities($field); ?>"><?php echo htmlentities($name); ?></option>
                     <?php endforeach; ?>
                 </select>
             </div>
             <div class="form-group" style="vertical-align: top">
-                <select id="filter-type" name="filter-type" class="form-control">
+                <select name="filter-type" class="filter-type form-control">
                     <?php foreach (Filter::getTypes() as $type): ?>
                         <option value="<?php echo $type; ?>"><?php echo htmlentities(Filter::getConditionNameByType($type)); ?></option>
                     <?php endforeach; ?>
                 </select>
             </div>
             <div class="form-group" style="vertical-align: top">
-                <input type="text" id="value" name="value" class="form-control" placeholder="Value">
+                <input type="text" name="value" class="filter-value form-control" placeholder="Value">
             </div>
             <div class="form-group" style="vertical-align: top">
-                <button type="submit" class="btn btn-effect-ripple btn-sm btn-primary"><i class="fa fa-check"></i> Save</button>
+                <button type="submit" class="btn btn-effect-ripple btn-sm btn-primary form-save"><i class="fa fa-check"></i> Save</button>
+            </div>
+            <div class="form-group" style="vertical-align: top">
+                <button type="button" class="btn btn-effect-ripple btn-sm btn-primary form-cancel"><i class="fa fa-fire"></i> Cancel</button>
             </div>
         </form>
 
@@ -66,142 +80,57 @@ $filters = $records ? Filter::getDescriptions($records) : array();
                         </th>
                     </tr>
                 </thead>
-                <tbody>
-                <?php
-                    foreach ($filters as $filter):
-                        $descr = $filter['description'];
-                ?>
-                    <tr>
-                        <td class="text-center">
-                            <label class="csscheckbox csscheckbox-primary">
-                                <input type="checkbox">
-                                <span></span>
-                            </label>
-                        </td>
-                        <td>
-                            <?php echo htmlspecialchars($descr['field']); ?>
-                            <?php echo htmlspecialchars($descr['action']); ?>
-                            <?php echo htmlspecialchars($descr['value']); ?>
-                        </td>
-                        <td class="text-center">
-                            <a href="javascript:void(0)" data-toggle="tooltip" title="Edit filter"
-                               class="btn btn-effect-ripple btn-sm btn-success"><i class="fa fa-pencil"></i></a>
-                            <a href="javascript:void(0)" data-toggle="tooltip" title="Delete filter"
-                               class="btn btn-effect-ripple btn-sm btn-danger"><i class="fa fa-times"></i></a>
-                        </td>
-                    </tr>
-                    <?php endforeach; ?>
+                <tbody id="filters-holder">
                 </tbody>
             </table>
         </div>
     </div>
 </div>
-<!--
-<div class="container">
-    <div class="page-header">
-        <h1>Filters<span class="pull-right label label-default">Access2.me</span></h1>
-    </div>
 
-    <div class="panel panel-default">
-        <div class="panel-heading">"Must Be" Filters</div>
-            <table class="table">
-                <tr>
-                    <?php if (!empty($filterTypes['must_be'])) { ?>
-                    <th width="40%">Field</th>
-                    <th width="20%">Condition</th>
-                    <th width="40%">Value</th>
-                </tr>
-                <?php
-                    foreach ($filterTypes['must_be'] AS $filter) {
-                        echo "<tr>";
-                        echo "<td width=\"40%\">" . $filter['field'] . "</td>";
-                        echo "<td width=\"20%\"><span style=\"color: #008000;\">" . Filter::getConditionNameByType($filter['type']) . "</span></td>";
-                        echo "<td width=\"40%\">" . $filter['value'] . "</td>";
-                        echo "</tr>";
-                    }
-                } else { ?>
-                <center>-- None Found -- </center>
-                <?php } ?>
-            </table>
+<script id="filter-content-template" type="text/x-jsrender">
+    <div class="filter-content" data-id="{{:id}}">
+        {{:field}} {{:condition}} {{:value}}
     </div>
+</script>
 
-    <div class="panel panel-default">
-        <div class="panel-heading">"Must NOT Be" Filters</div>
-            <table class="table">
-                <tr>
-                    <?php if (!empty($filterTypes['must_not_be'])) { ?>
-                    <th width="40%">Field</th>
-                    <th width="20%">Condition</th>
-                    <th width="40%">Value</th>
-                </tr>
-                <?php
-                    foreach ($filterTypes['must_not_be'] AS $filter) {
-                        echo "<tr>";
-                        echo "<td width=\"40%\">" . $filter['field'] . "</td>";
-                        echo "<td width=\"20%\"><span style=\"color: #ff0000;\">" . Filter::getConditionNameByType($filter['type']) . "</td>";
-                        echo "<td width=\"40%\">" . $filter['value'] . "</td>";
-                        echo "</tr>";
-                    }
-                } else { ?>
-                <center>-- None Found -- </center>
-                <?php } ?>
-            </table>
-    </div>
-
-    <div class="panel panel-default">
-        <div class="panel-heading">"Must Be Greater" Filters</div>
-            <table class="table">
-                <tr>
-                    <?php if (!empty($filterTypes['must_be_greater'])) { ?>
-                    <th width="40%">Field</th>
-                    <th width="20%">Condition</th>
-                    <th width="40%">Value</th>
-                </tr>
-                <?php
-                    foreach ($filterTypes['must_be_greater'] AS $filter) {
-                        echo "<tr>";
-                        echo "<td width=\"40%\">" . $filter['field'] . "</td>";
-                        echo "<td width=\"20%\"><span style=\"color: #008000;\">" . Filter::getConditionNameByType($filter['type']) . "</td>";
-                        echo "<td width=\"40%\">" . $filter['value'] . "</td>";
-                        echo "</tr>";
-                    }
-                } else { ?>
-                <center>-- None Found -- </center>
-                <?php } ?>
-            </table>
-    </div>
-
-    <div class="panel panel-default">
-        <div class="panel-heading">"Must NOT Be Greater" Filters</div>
-            <table class="table">
-                <tr>
-                    <?php if (!empty($filterTypes['must_not_be_greater'])) { ?>
-                    <th width="40%">Field</th>
-                    <th width="20%">Condition</th>
-                    <th width="40%">Value</th>
-                </tr>
-                <?php
-                    foreach ($filterTypes['must_not_be_greater'] AS $filter) {
-                        echo "<tr>";
-                        echo "<td width=\"40%\">" . $filter['field'] . "</td>";
-                        echo "<td width=\"20%\"><span style=\"color: #ff0000;\">" . Filter::getConditionNameByType($filter['type']) . "</td>";
-                        echo "<td width=\"40%\">" . $filter['value'] . "</td>";
-                        echo "</tr>";
-                    }
-                } else { ?>
-                <center>-- None Found -- </center>
-                <?php } ?>
-            </table>
-    </div>
-</div>-->
+<script id="filter-template" type="text/x-jsrender">
+<tr>
+    <td class="text-center">
+        <label class="csscheckbox csscheckbox-primary">
+            <input type="checkbox">
+            <span></span>
+        </label>
+    </td>
+    <td>
+        {{include tmpl="#filter-content-template" /}}
+    </td>
+    <td class="text-center">
+        <a href="javascript:void(0)" data-toggle="tooltip" title="Edit filter"
+           class="btn btn-effect-ripple btn-sm btn-success filter-edit"><i class="fa fa-pencil"></i></a>
+        <a href="javascript:void(0)" data-toggle="tooltip" title="Delete filter"
+           class="btn btn-effect-ripple btn-sm btn-danger filter-delete"><i class="fa fa-times"></i></a>
+    </td>
+</tr>
+</script>
 
 <?php include 'inc/page_footer.php'; ?>
 <?php include 'inc/template_scripts.php'; ?>
 
 <!-- Load and execute javascript code used only in this page -->
+<script src="js/vendor/jsrender.min.js"></script>
+<script src="js/vendor/lodash.min.js"></script>
 <script src="js/pages/formsWizard.js"></script>
 <script src="js/pages/filters.js"></script>
 <script>$(function(){ FormsWizard.init(); });</script>
-<script>$(function(){ Filters.init(); });</script>
+<script>
+    $(function() {
+        var data = {
+            fields: <?php echo json_encode(\Filter::getFilterableFields()); ?>,
+            conditions: <?php echo json_encode(\Filter::getConditions()); ?>,
+            filters: <?php echo json_encode($filters); ?>
+        };
+        Filters.init(data);
+    });
+</script>
 
 <?php include 'inc/template_end.php'; ?>
