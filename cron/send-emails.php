@@ -31,6 +31,7 @@ foreach ($messages AS $message) {
     $senders = $repo->getByEmail($message['from_email']);
 
     // get all sender's profiles
+    $defaultProfileProvider = Helper\Registry::getProfileProvider();
     $profiles = $defaultProfileProvider->getProfiles($senders);
 
     if ($profiles == null) {
@@ -44,13 +45,10 @@ foreach ($messages AS $message) {
     }
 
     $profComb = $defaultProfileProvider->getCombiner($profiles);
-    
-    // FIXME until Filter will be fixed
-    $contact = new Model\Profile\Profile();
 
-    $filter = new Filter($message['user_id'], $contact, $db);
+    $filter = new Filter($message['user_id'], $profComb, $db);
     $filter->processFilters();
-    if ($filter->status === true || true) {
+    if ($filter->status === true) {
         try {
             $mail = Helper\Email::buildVerifiedMessage($to, $profComb, $message);
                     

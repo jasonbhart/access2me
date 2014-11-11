@@ -6,6 +6,7 @@
 require_once __DIR__ . "/boot.php";
 
 use Access2Me\Model;
+use Access2Me\Helper;
 
 $db = new Database;
 
@@ -69,6 +70,7 @@ if (!isset($_GET['code'])) {
 
     // fetch user's profile
     $senders = array($sender);
+    $defaultProfileProvider = Helper\Registry::getProfileProvider();
     $profiles = $defaultProfileProvider->getProfiles($senders, false);
     $profile = $defaultProfileProvider->getProfileByServiceId(
         $profiles,

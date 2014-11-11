@@ -9,37 +9,78 @@ $db = new Database();
 $auth = new Helper\Auth($db);
 
 if (!$auth->isAuthenticated()) {
-    header('HTTP/1.0 403 Access Denied');
-    exit;
+    Helper\Http::generate403();
 }
 
 $action = isset($_GET['action']) ? $_GET['action'] : null;
 
-if ($action == 'addfilter') {
-    $fieldName = isset($_POST['field-name']) ? $_POST['field-name'] : null;
-    $filterType = isset($_POST['filter-type']) ? (int)$_POST['filter-type'] : 0;
-    $value = isset($_POST['value']) ? $_POST['value'] : null;
+// save
+if ($action == 'save') {
+    $id = isset($_POST['id']) ? (int)$_POST['id'] : 0;
+    $fieldName = isset($_POST['field']) ? $_POST['field'] : null;
+    $filterType = isset($_POST['type']) ? (int)$_POST['type'] : 0;
+    $filterValue = isset($_POST['value']) ? $_POST['value'] : null;
 
-    $fields = Model\Profile\ProfileRepository::getFilterableFields();
+    $fields = \Filter::getFilterableFields();
     $filterTypes = \Filter::getTypes();
-    
+
     if (!isset($fields[$fieldName])
         || !isset($filterTypes[$filterType])
-        || empty($value)
+        || empty($filterValue)
     ) {
         echo json_encode(array('status' => 'error'));
         exit;
     }
-    
+
     // add filter
     $user = $auth->getLoggedUser();
-    $db->insert('filters',
-            array('user_id', 'type', 'field', 'value'),
-            array($user['id'], $filterType, $fieldName, $value)
-    );
+    if ($id > 0) {      // update
+        
+        $filter = \Filter::getFilterById($id, $db);
+        if ($filter === null) {
+            Helper\Http::generate404();
+        }
+
+        // check if user is the owner
+        if ($filter['user_id'] != $user['id']) {
+            Helper\Http::generate403();
+        }
+
+        $db->update(
+            'filters',
+            array('type', 'field', 'value'),
+            array($filterType, $fieldName, $filterValue),
+            'id = ?',
+            array($id)
+        );
+    } else {            // insert
+        $id = $db->insert('filters',
+                array('user_id', 'type', 'field', 'value'),
+                array($user['id'], $filterType, $fieldName, $filterValue)
+        );
+    }
     
-    echo json_encode(array('status' => 'success'));
+    echo json_encode(array('status' => 'success', 'id' => $id));
+    exit;
+} else if ($action == 'delete') {           // delete
+    $id = isset($_POST['id']) ? (int)$_POST['id'] : 0;
+
+    $filter = \Filter::getFilterById($id, $db);
+    if ($filter === null) {
+        Helper\Http::generate404();
+        exit;
+    }
+
+    // check if user is the owner
+    $user = $auth->getLoggedUser();
+    if ($filter['user_id'] != $user['id']) {
+        Helper\Http::generate403();
+        exit;
+    }
+    
+    Filter::delete($id, $db);
+    echo json_encode(array('status' => 'success', 'id' => $id));
     exit;
 }
 
-header('HTTP/1.0 404 Not Found');
+Helper\Http::generate404();

@@ -65,6 +65,7 @@ class Database
         try {
             $insert = $this->link->prepare($statement);
             $insert->execute($data);
+            return $this->link->lastInsertId();
         } catch (PDOException $e) {
             Logging::logDBErrorAndExit($e->getMessage());
         }
@@ -94,18 +95,61 @@ class Database
     }
     //--------------------------------------------------------------------------
 
+    public function update($tableName, $columns, $data, $where = null, $condition=array())
+    {
+        $statement  = 'UPDATE `' . $tableName . '`';
+        // generate pairs column = ? for SET
+        $fields = array_map(
+            function ($f, $v) {
+                return sprintf('`%s` = ?', $f, $v);
+            },
+            $columns,
+            array_fill(0, count($columns), '?')
+        );
+        $statement .= ' SET ' . implode(', ', $fields);
+        
+        if ($where) {
+            $statement .= ' WHERE ' . $where;
+        }
+             
+        try {
+            $update = $this->link->prepare($statement);
+            $update->execute(array_merge($data, $condition));
+        } catch (PDOException $e) {
+            Logging::logDBErrorAndExit($e->getMessage());
+        }
+    }
+    //--------------------------------------------------------------------------
 
-    public function getArray($statement)
+
+    public function getArray($statement, $data = array())
     {
         try {
-            $sql = $this->link->query($statement);
-            $results = $sql->fetchAll(PDO::FETCH_ASSOC);
+            $select = $this->link->prepare($statement);
+            $select->execute($data);
+            $results = $select->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
             Logging::logDBErrorAndExit($e->getMessage());
         }
 
         if (!empty($results)) {
             return $results;
+        }
+
+        return false;
+    }
+    //--------------------------------------------------------------------------
+
+
+    public function execute($statement, $data = array())
+    {
+        try {
+            $delete = $this->link->prepare($statement);
+            if ($delete->execute($data)) {
+                return $delete->rowCount();
+            }
+        } catch (PDOException $e) {
+            Logging::logDBErrorAndExit($e->getMessage());
         }
 
         return false;
