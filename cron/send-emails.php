@@ -31,6 +31,7 @@ foreach ($messages AS $message) {
     $senders = $repo->getByEmail($message['from_email']);
 
     // get all sender's profiles
+    $defaultProfileProvider = Helper\Registry::getProfileProvider();
     $profiles = $defaultProfileProvider->getProfiles($senders);
 
     if ($profiles == null) {

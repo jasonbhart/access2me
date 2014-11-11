@@ -9,8 +9,7 @@ $db = new Database();
 $auth = new Helper\Auth($db);
 
 if (!$auth->isAuthenticated()) {
-    header('HTTP/1.0 403 Access Denied');
-    exit;
+    Helper\Http::generate403();
 }
 
 $action = isset($_GET['action']) ? $_GET['action'] : null;
@@ -39,14 +38,12 @@ if ($action == 'save') {
         
         $filter = \Filter::getFilterById($id, $db);
         if ($filter === null) {
-            header('HTTP/1.0 404 Not Found');
-            exit;
+            Helper\Http::generate404();
         }
 
         // check if user is the owner
         if ($filter['user_id'] != $user['id']) {
-            header('HTTP/1.0 403 Access Denied');
-            exit;
+            Helper\Http::generate403();
         }
 
         $db->update(
@@ -70,14 +67,14 @@ if ($action == 'save') {
 
     $filter = \Filter::getFilterById($id, $db);
     if ($filter === null) {
-        header('HTTP/1.0 404 Not Found');
+        Helper\Http::generate404();
         exit;
     }
 
     // check if user is the owner
     $user = $auth->getLoggedUser();
     if ($filter['user_id'] != $user['id']) {
-        header('HTTP/1.0 403 Access Denied');
+        Helper\Http::generate403();
         exit;
     }
     
@@ -86,4 +83,4 @@ if ($action == 'save') {
     exit;
 }
 
-header('HTTP/1.0 404 Not Found');
+Helper\Http::generate404();

@@ -18,6 +18,7 @@ require_once __DIR__ . "/helper/Facebook.php";
 require_once __DIR__ . "/helper/Linkedin.php";
 require_once __DIR__ . "/helper/Twitter.php";
 require_once __DIR__ . "/helper/ProfileCombiner.php";
+require_once __DIR__ . "/helper/Registry.php";
 require_once __DIR__ . "/helper/SenderAuthentication.php";
 require_once __DIR__ . "/helper/SenderProfileProvider.php";
 require_once __DIR__ . "/helper/Template.php";
@@ -65,23 +66,23 @@ $twitterAuth = array(
     //'user_agent' => 'access2.me'
 );
 
-$profileProviders = array(
-    Access2Me\Model\SenderRepository::SERVICE_FACEBOOK => new Access2Me\ProfileProvider\Facebook($facebookAuth),
-    Access2Me\Model\SenderRepository::SERVICE_LINKEDIN => new Access2Me\ProfileProvider\Linkedin($linkedinAuth),
-    Access2Me\Model\SenderRepository::SERVICE_TWITTER => new Access2Me\ProfileProvider\Twitter($twitterAuth)
-);
-
-$defaultProfileProvider = new Access2Me\Helper\SenderProfileProvider($profileProviders);
-
 $appConfig = array(
     'siteUrl' => $localUrl,
     'imap' => array(
         'host'     => 'mail.access2.me',
         'user'     => 'catchall@access2.me',
         'password' => 'catch123'
+    ),
+    'services' => array(
+        'linkedin' => $linkedinAuth,
+        'facebook' => $facebookAuth,
+        'twitter' => $twitterAuth
     )
 );
+
 
 if (file_exists(__DIR__ . '/boot.local.php')) {
     require_once __DIR__ . '/boot.local.php';
 }
+
+Access2Me\Helper\Registry::setUp($appConfig);

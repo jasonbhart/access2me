@@ -85,12 +85,14 @@ foreach ($messages AS &$message) {
 
 if (!empty($messages) && is_array($messages)) {
     foreach ($messages as &$message) {
+        $profileUrl = $appConfig['siteUrl'] . '/ui/sender_profile.php?'
+                . 'email=' . urlencode($message['from_email']);
         ?>
         <tr>
             <td class="text-center"><label class="csscheckbox csscheckbox-primary"><input
                         type="checkbox"><span></span></label></td>
             <td><strong><?php echo $message['from_name']; ?></strong></td>
-            <td><?php echo $message['from_email']; ?></td>
+            <td><a href="<?php echo htmlentities($profileUrl); ?>"><?php echo htmlentities($message['from_email']); ?></a></td>
             <td>
                 <?php if (!empty($message['profileUrl']['linkedin'])) {
                     echo '<a href="' . $message['profileUrl']['linkedin'] . '" target="_blank">';

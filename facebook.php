@@ -69,6 +69,7 @@ try {
 
         // fetch user's profile
         $senders = array($sender);
+        $defaultProfileProvider = Helper\Registry::getProfileProvider();
         $profiles = $defaultProfileProvider->getProfiles($senders, false);
         $profile = $defaultProfileProvider->getProfileByServiceId(
             $profiles,

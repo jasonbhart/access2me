@@ -1,38 +1,51 @@
+<?php require_once __DIR__ . "/login-check.php"; ?>
+<?php include 'inc/config.php'; $template['header_link'] = 'THE END OF SPAM AS WE KNOW IT'; ?>
+<?php include 'inc/template_start.php'; ?>
+<?php include 'inc/page_head.php'; ?>
+
 <?php
-
-require_once __DIR__ . "/../boot.php";
-
 use Access2Me\Helper;
 use Access2Me\Model;
-use Access2Me\ProfileProvider;
 
-try {
-
+// controller like function :)
+function showSendersProfile()
+{
+    $data = array();
     $email = isset($_GET['email']) ? $_GET['email'] : null;
     
-    if (!$email) {
-        throw new \Exception('No such sender');
+    $db = new Database;
+
+    // check if current user has messages from the sender
+    $user = (new Helper\Auth($db))->getLoggedUser();
+    $mesgRepo = new Model\MessageRepository($db);
+    $messages = $mesgRepo->getByUserAndSender($user['id'], $email);
+   
+    if (empty($messages)) {
+        $data['error'] = 'No such sender';
+        return $data;
     }
 
-    $db = new Database;
-    $senderRepo = new Model\SenderRepository($db);
-
     // get all services for the sender
+    $senderRepo = new Model\SenderRepository($db);
     $senders = $senderRepo->getByEmail($email);
+
     if (empty($senders)) {
-        throw new Exception('No such sender');
+        $data['error'] = 'No such sender';
+        return $data;
     }
 
     // get all profiles of the sender
+    $defaultProfileProvider = Helper\Registry::getProfileProvider();
     $profiles = $defaultProfileProvider->getProfiles($senders);
-
     if ($profiles == null) {
         $errMsg = sprintf(
             'Can\'t retrieve profile of %s (message id: %d)',
             $message['email_from'],
             $message['id']
         );
-        throw new \Exception($errMsg);
+        Logging::getLogger()->info($errMsg);
+        $data['error'] = 'Unfortunately we can\'t retrieve senders profile right now.';
+        return $data;
     }
 
     // save just fetched profiles
@@ -42,28 +55,24 @@ try {
     foreach ($senders as $sender) {
         $senderRepo->save($sender);
     }
-
-    // show profile
-    require_once '../views/sender_profile.html';
-
-} catch (\Exception $ex) {
-    Logging::getLogger()->error($ex->getMessage(), array('exception' => $ex));
-    die(" Error : " . $ex->getMessage());
+    
+    $data['profiles'] = $profiles;
+    
+    return $data;
 }
 
-// $senderId
+try {
+    $data = showSendersProfile();
 
-// get profile data
-/*
-    Phone Numbers
-    Email Addresses     /me?fields={email}
-    Physical Addresses  /me?fields={location}
-    Social Network Profile URLs
-    Skype
-    GTalk
-    AIM
-    ICQ
-    Yahoo!
-    ...additional information when the sender is a customer as well, like:
-    Websites    /me?fields={website}
- */
+    extract($data);
+    // render data
+    require_once '../views/sender_profile.html';
+} catch (\Exception $ex) {
+    Logging::getLogger()->error($ex->getMessage(), array('exception' => $ex));
+    Helper\Http::generate500();
+}
+?>
+
+<?php include 'inc/page_footer.php'; ?>
+<?php include 'inc/template_scripts.php'; ?>
+<?php include 'inc/template_end.php'; ?>
