@@ -26,13 +26,6 @@ use Access2Me\Helper\Template;
                             <a href="<?php echo htmlentities($url); ?>"><img src="http://app.access2.me/images/<?php echo htmlentities(Template::getServiceImage($sid)); ?>" nosend="1" border="0" width="16" height="16"></a>
                             <?php endforeach; ?>
                             <img src="http://app.access2.me/images/clear.gif" nosend="1" border="0" width="3" height="1">
-                            <span style="text-align: right; margin-top: 0px; color: #808080; font-size: 8pt; font-weight: bold; font-family: 'Calibri', sans-serif;">
-                                <font size="1" color="#808080">|</font>
-                                &nbsp;
-                                <a style="text-decoration: none; color: #808080" href="mailto:<?php echo htmlentities($contact['email']); ?>">
-                                    <font color="#808080">email</font>
-                                </a>
-                            </span>
                         </td>
                         <td width="10">
                             <br>
@@ -56,11 +49,13 @@ use Access2Me\Helper\Template;
                                 <span style="text-align: left; color: #000000; font-family: Arial; font-size: 8pt; font-style: normal; font-weight: normal;">
                                     <?php if (!empty($contact['headline'])): ?>
                                     <?php echo htmlentities($contact['headline']); ?>
-                                    <br>
+                                    <br />
                                     <?php endif; ?>
                                     <?php if (!empty($contact['location'])): ?>
                                     <?php echo htmlentities($contact['location']); ?>
                                     <?php endif; ?>
+                                    <br />
+                                    <a style="text-decoration: none; color: #808080" href="mailto:<?php echo htmlentities($contact['email']); ?>"><font color="#808080"><?php echo htmlentities($contact['email']); ?></font></a>
                                 </span>
                             </span>
                         </td>
@@ -90,6 +85,6 @@ use Access2Me\Helper\Template;
         </tr>
     </table>
     <hr>
- <br /><br />
+ <br />
 </body>
 </html>
