@@ -58,7 +58,7 @@ class Google
         $json = json_decode($result, true);
 
         if (!isset($json['access_token'])) {
-            throw new Exception('Can\'t get access token');
+            throw new \Exception('Can\'t get access token');
         }
         
         return $json['access_token'];
