@@ -6,85 +6,25 @@ use Access2Me\Model;
 use Access2Me\Helper;
 
 $db = new Database;
+$userRepo = new Model\UserRepository($db);
+$mesgRepo = new Model\MessageRepository($db);
 
-$query = "SELECT * FROM `messages` WHERE `status` = '2'";
-$messages = $db->getArray($query);
+foreach ($userRepo->findAll() as $user) {
 
-if (empty($messages)) {
-    die();
-}
+    $messages = $mesgRepo->findByUser($user['id']);
 
-foreach ($messages AS $message) {
-    $query = "SELECT `id`, `mailbox`,`gmail_access_token`, `gmail_refresh_token` FROM `users` WHERE `id` = '" . $message['user_id'] . "' LIMIT 1";
-    $tmp = $db->getArray($query);
+    if (!$messages) {
+        continue;
+    }
     
-    if ($tmp === false) {
-        $message = sprintf('No user exists for message id: %d', $message['id']);
-        Logging::getLogger()->info($message);
+    $storage = Helper\GmailImap::getImapStorage($user, $db);
+    if ($storage == null) {
+        Logging::getLogger()->info('Can\'t get storage handle for user id: ' . $user['id']);
         continue;
     }
 
-    $to = $tmp[0];
-
-    // get all service sender is authenticated with
-    $repo = new Model\SenderRepository($db);
-    $senders = $repo->getByEmail($message['from_email']);
-
-    // get all sender's profiles
-    $defaultProfileProvider = Helper\Registry::getProfileProvider();
-    $profiles = $defaultProfileProvider->getProfiles($senders);
-
-    if ($profiles == null) {
-        $errMsg = sprintf(
-            'Can\'t retrieve profile of %s (message id: %d)',
-            $message['from_email'],
-            $message['id']
-        );
-        Logging::getLogger()->error($errMsg);
-        continue;
-    }
-
-    $profComb = $defaultProfileProvider->getCombiner($profiles);
-
-    $filter = new Filter($message['user_id'], $profComb, $db);
-    $filter->processFilters();
-    if ($filter->status === true) {
-        try {
-            $mail = Helper\Email::buildVerifiedMessage($to, $profComb, $message);
-                    
-            // connect to gmail
-            $mailbox = $to['mailbox'];
-            $accessToken = $to['gmail_access_token'];
-            try {
-                $imap = Helper\GmailImap::getImap($mailbox, $accessToken);
-            } catch (\Exception $ex) {
-                // check that token is valid
-                // if not try to refresh it
-                if (!Helper\Google::isTokenValid($accessToken)) {
-                    $accessToken = Helper\Google::requestAuthToken($to['gmail_refresh_token']);
-                    
-                    // save token back to user
-                    $db->updateOne('users', 'gmail_access_token', $accessToken, 'id', $to['id']);
-
-                    // try again
-                    $imap = Helper\GmailImap::getImap($mailbox, $accessToken);
-                }
-            }
-
-            // append message to mailbox
-            $storage = new \Zend\Mail\Storage\Imap($imap);
-            $newMessage = $mail->generate();
-            $storage->appendMessage($newMessage, null, array(\Zend\Mail\Storage::FLAG_RECENT));
-
-            $db->updateOne('messages', 'status', '3', 'id', $message['id']);
-        } catch (Exception $ex) {
-            Logging::getLogger()->error(
-                'Can\'t send message: ' . $message['id'], 
-                array('exception' => $ex)
-            );
-        }
-
-    } else {
-        $db->updateOne('messages', 'status', '4', 'id', $message['id']);
-    }
+    $processor = new Helper\MessageProcessor($user, $db, $storage);
+    $processor->process($messages);
+    
+    $storage->close();
 }

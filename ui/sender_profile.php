@@ -18,7 +18,7 @@ function showSendersProfile()
     // check if current user has messages from the sender
     $user = (new Helper\Auth($db))->getLoggedUser();
     $mesgRepo = new Model\MessageRepository($db);
-    $messages = $mesgRepo->getByUserAndSender($user['id'], $email);
+    $messages = $mesgRepo->findByUserAndSender($user['id'], $email);
    
     if (empty($messages)) {
         $data['error'] = 'No such sender';
@@ -38,13 +38,9 @@ function showSendersProfile()
     $defaultProfileProvider = Helper\Registry::getProfileProvider();
     $profiles = $defaultProfileProvider->getProfiles($senders);
     if ($profiles == null) {
-        $errMsg = sprintf(
-            'Can\'t retrieve profile of %s (message id: %d)',
-            $message['email_from'],
-            $message['id']
-        );
+        $errMsg = 'Can\'t retrieve profile of ' . $email;
         Logging::getLogger()->info($errMsg);
-        $data['error'] = 'Unfortunately we can\'t retrieve senders profile right now.';
+        $data['error'] = 'Unfortunately we can\'t retrieve sender\'s profile right now.';
         return $data;
     }
 

@@ -4,6 +4,14 @@ namespace Access2Me\Model;
 
 class MessageRepository
 {
+    // this concers to a sender, to be refactored
+    const STATUS_NOT_VERIFIED = 0;
+    const STATUS_VERIFY_REQUESTED = 1;
+    const STATUS_VERIFIED = 2;
+
+    const STATUS_FILTER_PASSED = 3;
+    const STATUS_FILTER_FAILED = 4;
+
     const TABLE_NAME = 'messages';
 
     /**
@@ -32,10 +40,17 @@ class MessageRepository
         return $message !== false ? $message : null;
     }
 
-    public function getByUserAndSender($userId, $sender)
+    public function findByUserAndSender($userId, $sender)
     {
         $query = 'SELECT * FROM `' . self::TABLE_NAME . '` WHERE `user_id` = :user_id AND `from_email` = :sender';
         $messages = $this->db->getArray($query, array('user_id' => $userId, 'sender' => $sender));
+        return $messages ? $messages : array();
+    }
+
+    public function findByUser($userId)
+    {
+        $query = 'SELECT * FROM `' . self::TABLE_NAME . '` WHERE `user_id` = :user_id';
+        $messages = $this->db->getArray($query, array('user_id' => $userId));
         return $messages ? $messages : array();
     }
 }
