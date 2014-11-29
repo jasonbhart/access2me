@@ -33,6 +33,7 @@ CREATE TABLE `messages` (
   `header` text NULL,
   `body` mediumtext NOT NULL,
   `status` int(1) NOT NULL DEFAULT '0',
+  `appended_to_unverified` int(1) NULL DEFAULT 0,
   PRIMARY KEY (`id`),
   UNIQUE KEY `message_id` (`message_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
