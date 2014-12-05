@@ -29,6 +29,7 @@ CREATE TABLE `messages` (
   `from_name` tinytext NOT NULL,
   `from_email` tinytext NOT NULL,
   `reply_email` tinytext NOT NULL,
+  `to_email` tinytext NOT NULL,
   `subject` tinytext character set utf8 NOT NULL,
   `header` text NULL,
   `body` mediumtext NOT NULL,
