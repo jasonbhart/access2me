@@ -29,7 +29,7 @@ foreach ($messages AS $message) {
         $isAuthRequested = Helper\SenderAuthentication::isRequested($sender, $db);
 
         if (!$isAuthRequested) {
-            $append  = $user[0]['name'] . ' (' . $user[0]['mailbox'] . ') has requested that you verify your identity before communicating with them.';
+            $append  = htmlspecialchars($message['to_email']) . ' has requested that you verify your identity before communicating with them.';
             $append .= "<br /><br />";
             $append .= 'Please click <a href="' . $localUrl . '/verify.php?message_id=' . $message['id'] . '">here</a> to verify your identity by logging into your LinkedIn, Facebook, or Twitter account.';
 
