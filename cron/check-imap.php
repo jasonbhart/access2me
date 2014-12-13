@@ -55,6 +55,7 @@ foreach($messages AS $message) {
             'from_name',
             'from_email',
             'reply_email',
+            'to_email',
             'subject',
             'header',
             'body'
@@ -65,6 +66,7 @@ foreach($messages AS $message) {
             $record['from'],
             $record['fromEmail'],
             $record['replyEmail'],
+            $record['to'],
             $record['subject'],
             $record['header'],
             $record['body']
