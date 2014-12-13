@@ -162,7 +162,7 @@ class Email
     {
         // get message body of the original message
         $body = self::getMessageBody(
-            $message['header'] . "\r\n" . $message['body']
+            $message['header'] . "\r\n\r\n" . $message['body']
         );
 
         // join our header and content of the original message
