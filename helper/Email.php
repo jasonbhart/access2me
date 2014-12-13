@@ -52,6 +52,31 @@ class Email
     }
 
     /**
+     * Correct parsing of "Received" header is very complex (rfc5321, rfc5322)
+     * 
+     * @param array $headers
+     * @return array 
+     */
+    public static function parseReceivedHeaders($headers)
+    {
+       $pattern = '/for (<.*?>|.*?)(;|\s|$)/';
+       $result = [];
+
+       foreach ($headers as $header) {
+           $ret = preg_match($pattern, $header, $matches);
+           if ($ret === false || $ret === 0) {
+               continue;
+           }
+
+           $result[] = [
+               'for' => \ezcMailTools::parseEmailAddress($matches[1])
+           ];
+       }
+
+       return $result;
+    }
+
+    /**
      * Converts parsed email to the form to be stored in the database
      *
      * @param array $mail
@@ -76,6 +101,33 @@ class Email
             ? $replyTo->email : $mail->from->email;
         
         return $record;
+    }
+
+    /**
+     * Collects recipients from trace information.
+     * Mail can be forwarded so there can be more than one recipient.
+     * Fallback value is address from the "To" header.
+     * 
+     * @param \ezcMail $mail
+     * @return array recipients from the last to first
+     */
+    public static function getTracedRecipients(\ezcMail $mail)
+    {
+        $headers = $mail->getHeader('Received', true);
+        $parsed = self::parseReceivedHeaders($headers);
+        // fallback address
+        $parsed[] = [
+            'for' => \ezcMailTools::parseEmailAddress($mail->to[0]->email)
+        ];
+
+        $recipients = [];
+        foreach ($parsed as $received) {
+            if (isset($received['for'])) {
+                $recipients[] = $received['for']->email;
+            }
+        }
+
+        return $recipients;
     }
 
     /**

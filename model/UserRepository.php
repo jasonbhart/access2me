@@ -27,6 +27,21 @@ class UserRepository
     {
         $query = 'SELECT * FROM `' . self::TABLE_NAME . '`';
         $users = $this->db->getArray($query);
-        return $users ? $users : array();
+        return $users ? $users : [];
+    }
+
+    public function findAllByEmails($emails)
+    {
+        $values = [];
+        $conn = $this->db->getConnection();
+        foreach ($emails as $email) {
+            $values[] = $conn->quote($email);
+        }
+
+        $query = 'SELECT * FROM `' . self::TABLE_NAME . '`'
+            . ' WHERE email IN (' . implode(',', $values) . ')';
+        $users = $this->db->getArray($query);
+
+        return $users ? $users : [];
     }
 }
