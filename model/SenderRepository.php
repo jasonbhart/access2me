@@ -4,10 +4,6 @@ namespace Access2Me\Model;
 
 class SenderRepository
 {
-    const SERVICE_LINKEDIN = 1;
-    const SERVICE_FACEBOOK = 2;
-    const SERVICE_TWITTER  = 3;
-
     const TABLE_NAME = 'senders';
 
     private $db;

@@ -4,6 +4,7 @@ require_once __DIR__ . "/boot.php";
 
 use Access2Me\Helper;
 use Access2Me\Model;
+use Access2Me\Service\Service;
 
 // make sure we have message_id
 $messageId = isset($_GET['message_id']) ? intval($_GET['message_id']) : 0;
@@ -53,12 +54,12 @@ try {
         // create new or update existing sender
         $email = $message['from_email'];
         $senderRepo = new Model\SenderRepository($db);
-        $sender = $senderRepo->getByEmailAndService($email, Model\SenderRepository::SERVICE_TWITTER);
+        $sender = $senderRepo->getByEmailAndService($email, Service::TWITTER);
 
         if ($sender == null) {
             $sender = new Model\Sender();
             $sender->setSender($email);
-            $sender->setService(Model\SenderRepository::SERVICE_TWITTER);
+            $sender->setService(Service::TWITTER);
         }
 
         $sender->setOAuthKey($authToken);
@@ -66,17 +67,7 @@ try {
         // fetch user's profile
         $senders = array($sender);
         $defaultProfileProvider = Helper\Registry::getProfileProvider();
-        $profiles = $defaultProfileProvider->getProfiles($senders, false);
-        $profile = $defaultProfileProvider->getProfileByServiceId(
-            $profiles,
-            Model\SenderRepository::SERVICE_TWITTER
-        );
-
-        if ($profile == null) {
-            throw new \Exception('Can\'t retrieve profile');
-        }
-
-        $defaultProfileProvider->storeProfiles($senders, $profiles);
+        $profile = $defaultProfileProvider->getProfile($senders, Service::TWITTER);
 
         $senderRepo->save($sender);
         

@@ -85,7 +85,7 @@ class MessageProcessor
             return null;
         }
 
-        $profComb = $defaultProfileProvider->getCombiner($profiles);
+        $profComb = new ProfileCombiner($profiles);
         
         return $profComb;
     }
@@ -100,6 +100,11 @@ class MessageProcessor
      */
     private function processVerified($message)
     {
+        // todo:
+        // get profile from Profileprovider
+        // pass it to Filter
+        // in case profile passes fltering rules pass it to buildVerifiedMessage
+
         // pass senders profile through the filters
         $profile = $this->getSenderProfile($message['from_email']);
         if (!$profile) {

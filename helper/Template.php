@@ -2,16 +2,16 @@
 
 namespace Access2Me\Helper;
 
-use Access2Me\Model\SenderRepository;
+use Access2Me\Service\Service;
 
 class Template
 {
     public static function getServiceImage($serviceId)
     {
         $images = array(
-            SenderRepository::SERVICE_LINKEDIN => '16-linkedin.png',
-            SenderRepository::SERVICE_FACEBOOK => '16-facebook.png',
-            SenderRepository::SERVICE_TWITTER => '16-twitter.png'
+            Service::LINKEDIN => '16-linkedin.png',
+            Service::FACEBOOK => '16-facebook.png',
+            Service::TWITTER => '16-twitter.png'
         );
 
         if (!isset($images[$serviceId])) {

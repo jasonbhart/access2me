@@ -36,24 +36,18 @@ function showSendersProfile()
 
     // get all profiles of the sender
     $defaultProfileProvider = Helper\Registry::getProfileProvider();
-    $profiles = $defaultProfileProvider->getProfiles($senders);
-    if ($profiles == null) {
+    try {
+        $data['profiles'] = [
+            'sender' => $senders[0]->getSender(),
+            'services' => $defaultProfileProvider->getProfiles($senders)
+        ];
+    } catch (Exception $ex) {
         $errMsg = 'Can\'t retrieve profile of ' . $email;
         Logging::getLogger()->info($errMsg);
         $data['error'] = 'Unfortunately we can\'t retrieve sender\'s profile right now.';
         return $data;
     }
 
-    // save just fetched profiles
-    $defaultProfileProvider->storeProfiles($senders, $profiles);
-
-    // commit changes
-    foreach ($senders as $sender) {
-        $senderRepo->save($sender);
-    }
-    
-    $data['profiles'] = $profiles;
-    
     return $data;
 }
 

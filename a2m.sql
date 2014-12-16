@@ -61,8 +61,6 @@ CREATE TABLE `senders` (
   `sender` varchar(64) NOT NULL,
   `service` int(3) NOT NULL,
   `oauth_key` tinytext NOT NULL,
-  `profile` text NULL,
-  `profile_date` datetime NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -158,6 +156,32 @@ LOCK TABLES `auth_requests` WRITE;
 /*!40000 ALTER TABLE `auth_requests` DISABLE KEYS */;
 /*!40000 ALTER TABLE `auth_requests` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Table structure for table `cache`
+--
+
+DROP TABLE IF EXISTS `cache`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `cache` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `key` char(40) NOT NULL,
+  `value` blob,
+  `expires_at` datetime NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `cache`
+--
+
+LOCK TABLES `cache` WRITE;
+/*!40000 ALTER TABLE `cache` DISABLE KEYS */;
+/*!40000 ALTER TABLE `cache` ENABLE KEYS */;
+UNLOCK TABLES;
+
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;

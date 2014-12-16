@@ -123,7 +123,8 @@ class GmailImap extends Protocol\Imap
             try {
                 $accessToken = Google::requestAuthToken($user['gmail_refresh_token']);
             } catch (\Exception $ex) {
-                \Logging::getLogger()->error('Can\t refresh google token (user id: %d)', $user['id']);
+                $msg = sprintf('Can\'t refresh google token (user id: %d)', $user['id']);
+                \Logging::getLogger()->error($msg);
                 return null;
             }
 

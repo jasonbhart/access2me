@@ -1,5 +1,5 @@
 <?php
-use Access2Me\Model\SenderRepository;
+use Access2Me\Service\Service;
 
 function out($value, $default='Unavailable') {
     echo htmlspecialchars(!empty($value) ? $value : $default);
@@ -20,8 +20,8 @@ function out($value, $default='Unavailable') {
         </div>
 
         <?php
-            if (isset($profiles['services'][SenderRepository::SERVICE_LINKEDIN])):
-                $data = $profiles['services'][SenderRepository::SERVICE_LINKEDIN]['profile'];
+            if (isset($profiles['services'][Service::LINKEDIN])):
+                $data = $profiles['services'][Service::LINKEDIN];
         ?>
         <div class="panel panel-default">
             <div class="panel-heading">Linkedin</div>
@@ -103,8 +103,8 @@ function out($value, $default='Unavailable') {
         <?php endif; ?>
 
         <?php
-            if (isset($profiles['services'][SenderRepository::SERVICE_FACEBOOK])):
-                $data = $profiles['services'][SenderRepository::SERVICE_FACEBOOK]['profile'];
+            if (isset($profiles['services'][Service::FACEBOOK])):
+                $data = $profiles['services'][Service::FACEBOOK];
         ?>
         <div class="panel panel-default">
             <div class="panel-heading">Facebook</div>
@@ -141,8 +141,8 @@ function out($value, $default='Unavailable') {
         <?php endif; ?>
 
         <?php
-            if (isset($profiles['services'][SenderRepository::SERVICE_TWITTER])):
-                $data = $profiles['services'][SenderRepository::SERVICE_TWITTER]['profile'];
+            if (isset($profiles['services'][Service::TWITTER])):
+                $data = $profiles['services'][Service::TWITTER];
         ?>
         <div class="panel panel-default">
             <div class="panel-heading">Twitter</div>

@@ -17,6 +17,10 @@ foreach ($userRepo->findAll() as $user) {
             continue;
         }
 
+        // instantiate the following and pass them into MessageProcessor
+        // Filter
+        // Profileprovider
+
         $storage = Helper\GmailImap::getImapStorage($user, $db);
         if ($storage == null) {
             Logging::getLogger()->info('Can\'t get storage handle for user id: ' . $user['id']);

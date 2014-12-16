@@ -7,6 +7,7 @@ require_once __DIR__ . "/boot.php";
 
 use Access2Me\Model;
 use Access2Me\Helper;
+use Access2Me\Service\Service;
 
 $db = new Database;
 
@@ -57,12 +58,12 @@ if (!isset($_GET['code'])) {
     // create new or update existing sender
     $email = $message['from_email'];
     $senderRepo = new Model\SenderRepository($db);
-    $sender = $senderRepo->getByEmailAndService($email, Model\SenderRepository::SERVICE_LINKEDIN);
+    $sender = $senderRepo->getByEmailAndService($email, Service::LINKEDIN);
 
     if ($sender == null) {
         $sender = new Model\Sender();
         $sender->setSender($email);
-        $sender->setService(Model\SenderRepository::SERVICE_LINKEDIN);
+        $sender->setService(Service::LINKEDIN);
     }
 
     // we always have new token here whether user was authenticated before or not
@@ -71,18 +72,8 @@ if (!isset($_GET['code'])) {
     // fetch user's profile
     $senders = array($sender);
     $defaultProfileProvider = Helper\Registry::getProfileProvider();
-    $profiles = $defaultProfileProvider->getProfiles($senders, false);
-    $profile = $defaultProfileProvider->getProfileByServiceId(
-        $profiles,
-        Model\SenderRepository::SERVICE_LINKEDIN
-    );
+    $profile = $defaultProfileProvider->getProfile($senders, Service::LINKEDIN);
 
-    if ($profile == null) {
-        throw new \Exception('Can\'t retrieve profile');
-    }
-
-    $defaultProfileProvider->storeProfiles($senders, $profiles);
-    
     // commit changes
     $senderRepo->save($sender);
 
