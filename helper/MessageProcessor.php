@@ -54,7 +54,7 @@ class MessageProcessor
     {
         // append message to Unverified folder if it was not already appended
         if (!$message['appended_to_unverified']) {
-            $mail = $message['header'] . "\r\n" . $message['body'];
+            $mail = $message['header'] . "\r\n\r\n" . $message['body'];
             // put message to `unverified` box
             $this->storage->appendMessage($mail, $this->unverifiedFolderName, array(\Zend\Mail\Storage::FLAG_RECENT));
             $this->db->updateOne('messages', 'appended_to_unverified', 1, 'id', $message['id']);

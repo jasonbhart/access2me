@@ -1,10 +1,36 @@
 <?php
 
 use Access2Me\Helper;
+use Access2Me\Model;
 
 require_once __DIR__ . "/../boot.php";
 
-$db = new Database;
+
+function getMessageOwner(\ezcMail $mail, Model\UserRepository $usersRepo)
+{
+    // find owner (user) of this message among recipients
+    $emails = Helper\Email::getTracedRecipients($mail);
+    $unique = array_unique($emails);
+    $users = $usersRepo->findAllByEmails($unique);
+
+    // map of users to their emails
+    $e2u = [];
+    foreach ($users as $user) {
+        $e2u[$user['email']] = $user;
+    }
+
+    // find first recipient that is our user
+    $user = null;
+    foreach ($emails as $email) {
+        if (isset($e2u[$email])) {
+            $user = $e2u[$email];
+            break;
+        }
+    }
+
+    return $user;
+}
+
 
 $imap = new IMAP($appConfig['imap']);
 
@@ -17,7 +43,10 @@ $messages = array();
 // parse raw messages
 $parser = new \ezcMailParser();
 foreach ($rawMessages as $raw) {
-    $tmp = $raw['header'] . "\r\n" . $raw['body']; 
+    $tmp = $raw['header']
+        . ezcMailTools::lineBreak()
+        . ezcMailTools::lineBreak()
+        . $raw['body']; 
     $mail = $parser->parseMail(new ezcMailVariableSet($tmp));
 
     if (isset($mail[0])) {
@@ -29,6 +58,10 @@ foreach ($rawMessages as $raw) {
     }   
 }
 
+
+$db = new Database;
+$usersRepo = new Access2Me\Model\UserRepository($db);
+
 // process messages and save them into the database
 foreach($messages AS $message) {
 
@@ -37,13 +70,21 @@ foreach($messages AS $message) {
         continue;
     }
 
+    $user = getMessageOwner($message['mail'], $usersRepo);
     $record = Helper\Email::toDatabaseRecord($message);
 
-    // TODO: don't store messages for not existing users
-    $query = "SELECT `id` FROM `users` WHERE `mailbox` = '" . $record['to'] . "' LIMIT 1;";
-    $userId = $db->getArray($query);
+    // no such user
+    if ($user === null) {
+        $msg = sprintf(
+            'Can\'t find message owner: (%s) -> (%s)',
+            $record['from_email'],
+            $record['to_email']
+        );
+        Logging::getLogger()->addInfo($msg);
+        continue;
+    }
 
-    $record['userId'] = $userId[0]['id'];
+    $record['userId'] = $user['id'];
 
     print_r($record);
 
@@ -55,6 +96,7 @@ foreach($messages AS $message) {
             'from_name',
             'from_email',
             'reply_email',
+            'to_email',
             'subject',
             'header',
             'body'
@@ -65,6 +107,7 @@ foreach($messages AS $message) {
             $record['from'],
             $record['fromEmail'],
             $record['replyEmail'],
+            $record['to'],
             $record['subject'],
             $record['header'],
             $record['body']
