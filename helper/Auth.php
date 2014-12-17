@@ -6,6 +6,9 @@ class AuthException extends \Exception {}
 
 class Auth
 {
+    /**
+     * @var \Database
+     */
     private $db;
     
     public function __construct($db)
@@ -21,10 +24,15 @@ class Auth
     protected function getUser($username)
     {
         $sql = "SELECT `id`, `mailbox`, `email`, `name`, `username`, `password`, `gmail_access_token`, `gmail_refresh_token`"
-                . " FROM `users` WHERE `username` = '" . $username . "' LIMIT 1;";
-        $user = $this->db->getArray($sql);
-        
+                . " FROM `users` WHERE `username` = ? LIMIT 1;";
+        $user = $this->db->getArray($sql, [$username]);
+
         return $user !== false ? $user[0] : null;
+    }
+
+    protected function checkPassword($user, $passwordHash)
+    {
+        return $user != null && $user['password'] == $passwordHash;
     }
 
     /**
@@ -38,16 +46,11 @@ class Auth
     public function login($username, $password, $remember = false)
     {
         $user = $this->getUser($username);
-
-        // check user ?
-        if ($user === null) {
-            throw new AuthException('Invalid username');
-        }
-
-        // check password
         $hash = self::encodePassword($password);
-        if ($user['password'] != $hash) {
-            throw new AuthException('Invalid password');
+
+        // check user and passowrd
+        if (!$this->checkPassword($user, $hash)) {
+            throw new AuthException('Invalid credentials');
         }
 
         // valid
@@ -70,9 +73,12 @@ class Auth
             return false;
         }
 
-        $user = $this->getLoggedUser();
-        
-        return $user['password'] === $_COOKIE['a2mauth'];
+        try {
+            $user = $this->getLoggedUser();
+            return true;
+        } catch (AuthException $ex) {
+            return false;
+        }
     }
 
     public function logout()
@@ -87,8 +93,15 @@ class Auth
     public function getLoggedUser()
     {
         // user may not be fully authenticated (entered credentials in this session)
-        $user = isset($_SESSION['user']) ? $_SESSION['user'] : $this->getUser($_COOKIE['a2muser']);
-        if ($user != null) {
+        if (isset($_SESSION['user'])) {
+            return $_SESSION['user'];
+        } else {
+            $user = $this->getUser($_COOKIE['a2muser']);
+
+            if (!$this->checkPassword($user, $_COOKIE['a2mauth'])) {
+                throw new AuthException('Not authenticated');
+            }
+
             $_SESSION['user'] = $user;
         }
         

@@ -6,6 +6,8 @@ use Access2Me\Helper;
 
 interface SenderProfileProviderInterface
 {
+    function getProviders();
+
     /**
      * Currently we store services and sender in one table.
      * That's why we have senderS here.
@@ -13,18 +15,17 @@ interface SenderProfileProviderInterface
      * 
      * @param array $request [sender => Model\Sender, services => [id=>servicedata]]
      */
-    function getProfiles($request);
+    function getProfiles($request, array $providerIds=[]);
 
-    function getProfile($request, $serviceId);
+    function getProfile($request, $providerId);
 }
-
 
 class SenderProfileProvider implements SenderProfileProviderInterface
 {
     /**
      * @var \Access2Me\ProfileProvider\ProfileProviderInterface[] 
      */
-    private $providers;
+    protected $providers;
 
     /**
      * 
@@ -35,6 +36,16 @@ class SenderProfileProvider implements SenderProfileProviderInterface
         $this->providers = $providers;
     }
 
+    public function getProviders()
+    {
+        return $this->providers;
+    }
+
+    /**
+     * Converts array of services into the indexed by serviceId array of services
+     * @param array $services
+     * @return array
+     */
     protected function getServiceMap(array $services)
     {
         $serviceMap = [];
@@ -51,62 +62,49 @@ class SenderProfileProvider implements SenderProfileProviderInterface
      * @param array $request [sender => Model\Sender, services => [id=>servicedata]]
      * @return array
      */
-    public function getProfiles($request)
+    public function getProfiles($request, array $providerIds=[])
     {
         $sender = $request['sender'];
         $services = $request['services'];
 
         $serviceMap = $this->getServiceMap($services);
+        $providerIds = !empty($providerIds) ? $providerIds : array_keys($this->getProviders());
 
         // collect profiles
         $result = [];
-        foreach ($this->providers as $pid=>$provider) {
+        foreach ($providerIds as $pid) {
 
-            // provider requires auth and we have corresponding auth
+            if (!isset($this->providers[$pid])) {
+                throw new \Exception('Unknown provider ' . $pid);
+            }
+
+            $provider = $this->providers[$pid];
+            $profile = null;
+            
+            // provider requires auth
             if ($provider['authRequired']) {
+                // we have corresponding auth
                 if (isset($serviceMap[$pid])) {
-                    $result[$pid] = $provider['provider']->fetchProfile(
+                    $profile = $provider['provider']->fetchProfile(
                         /*$sender,*/
                         $serviceMap[$pid]
                     );
                 }
                 // do not call provider if auth is not specified
             } else {
-                $result[$pid] = $provider['provider']->fetchProfile($sender);
+                $profile = $provider['provider']->fetchProfile($sender);
             }
 
+            $result[$pid] = $profile;
         }
 
         return $result;
     }
 
-    public function getProfile($request, $serviceId)
+    public function getProfile($request, $providerId)
     {
-        $sender = $request['sender'];
-        $services = $request['services'];
-
-        if (!isset($this->providers[$serviceId])) {
-            throw new \Exception('Unknown service ' . $serviceId);
-        }
-
-        $serviceMap = $this->getServiceMap($services);
-        $provider = $this->providers[$serviceId];
-        $result = null;
-        if ($provider['authRequired']) {
-            if (isset($serviceMap[$serviceId])) {
-                $result =  $provider['provider']->fetchProfile(
-                    /*$sender,*/    // todo
-                    $serviceMap[$serviceId]
-                );
-            } else {
-                $msg = sprintf('Service (%d) requires auth but it is not present', $serviceId);
-                throw new \Exception($msg);
-            }
-        } else {
-            $result = $provider['provider']->fetchProfile($sender);
-        }
-        
-        return $result;
+        $profile = $this->getProfiles($request, [$providerId]);
+        return empty($profile) ? null : $profile[$providerId];
     }
 }
 
@@ -134,38 +132,39 @@ class CachedSenderProfileProvider implements SenderProfileProviderInterface
         $this->profileProvider = $profileProvider;
     }
 
+    public function getProviders()
+    {
+        return $this->profileProvider->getProviders();
+    }
+
     protected function getKey($sender, $serviceId)
     {
         return $sender . '_profile_' . $serviceId;
     }
 
-    public function getProfiles($request)
+    public function getProfiles($request, array $providerIds=[])
     {
         // todo: check cache
         $toFetch = [];
         $result = [];
 
-        // check cache
         $sender = $request['sender'];
-        $services = $request['services'];
-        foreach ($services as $service) {
-            $key = $this->getKey($sender->getSender(), $service->getService());
+        $providerIds = !empty($providerIds) ? $providerIds : array_keys($this->getProviders());
 
+        // check cache
+        foreach ($providerIds as $pid) {
+            $key = $this->getKey($sender->getSender(), $pid);
             try {
-                $result[$service->getService()] = $this->cache->get($key);
+                $result[$pid] = $this->cache->get($key);
             } catch (Helper\CacheException $ex) {
-                $toFetch[] = $sender;
+                $toFetch[] = $pid;
             }
         }
 
         // do we have something to fetch ?
         if ($toFetch) {
-            $newRequest = [
-                'sender' =>  $sender,
-                'services' => $toFetch
-            ];
             
-            $fetched = $this->profileProvider->getProfiles($newRequest);
+            $fetched = $this->profileProvider->getProfiles($request, $toFetch);
 
             // cache results
             foreach ($fetched as $pid=>$profile) {
@@ -178,19 +177,10 @@ class CachedSenderProfileProvider implements SenderProfileProviderInterface
         return $result;
     }
 
-    function getProfile($request, $serviceId)
+    function getProfile($request, $providerId)
     {
-        $key = $this->getKey($request['sender']->getSender(), $serviceId);
-        
-        $result = null;
-        try {
-            $result = $this->cache->get($key);
-        } catch (Helper\CacheException $ex) {
-            $result = $this->profileProvider->getProfile($request, $serviceId);
-            $this->cache->set($key, $result, $this->cachingPeriod);
-        }
-
-        return $result;
+        $profile = $this->getProfiles($request, [$providerId]);
+        return empty($profile) ? null : $profile[$providerId];
     }
 }
 
@@ -211,6 +201,11 @@ class NormalizedSenderProfileProvider implements SenderProfileProviderInterface
     public function __construct(SenderProfileProviderInterface $profileProvider)
     {
         $this->profileProvider = $profileProvider;
+    }
+
+    public function getProviders()
+    {
+        return $this->profileProvider->getProviders();
     }
 
     /**
@@ -242,7 +237,7 @@ class NormalizedSenderProfileProvider implements SenderProfileProviderInterface
     }
 
 
-    public function getProfiles($request)
+    public function getProfiles($request, array $providerIds=[])
     {
         // normalize if not normalized
         if (!array_key_exists('sender', $request)) {
@@ -253,16 +248,16 @@ class NormalizedSenderProfileProvider implements SenderProfileProviderInterface
             throw new \InvalidArgumentException('request');
         }
 
-        return $this->profileProvider->getProfiles($request);
+        return $this->profileProvider->getProfiles($request, $providerIds);
     }
 
-    function getProfile($request, $serviceId)
+    function getProfile($request, $providerId)
     {
         // normalize if not normalized
         if (!array_key_exists('sender', $request)) {
             $request = $this->normalizeSenders($request);
         }
 
-        return $this->profileProvider->getProfile($request, $serviceId);
+        return $this->profileProvider->getProfile($request, $providerId);
     }
 }

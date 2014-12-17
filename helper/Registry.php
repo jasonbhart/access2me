@@ -32,10 +32,11 @@ class Registry
              * Service::CRUNCHBASE => [
              *  'authRequired' => false
              * ],
-             * Service::ANGELLIST => [
-             *  'authRequired' => false
-             * ]
              */
+            Service::ANGELLIST => [
+                'authRequired' => false,
+                'provider' => new ProfileProvider\AngelList(null)
+            ]
         ];
 
         $db = new \Database();

@@ -35,6 +35,7 @@ require_once __DIR__ . "/model/Profile/Position.php";
 require_once __DIR__ . "/model/Profile/ProfileRepository.php";
 require_once __DIR__ . "/ProfileProvider/ProfileProviderInterface.php";
 require_once __DIR__ . "/ProfileProvider/ProfileProviderException.php";
+require_once __DIR__ . "/ProfileProvider/AngelList.php";
 require_once __DIR__ . "/ProfileProvider/Facebook.php";
 require_once __DIR__ . "/ProfileProvider/Linkedin.php";
 require_once __DIR__ . "/ProfileProvider/Twitter.php";

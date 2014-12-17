@@ -162,6 +162,20 @@ function out($value, $default='Unavailable') {
             </table>
         </div>
         <?php endif; ?>
+
+        <?php
+            if (isset($profiles['services'][Service::ANGELLIST])):
+                $data = $profiles['services'][Service::ANGELLIST];
+        ?>
+        <div class="panel panel-default">
+            <div class="panel-heading">AngelList</div>
+            <table class="table">
+                <tr>
+                    <td>Company URL</td><td><a href="<?php out(urlencode($data['company_url'])); ?>"><?php out($data['domain']); ?></a></td>
+                </tr>
+            </table>
+        </div>
+        <?php endif; ?>
     </div>
     <?php endif; ?>
 </div>

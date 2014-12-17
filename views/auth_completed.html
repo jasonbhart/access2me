@@ -13,7 +13,7 @@
     <h1 style="color: #ffffff;">Congratulations, Access2.me Has Validated You!</h1>
 
       <div class="box">
-        <?php if ($profile->pictureUrl): ?>
+        <?php if (isset($profile->pictureUrl)): ?>
         <div class="userbox">
             <div class="pic"><img src="<?php echo htmlentities($profile->pictureUrl); ?>"></div>
         </div>
