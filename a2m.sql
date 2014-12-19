@@ -30,6 +30,7 @@ CREATE TABLE `messages` (
   `from_email` tinytext NOT NULL,
   `reply_email` tinytext NOT NULL,
   `to_email` tinytext NOT NULL,
+  `created_at` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   `subject` tinytext character set utf8 NOT NULL,
   `header` text NULL,
   `body` mediumtext NOT NULL,
