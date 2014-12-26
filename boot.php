@@ -12,6 +12,7 @@ require_once __DIR__ . "/config/database.php";
 require_once __DIR__ . "/database.php";
 require_once __DIR__ . "/helper/Auth.php";
 require_once __DIR__ . "/helper/Cache.php";
+require_once __DIR__ . "/helper/DateTime.php";
 require_once __DIR__ . "/helper/GmailImap.php";
 require_once __DIR__ . "/helper/Google.php";
 require_once __DIR__ . "/helper/Email.php";
@@ -92,7 +93,8 @@ $appConfig = array(
         'crunchbase' => [
             'user_key' => ''
         ]
-    )
+    ),
+    'dateTimeFormat' => 'Y-m-d H:i:s'
 );
 
 

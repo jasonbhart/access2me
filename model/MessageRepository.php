@@ -47,10 +47,22 @@ class MessageRepository
         return $messages ? $messages : array();
     }
 
-    public function findByUser($userId)
+    public function findByUser($userId, $limit = -1, $offset = -1)
     {
         $query = 'SELECT * FROM `' . self::TABLE_NAME . '` WHERE `user_id` = :user_id';
-        $messages = $this->db->getArray($query, array('user_id' => $userId));
+        $params = ['user_id' => $userId];
+
+        if ($limit != -1) {
+            $query .= ' LIMIT :limit';
+            $params['limit'] = $limit;
+
+            if ($offset != -1) {
+                $query .= ' OFFSET :offset';
+                $params['offset'] = $offset;
+            }
+        }
+
+        $messages = $this->db->getArray($query, $params);
         return $messages ? $messages : array();
     }
 }

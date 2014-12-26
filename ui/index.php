@@ -5,16 +5,17 @@
 
 <?php
 use Access2Me\Helper;
+use Access2Me\Model;
 use Access2Me\Service;
 
 $db = new Database;
 $auth = new Helper\Auth($db);
 $user = $auth->getLoggedUser();
 
-$messageSql = "SELECT `id`, `from_email`, `from_name`, `subject` FROM `messages` WHERE `user_id` = '" . $user['id'] . "' LIMIT 10;";
-$messages = $db->getArray($messageSql);
+$mesgRepo = new Model\MessageRepository($db);
+$messages = $mesgRepo->findByUser($user['id'], 10);
 
-$senderRepo = new \Access2Me\Model\SenderRepository($db);
+$senderRepo = new Model\SenderRepository($db);
 foreach ($messages AS &$message) {
     $senders = $senderRepo->findByMessageId($message['id']);
 
@@ -74,6 +75,7 @@ foreach ($messages AS &$message) {
                         <th style="width: 80px;" class="text-center"><label class="csscheckbox csscheckbox-primary"><input type="checkbox"><span></span></label></th>
                         <th>Name</th>
                         <th>Email</th>
+                        <th>Created at</th>
                         <th style="width: 320px;">Profiles</th>
                         <th style="width: 120px;" class="text-center"><i class="fa fa-flash"></i></th>
                     </tr>
@@ -83,14 +85,16 @@ foreach ($messages AS &$message) {
 
 if (!empty($messages) && is_array($messages)) {
     foreach ($messages as &$message) {
+        $createdAt = Helper\DateTime::fromUTCtoDefault($message['created_at']);
         $profileUrl = $appConfig['siteUrl'] . '/ui/sender_profile.php?'
                 . 'email=' . urlencode($message['from_email']);
         ?>
         <tr>
             <td class="text-center"><label class="csscheckbox csscheckbox-primary"><input
                         type="checkbox"><span></span></label></td>
-            <td><strong><?php echo $message['from_name']; ?></strong></td>
+            <td><strong><?php echo htmlentities($message['from_name']); ?></strong></td>
             <td><a href="<?php echo htmlentities($profileUrl); ?>"><?php echo htmlentities($message['from_email']); ?></a></td>
+            <td><?php echo $createdAt->format($appConfig['dateTimeFormat']); ?></td>
             <td>
                 <?php if (!empty($message['profileUrl']['linkedin'])) {
                     echo '<a href="' . $message['profileUrl']['linkedin'] . '" target="_blank">';
