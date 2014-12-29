@@ -13,6 +13,41 @@ $auth = new Helper\Auth($db);
 $user = $auth->getLoggedUser();
 
 $mesgRepo = new Model\MessageRepository($db);
+
+// process userlist actions
+if (isset($_GET['sender']) && isset($_GET['messageId'])) {
+ 
+    $action = $_GET['sender'];
+    if ($action == 'allow' || $action == 'deny') {
+
+        $message = $mesgRepo->getById($_GET['messageId']);
+        if ($message) {
+
+            $access = $action == 'allow' ? Model\UserSenderRepository::ACCESS_ALLOWED : Model\UserSenderRepository::ACCESS_DENIED;
+            $sender = $message['from_email'];
+            $userListRepo = new Model\UserSenderRepository($db);
+
+            // find existing entry
+            $entry = $userListRepo->getByUserAndSender($user['id'], $sender);
+            if (!$entry) {
+                $entry = [
+                    'user_id' => $user['id'],
+                    'sender' => $sender,
+                    'value' => $sender,
+                    'type' => Model\UserSenderRepository::TYPE_EMAIL
+                ];
+            }
+
+            // save list entry
+            $entry['access'] = $access;
+            $userListRepo->save($entry);
+            
+            $msg = 'Sender <b>' . htmlentities($sender) . '</b> ' . ($action == 'allow' ? 'whitelisted' : 'blacklisted');
+            Helper\FlashMessage::add($msg, Helper\FlashMessage::SUCCESS);
+        }
+    }
+}
+
 $messages = $mesgRepo->findByUser($user['id'], 10);
 
 $senderRepo = new Model\SenderRepository($db);
@@ -48,6 +83,9 @@ foreach ($messages AS &$message) {
 <!-- Page content -->
 <div id="page-content">
     <?php include('inc/page_status_icons.php'); ?>
+
+    <?php echo Helper\FlashMessage::toHTML(); ?>
+
     <!-- Table Styles Block -->
     <div class="block">
         <!-- Table Styles Title -->
@@ -113,9 +151,9 @@ if (!empty($messages) && is_array($messages)) {
                 } ?>
             </td>
             <td class="text-center">
-                <a href="javascript:void(0)" data-toggle="tooltip" title="Whitelist User"
+                <a href="<?php echo htmlentities('index.php?sender=allow&messageId='. $message['id']); ?>" data-toggle="tooltip" title="Whitelist User"
                    class="btn btn-effect-ripple btn-sm btn-success"><i class="fa fa-check"></i></a>
-                <a href="javascript:void(0)" data-toggle="tooltip" title="Block User"
+                <a href="<?php echo htmlentities('index.php?sender=deny&messageId='. $message['id']); ?>" data-toggle="tooltip" title="Block User"
                    class="btn btn-effect-ripple btn-sm btn-danger"><i class="fa fa-times"></i></a>
             </td>
         </tr>

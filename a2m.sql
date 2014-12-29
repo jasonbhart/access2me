@@ -110,6 +110,32 @@ INSERT INTO `users` (`id`, `mailbox`, `email`, `name`, `username`, `password`, `
 UNLOCK TABLES;
 
 --
+-- Table structure for table `user_senders`
+--
+
+DROP TABLE IF EXISTS `user_senders`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `user_senders` (
+  `id` int AUTO_INCREMENT NOT NULL,
+  `user_id` int NOT NULL,
+  `sender` varchar(64) NOT NULL,
+  `type` tinyint NOT NULL,
+  `access` tinyint NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `user_senders`
+--
+
+LOCK TABLES `user_senders` WRITE;
+/*!40000 ALTER TABLE `user_senders` DISABLE KEYS */;
+/*!40000 ALTER TABLE `user_senders` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `filters`
 --
 

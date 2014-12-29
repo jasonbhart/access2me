@@ -234,6 +234,38 @@ class Email
 
     /**
      * Builds new message ready to be send to user
+     * used for whitelisted senders
+     * 
+     * @param array $to user entity
+     * @param array $message message entity
+     * @return \ezcMail
+     */
+    public static function buildMessage($to, $message)
+    {
+        // get message body of the original message
+        $body = self::getMessageBody(
+            $message['header'] . "\r\n\r\n" . $message['body']
+        );
+
+        // build new message
+        $fromName = $message['from_name'];
+
+        $newMail = new \ezcMail();
+        $newMail->from = new \ezcMailAddress('noreply@access2.me', $fromName);
+        $newMail->to = array(new \ezcMailAddress($to['mailbox']));
+        $newMail->setHeader('Reply-To', $message['reply_email']);
+        $newMail->setHeader('X-Mailer', '');
+        $newMail->subject = $message['subject'];
+        $newMail->body = $body;
+
+        // do not include User-Agent header in the mail
+        $newMail->appendExcludeHeaders(array('User-Agent'));
+        
+        return $newMail;
+    }
+
+    /**
+     * Builds new message ready to be send to user
      * by prepending info header to original message and filling in
      * all required info 
      * 
@@ -255,7 +287,7 @@ class Email
 
         // build new message
         $fromName = $profComb->getFirst('fullName');
- 
+
         $newMail = new \ezcMail();
         $newMail->from = new \ezcMailAddress('noreply@access2.me', $fromName);
         $newMail->to = array(new \ezcMailAddress($to['mailbox']));
