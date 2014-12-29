@@ -11,19 +11,19 @@ function getMessageOwner(\ezcMail $mail, Model\UserRepository $usersRepo)
     // find owner (user) of this message among recipients
     $emails = Helper\Email::getTracedRecipients($mail);
     $unique = array_unique($emails);
-    $users = $usersRepo->findAllByEmails($unique);
+    $users = $usersRepo->findAllByMailboxes($unique);
 
-    // map of users to their emails
-    $e2u = [];
+    // map of users to their mailboxes
+    $m2u = [];
     foreach ($users as $user) {
-        $e2u[$user['email']] = $user;
+        $m2u[$user['mailbox']] = $user;
     }
 
     // find first recipient that is our user
     $user = null;
     foreach ($emails as $email) {
-        if (isset($e2u[$email])) {
-            $user = $e2u[$email];
+        if (isset($m2u[$email])) {
+            $user = $m2u[$email];
             break;
         }
     }
@@ -119,3 +119,4 @@ foreach($messages AS $message) {
 
     echo "<br />";
 }
+
