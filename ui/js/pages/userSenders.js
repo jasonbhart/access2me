@@ -40,22 +40,10 @@ var UserSenders = function() {
         }
     };
 
-    var editForm = function() {
-        var callbacks = {};
-        var $form = $('#form-entry-edit');
-
-        function hideForm() {
-            $form.detach();
-        }
-
-        function closeForm() {
-            if (typeof(callbacks.close) === 'function') {
-                callbacks.close();
-            }
-
-            callbacks = {};
-            hideForm();
-        }
+    var EditForm = function(settings) {
+        var $form = $('#form-entry-edit').clone();
+        $form.attr('id', null);
+        $form.appendTo(settings.el);
 
         var control = {
             getData: function() {
@@ -74,25 +62,33 @@ var UserSenders = function() {
                 $form.find('.entry-type').val(entry.type);
                 $form.find('.entry-access').val(entry.access);
             },
-            hide: hideForm,
-            open: function(el, saveCallback, cancelCallback, closeCallback) {
-                callbacks.save = saveCallback;
-                callbacks.cancel = cancelCallback;
-                callbacks.close = closeCallback;
-                // todo: do not show button if handler is not passed
-                $form.appendTo(el);
+            hide: function() {
+                $form.hide();
+            },
+            show: function() {
+                $form.show();
             },
             save: function() {
-                if (typeof(callbacks.save) === 'function') {
-                    callbacks.save();
-                }
+                var deff = typeof(settings.save) === 'function' ? settings.save() : null;
+                $.when(deff).always(function() {
+                    control.close();                    
+                });
             },
             cancel: function() {
-                if (typeof(callbacks.cancel) === 'function') {
-                    callbacks.cancel();
-                }
+                var deff = typeof(settings.cancel) === 'function' ? settings.cancel() : null;
+                $.when(deff).always(function() {
+                    control.close();                    
+                });
             },
-            close: closeForm
+            close: function() {
+                var deff = typeof(settings.close) === 'function' ? settings.close() : null;
+                $.when(deff).always(function() {
+                    control.hide();                    
+                });
+            },
+            destroy: function() {
+                $form.remove();
+            }
         };
 
         // validation
@@ -156,20 +152,22 @@ var UserSenders = function() {
 
         // handlers
         $form.find('.form-cancel').click(control.cancel);
-
-        $form.detach().show();
-
         return control;
-    }();
+    };
     
     var SendersView = function() {
 
+        var editForm;
+
         function onEntryEdit() {
+            if (editForm) {
+                editForm.close();
+                editForm.destroy();
+            }
+
             var $container = $($(this).parents('tr')[0]);
 
-            editForm.close();
-
-            // tweak container
+            // prepare container
             var $placeHolder = $container.find('td:eq(1)');
 
             // remove unneeded columns
@@ -179,47 +177,43 @@ var UserSenders = function() {
             $placeHolder.attr('colspan', 3);
             $placeHolder.empty();
 
-            // show edit form
+            // prepare form data
             var entryId = $container.data('id');
             var entry = service.getEntryById(entryId);
 
             function renderEntry(entry) {
-                // render new entry content
+                // render entry content
                 var template = $.templates('#entry-content-template');
                 var data = service.toViewModel(entry);
                 var html = template.render(data);
-                
-                // need to hide form here, because next line will remove it
-                editForm.hide();
                 $placeHolder.replaceWith(html);
             }
 
-            editForm.setData(entry);
-            editForm.open(
-                $placeHolder,
-                function() {    // save
-                    var data = editForm.getData();
-                    service.save(data).done(function (response) {
+            // prepare form
+            editForm = new EditForm({
+                el: $placeHolder,
+                save: function() {
+                    var formData = editForm.getData();
+                    return service.save(formData).done(function (response) {
                         if (!response || response.status == 'error') {
                             alert('Can\'t save entry: ' + response.message);
                             return;
                         }
 
                         // copy values back to entries
-                        entry.sender = data.sender;
-                        entry.type = data.type;
-                        entry.access = data.access;
-
-                        renderEntry(entry);
+                        entry.sender = formData.sender;
+                        entry.type = formData.type;
+                        entry.access = formData.access;
                     });
                 },
-                function() {    // cancel
-                    renderEntry(entry);
-                },
-                function() {    // close
+                close: function() {
                     renderEntry(entry);
                 }
-            );
+            });
+
+            // show show edit form
+            editForm.setData(entry);
+            editForm.show();
         }
 
         function onEntryDelete() {
@@ -240,7 +234,6 @@ var UserSenders = function() {
                     return e.id == id;
                 });
                 
-                editForm.close();
                 $placeHolder.remove();
             });
         }
@@ -264,14 +257,18 @@ var UserSenders = function() {
         };
 
         // handler for `Add new filter`
-        $('#entry-new').click(function() {
-            editForm.close();
-            
-            editForm.open(
-                $(this).parent(),
-                function() {    // save
+        $('#ctrl-new-entry').click(function() {
+            if (editForm) {
+                editForm.close();
+                editForm.destroy();
+            }
+
+            editForm = new EditForm({
+                id: 'form-new-entry',
+                el: $(this).parent(),
+                save: function() {    // save
                     var formData = editForm.getData();
-                    service.save(formData).done(function (response) {
+                    return service.save(formData).done(function (response) {
                         if (!response || response.status == 'error') {
                             alert('Can\'t save entry: ' + response.message);
                             return;
@@ -280,12 +277,15 @@ var UserSenders = function() {
                         formData.id = response.id;
 
                         data.entries.unshift(formData);
-                        editForm.close();
-                        
                         controller.render(data);
                     });
+                },
+                close: function() {
+                    editForm.destroy();
                 }
-            );
+            });
+            
+            editForm.show();
         });
 
         return controller;

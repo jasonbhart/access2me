@@ -45,7 +45,7 @@ $accessTypes = [
         </div>
 
         <div>
-            <button id="entry-new" class="btn-effect-ripple btn-success btn-sm">Add new entry</button>
+            <button id="ctrl-new-entry" class="btn-effect-ripple btn-success btn-sm">Add new entry</button>
         </div>
         
         <form id="form-entry-edit" class="form-inline" style="display: none">

@@ -41,8 +41,8 @@ if ($action == 'save') {
     $access = isset($_POST['access']) ? (int)$_POST['access'] : 0;
 
     // validate data
-    if (!in_array($type, [Model\UserSenderRepository::TYPE_DOMAIN, Model\UserSenderRepository::TYPE_DOMAIN])
-        || !in_array($type, [Model\UserSenderRepository::ACCESS_ALLOWED, Model\UserSenderRepository::ACCESS_ALLOWED])
+    if (!in_array($type, [Model\UserSenderRepository::TYPE_DOMAIN, Model\UserSenderRepository::TYPE_EMAIL])
+        || !in_array($access, [Model\UserSenderRepository::ACCESS_ALLOWED, Model\UserSenderRepository::ACCESS_DENIED])
     ) {
         echo json_encode([
             'status' => 'error',

@@ -57,6 +57,11 @@ $primary_nav = array(
         'name'  => 'Gmail Settings',
         'url'   => 'gmail-config.php',
         'icon'  => 'fa fa-rocket'
+    ),
+    array(
+        'name'  => 'Sender list',
+        'url'   => 'user_senders.php',
+        'icon'  => 'fa fa-user'
     )
 );
 
