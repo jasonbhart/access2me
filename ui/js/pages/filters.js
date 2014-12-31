@@ -1,8 +1,6 @@
 var Filters = function() {
 
     var data;
-    
-    window.x = function() { return data; };
 
     var service = {
         getFilterById: function (id) {

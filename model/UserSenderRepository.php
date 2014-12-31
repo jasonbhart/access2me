@@ -48,12 +48,20 @@ class UserSenderRepository
         return $entries ? $entries[0] : null;
     }
 
+    public function findByUser($userId)
+    {
+        $query = 'SELECT * FROM `' . self::TABLE_NAME . '`'
+            . ' WHERE `user_id` = :user_id';
+        $entries = $this->db->getArray($query, ['user_id' => $userId]);
+        return $entries;
+    }
+
     /**
      * @param array $entry
      */
     public function insert($entry)
     {
-        $this->db->insert(
+        return $this->db->insert(
             self::TABLE_NAME,
             array(
                 'user_id',
@@ -97,9 +105,21 @@ class UserSenderRepository
     public function save($entry)
     {
         if (!isset($entry['id'])) {
-            $this->insert($entry);
+            return $this->insert($entry);
         } else {
             $this->update($entry);
+            return $entry['id'];
         }
+    }
+
+    /**
+     * @param int id
+     */
+    public function delete($id)
+    {
+        $query = 'DELETE FROM `' . self::TABLE_NAME . '`'
+            . ' WHERE `id` = :id';
+
+        return $this->db->execute($query, ['id' => $id]);
     }
 }
