@@ -4,7 +4,9 @@ namespace Access2Me\Model;
 
 class MessageRepository
 {
-    // this concers to a sender, to be refactored
+    // this concers to a sender
+    // actually we need only processed or not
+    // todo: refactor
     const STATUS_NOT_VERIFIED = 0;
     const STATUS_VERIFY_REQUESTED = 1;
     const STATUS_VERIFIED = 2;

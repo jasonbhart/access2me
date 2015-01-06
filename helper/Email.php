@@ -198,11 +198,12 @@ class Email
     /**
      * Get content of access2.me info header
      * 
-     * @param array $contact
+     * @param array $data
      * @return \ezcMailMultipartAlternative
      */
-    public static function getInfoHeader($profComb)
+    public static function getInfoHeader($data)
     {
+        $profComb = $data['profile'];
         // data for template
         $contact = array(
             'picture_url' => $profComb->getFirst('pictureUrl'),
@@ -270,11 +271,11 @@ class Email
      * all required info 
      * 
      * @param array $to user entity
-     * @param \Access2Me\Helper\ProfileCombiner $fromContact contact build from profile
      * @param array $message message entity
+     * @param \Access2Me\Helper\ProfileCombiner or array $fromContact contact build from profile
      * @return \ezcMail
      */
-    public static function buildVerifiedMessage($to, $profComb, $message)
+    public static function buildVerifiedMessage($to, $message, $data)
     {
         // get message body of the original message
         $body = self::getMessageBody(
@@ -282,11 +283,11 @@ class Email
         );
 
         // join our header and content of the original message
-        $info = self::getInfoHeader($profComb);
+        $info = self::getInfoHeader($data);
         $newBody = new \ezcMailMultipartMixed($info, $body);
 
         // build new message
-        $fromName = $profComb->getFirst('fullName');
+        $fromName = $data['profile']->getFirst('fullName');
 
         $newMail = new \ezcMail();
         $newMail->from = new \ezcMailAddress('noreply@access2.me', $fromName);

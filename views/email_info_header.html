@@ -89,11 +89,16 @@ use Access2Me\Helper\Template;
             </td>
         </tr>
     </table>
-    <table cellspacing="0" cellpadding="0" border="0">
-        <tr>
-            <td style="padding-left: 0px;"></td>
-        </tr>
-    </table>
+
+    <?php if (isset($data['failed_filters'])): ?>
+    <div>This message failed to pass through the following rules:</div>
+    <ul>
+        <?php foreach ($data['failed_filters'] as $filter): ?>
+        <li><?php echo htmlspecialchars($filter); ?></li>
+        <?php endforeach; ?>
+    </ul>
+    <div style="margin-top: 1em">Add this sender's <a href="">email</a> or <a href="">email domain</a> to the whitelist</div>
+    <?php endif; ?>
     <hr>
  <br />
 </body>

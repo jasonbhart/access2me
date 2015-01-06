@@ -26,6 +26,8 @@ class Filter
         self::NOT_GREATER_THAN
     );
 
+    private $failedFilters = [];
+
     public function __construct($userId, $contact, Database $db) {
         if (!empty($contact)) {
             $this->contact = $contact;
@@ -42,6 +44,9 @@ class Filter
 
 
     public function processFilters() {
+        $this->failedFilters = [];
+        
+
         if (isset($this->filters)) {
             foreach ($this->filters AS $filter) {
                 switch ($filter['type']) {
@@ -61,6 +66,7 @@ class Filter
 
                 if (isset($response) && $response === false) {
                     $this->status = false;
+                    $this->failedFilters[] = $filter;
                 }
             }
         }
@@ -227,5 +233,18 @@ class Filter
         }
 
         return $fields;
+    }
+
+    public function getFailedFilters()
+    {
+        $result = [];
+        $descr = self::getFilterableFields();
+        foreach ($this->failedFilters as $filter) {
+            $result[] = $descr[$filter['field']]
+                . ' ' . mb_strtolower(self::getConditionNameByType($filter['type']))
+                . ' ' . $filter['value'];
+        }
+        
+        return $result;
     }
 }
