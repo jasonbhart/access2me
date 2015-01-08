@@ -233,6 +233,22 @@ class Email
         return $info;
     }
 
+    protected static function getUnverifiedHeader($data)
+    {
+        ob_start();
+        include __DIR__ . '/../views/email_unverified_header.html';
+        $text = ob_get_clean();
+        
+        // build our info header
+        $altBody = new \ezcMailText('This is the body in plain text for non-HTML mail clients');
+        $body = new \ezcMailText($text);
+        $body->subType = 'html';
+
+        $header = new \ezcMailMultipartAlternative($altBody, $body);
+        
+        return $header;
+    }
+
     /**
      * Builds new message ready to be send to user
      * used for whitelisted senders
@@ -288,6 +304,34 @@ class Email
 
         // build new message
         $fromName = $data['profile']->getFirst('fullName');
+
+        $newMail = new \ezcMail();
+        $newMail->from = new \ezcMailAddress('noreply@access2.me', $fromName);
+        $newMail->to = array(new \ezcMailAddress($to['mailbox']));
+        $newMail->setHeader('Reply-To', $message['reply_email']);
+        $newMail->setHeader('X-Mailer', '');
+        $newMail->subject = $message['subject'];
+        $newMail->body = $newBody;
+
+        // do not include User-Agent header in the mail
+        $newMail->appendExcludeHeaders(array('User-Agent'));
+        
+        return $newMail;
+    }
+
+    public static function buildUnverifiedMessage($to, $message, $data)
+    {
+        // get message body of the original message
+        $body = self::getMessageBody(
+            $message['header'] . "\r\n\r\n" . $message['body']
+        );
+
+        // join our header and content of the original message
+        $info = self::getUnverifiedHeader($data);
+        $newBody = new \ezcMailMultipartMixed($info, $body);
+
+        // build new message
+        $fromName = $message['from_email'];
 
         $newMail = new \ezcMail();
         $newMail->from = new \ezcMailAddress('noreply@access2.me', $fromName);

@@ -86,8 +86,6 @@ foreach($messages AS $message) {
 
     $record['userId'] = $user['id'];
 
-    print_r($record);
-
     $db->insert(
         'messages',
         array(

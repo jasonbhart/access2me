@@ -2,21 +2,32 @@
 
 namespace Access2Me\Helper;
 
-use \Access2Me\Model\UserSenderRepository;
+use \Access2Me\Model;
 
 class UserListProvider
 {
     private $userId;
 
     /**
-     * @var UserSenderRepository
+     * @var \Access2Me\Model\UserSenderRepository
      */
     private $repo;
     
-    public function __construct($userId, UserSenderRepository $repo)
+    public function __construct($userId, Model\UserSenderRepository $repo)
     {
         $this->userId = $userId;
         $this->repo = $repo;
+    }
+
+    public static function isAddressValid($address, $type) {
+        if ($type == Model\UserSenderRepository::TYPE_EMAIL) {
+            return Utils::isValidEmail($address);
+        } else if ($type == Model\UserSenderRepository::TYPE_DOMAIN) {
+            return Utils::isValidDomain($address);
+        }
+        
+        // unknown type
+        return false;
     }
 
     public function search($email) {

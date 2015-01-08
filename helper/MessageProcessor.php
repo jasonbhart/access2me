@@ -18,13 +18,19 @@ class MessageProcessor
      * @var \Access2Me\Helper\UserListProvider
      */
     private $userSendersList;
+
+    /**
+     * @var \Access2Me\Helper\AuthTokenManager
+     */
+    private $authTokenManager;
     
-    public function __construct($user, $db, $storage, $userSendersList)
+    public function __construct($user, $db, $storage, $userSendersList, $authTokenManager)
     {
         $this->user = $user;
         $this->db = $db;
         $this->storage = $storage;
         $this->userSendersList = $userSendersList;
+        $this->authTokenManager = $authTokenManager;
     }
 
     // get folder from user settings
@@ -67,6 +73,31 @@ class MessageProcessor
         }
     }
 
+    private function buildWhitelistUrls($email)
+    {
+        $splitted = Email::splitEmail($email);
+        if (!$splitted) {
+            throw new \InvalidArgumentException('email');
+        }
+
+        $tokenManager = $this->authTokenManager;
+        
+        $url = 'http://app.access2.me/user_senders.php?';
+        $token = $tokenManager->generateToken($this->user['id'], [Model\Roles::USER_LIST_MANAGER]);
+        $result['email'] = $url . http_build_query([
+            'token' => $token['token'],
+            'email' => $email
+        ]);
+
+        $token = $tokenManager->generateToken($this->user['id'], [Model\Roles::USER_LIST_MANAGER]);
+        $result['domain'] = $url . http_build_query([
+            'token' => $token['token'],
+            'domain' => $splitted['domain']
+        ]);
+
+        return $result;
+    }
+
     /**
      * Appends unverified message to the Unverified folder on Gmail
      * 
@@ -77,9 +108,10 @@ class MessageProcessor
     {
         // append message to Unverified folder if it was not already appended
         if (!$message['appended_to_unverified']) {
-            $mail = $message['header'] . "\r\n\r\n" . $message['body'];
+            $data['whitelist_urls'] = $this->buildWhitelistUrls($message['from_email']);
+            $mail = Email::buildUnverifiedMessage($this->user, $message, $data);
             return [
-                'message' => $mail,
+                'message' => $mail->generate(),
                 'status' => Model\MessageRepository::STATUS_NOT_VERIFIED
             ];
         }
@@ -118,6 +150,9 @@ class MessageProcessor
         return $profComb;
     }
 
+    /**
+     * @todo Do we need to add info header to such messages ? 
+     */
     private function processUserLists($message)
     {
         $sender = $message['from_email'];
@@ -169,43 +204,29 @@ class MessageProcessor
             return false;
         }
 
-        $result = false;
+        $result = [];
+        $mailOptions = ['profile' => $profile];
         // todo: move filter out of class
         $filter = new \Filter($this->user['id'], $profile, $this->db);
         $filter->processFilters();
 
         if ($filter->status === true) {
-            // attach our `verified by` header and append message to gmail
-            $mail = Email::buildVerifiedMessage(
-                $this->user,
-                $message,
-                ['profile' => $profile]
-            );
-
-            // append message to mailbox
-            $result = [
-                'message' => $mail->generate(),
-                'status' => Model\MessageRepository::STATUS_FILTER_PASSED
-            ];
+            $result['status'] = Model\MessageRepository::STATUS_FILTER_PASSED;
         } else {
-            // todo: generate message
-            // attach information about what filtering rule failed
-            $mail = Email::buildVerifiedMessage(
-                $this->user,
-                $message,
-                [
-                    'profile' => $profile,
-                    'failed_filters' => $filter->getFailedFilters()
-                ]
-            );
-
-            // append message to mailbox
-            $result = [
-                'message' => $mail->generate(),
-                'status' => Model\MessageRepository::STATUS_FILTER_FAILED
-            ];
+            $mailOptions['failed_filters'] = $filter->getFailedFilters();
+            $mailOptions['whitelist_urls'] = $this->buildWhitelistUrls($message['from_email']);
+            $result['status'] = Model\MessageRepository::STATUS_FILTER_FAILED;
         }
 
+        // build email
+        $mail = Email::buildVerifiedMessage(
+            $this->user,
+            $message,
+            $mailOptions
+        );
+
+        $result['message'] = $mail->generate();
+        
         return $result;
     }
 
@@ -265,6 +286,12 @@ class MessageProcessor
     {
         $this->prepareFolders();
 
+        $notprocessedStatuses = [
+            Model\MessageRepository::STATUS_NOT_VERIFIED,
+            Model\MessageRepository::STATUS_VERIFY_REQUESTED,
+            Model\MessageRepository::STATUS_VERIFIED
+        ];
+        
         $processedStatuses = [
             Model\MessageRepository::STATUS_SENDER_WHITELISTED,
             Model\MessageRepository::STATUS_SENDER_BLACKLISTED,
@@ -278,10 +305,7 @@ class MessageProcessor
                 $result = false;
 
                 // if message is not processed...
-                if (Model\MessageRepository::STATUS_NOT_VERIFIED
-                    || Model\MessageRepository::STATUS_VERIFY_REQUESTED
-                    || Model\MessageRepository::STATUS_VERIFIED
-                ) {
+                if (in_array((int)$message['status'], $notprocessedStatuses, true)) {
                     $result = $this->processMessage($message);
                 }
 
@@ -331,61 +355,4 @@ class MessageProcessor
             $this->storage->removeMessages($removeFromUnverified);
         }
     }
-
-//    public function process2($messages)
-//    {
-//        // check sender is in white/black list
-//        $notProcessed = [];
-//        foreach ($messages as $message) {
-//            $sender = $message['from_email'];
-//
-//            // does sender's address matches some list ?
-//            $result = $this->userSendersList->search($sender);
-//            if ($result === false) {
-//                $notProcessed[] = $message;
-//                continue;
-//            }
-//
-//            // whitelisted ?
-//            if ($result['access'] == Model\UserSenderRepository::ACCESS_ALLOWED) {
-//                $mail = Email::buildMessage($this->user, $message);
-//                $newMessage = $mail->generate();
-//                $this->storage->changeFolder(Folder::INBOX);
-//                $this->storage->appendMessage($newMessage, null, array(\Zend\Mail\Storage::FLAG_RECENT));
-//                $this->db->updateOne('messages', 'status', Model\MessageRepository::STATUS_SENDER_WHITELISTED, 'id', $message['id']);
-//            } else {
-//                // blacklisted
-//                $this->db->updateOne('messages', 'status', Model\MessageRepository::STATUS_SENDER_BLACKLISTED, 'id', $message['id']);
-//                $msg = sprintf(
-//                    'Do not sending message %d because sender %s is blacklisted',
-//                    $message['id'], $sender
-//                );
-//                \Logging::getLogger()->debug($message);
-//            }
-//        }
-//
-//        $this->createUnverifiedFolder();
-//
-//        $verified = [];
-//        
-//        foreach ($notProcessed as $message) {
-//            if ($message['status'] == Model\MessageRepository::STATUS_NOT_VERIFIED
-//                || $message['status'] == Model\MessageRepository::STATUS_VERIFY_REQUESTED
-//            ) {
-//                $this->processUnverified($message);
-//            } else if ($message['status'] == Model\MessageRepository::STATUS_VERIFIED) {
-//                if ($this->processFilters($message)) {
-//                    $verified[] = $message['message_id'];
-//                }
-//            }
-//        }
-//
-//        // remove verified messages from `unverified` folder
-//        if ($verified) {
-//            $this->storage->changeFolder(Folder::UNVERIFIED);
-//            $this->storage->moveToTrash($verified);
-//            $this->storage->changeFolder(Folder::TRASH);
-//            $this->storage->removeMessages($verified);
-//        }
-//    }
 }

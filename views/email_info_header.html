@@ -80,7 +80,7 @@ use Access2Me\Helper\Template;
 
     <table cellspacing="0" cellpadding="0" border="0">
         <tr>
-            <td style="padding-left: 0px;" with="400">
+            <td style="padding-left: 0px;" width="400">
                 <span style="color: #8A8A8A; font-family: 'Calibri', sans-serif; font-size: 8pt; font-weight: regular;">
                    <?php if (!empty($contact['summary'])): ?>
                    <strong><?php echo htmlentities($contact['summary']); ?></strong>
@@ -97,7 +97,7 @@ use Access2Me\Helper\Template;
         <li><?php echo htmlspecialchars($filter); ?></li>
         <?php endforeach; ?>
     </ul>
-    <div style="margin-top: 1em">Add this sender's <a href="">email</a> or <a href="">email domain</a> to the whitelist</div>
+    <?php require(__DIR__ . '/_whitelist_sender.html'); ?>
     <?php endif; ?>
     <hr>
  <br />

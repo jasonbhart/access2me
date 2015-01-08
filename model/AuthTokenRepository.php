@@ -5,8 +5,6 @@ namespace Access2Me\Model;
 
 class AuthTokenRepository
 {
-    const USER_LIST_MANAGER = 1;
-
     const TABLE_NAME = 'auth_tokens';
 
     /**
