@@ -1,0 +1,29 @@
+<?php
+use Access2Me\Helper\Template;
+?>
+<!doctype html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <style>
+        a {color: #808080;}
+    </style>
+</head>
+<body>
+    <table>
+        <tr>
+            <td>
+                <div>
+                    This message was processed by Access2.ME but the sender was whitelisted.
+                    To manage your whitelists, click
+                    <a href="http://app.access2.me/ui/login.php?redirect_to=<?php echo htmlspecialchars(urlencode('/ui/user_senders.php')); ?>">here</a>.
+                </div>
+            </td>
+            <td>
+              <img src="http://app.access2.me/img/a2mbanner.png" style="border: 0" />
+            </td>
+        </tr>
+    </table>
+    <hr>
+</body>
+</html>

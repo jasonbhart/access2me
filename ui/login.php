@@ -8,6 +8,12 @@ use Access2Me\Helper\AuthException;
 $db = new Database;
 $auth = new Auth($db);
 
+// redirect on success login
+$redirectTo = null;
+if (!empty($_REQUEST['redirect_to'])) {
+    $redirectTo = $_REQUEST['redirect_to'];
+}
+
 if ($_POST) {
 
     $username = isset($_POST['login-username']) ? $_POST['login-username'] : null;
@@ -17,7 +23,12 @@ if ($_POST) {
     if ($username && $password) {
         try {
             $auth->login($username, $password, $remember);
-            header('Location: index.php');
+
+            if (empty($redirectTo)) {
+                $redirectTo = 'index.php';
+            }
+
+            header('Location: ' . $redirectTo);
             exit;
         } catch (AuthException $ex) {
             $errorMessage = $ex->getMessage();
@@ -58,6 +69,9 @@ if (isset($_GET['action']) && $_GET['action'] == 'logout') {
 
         <!-- Login Form -->
         <form id="form-login" action="login.php" method="post" class="form-horizontal">
+            <?php if ($redirectTo): ?>
+            <input type="hidden" name="redirect_to" value="<?php echo htmlspecialchars($redirectTo); ?>" />
+            <?php endif; ?>
             <div class="form-group">
                 <div class="col-xs-12">
                     <input type="text" id="login-username" name="login-username" class="form-control" placeholder="Your username">

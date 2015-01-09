@@ -73,29 +73,18 @@ class MessageProcessor
         }
     }
 
-    private function buildWhitelistUrls($email)
+    private function buildWhitelistUrl($email)
     {
-        $splitted = Email::splitEmail($email);
-        if (!$splitted) {
-            throw new \InvalidArgumentException('email');
-        }
-
         $tokenManager = $this->authTokenManager;
         
-        $url = 'http://app.access2.me/user_senders.php?';
+        $baseUrl = 'http://app.access2.me/user_senders.php?';
         $token = $tokenManager->generateToken($this->user['id'], [Model\Roles::USER_LIST_MANAGER]);
-        $result['email'] = $url . http_build_query([
+        $url = $baseUrl . http_build_query([
             'token' => $token['token'],
             'email' => $email
         ]);
 
-        $token = $tokenManager->generateToken($this->user['id'], [Model\Roles::USER_LIST_MANAGER]);
-        $result['domain'] = $url . http_build_query([
-            'token' => $token['token'],
-            'domain' => $splitted['domain']
-        ]);
-
-        return $result;
+        return $url;
     }
 
     /**
@@ -108,7 +97,7 @@ class MessageProcessor
     {
         // append message to Unverified folder if it was not already appended
         if (!$message['appended_to_unverified']) {
-            $data['whitelist_urls'] = $this->buildWhitelistUrls($message['from_email']);
+            $data['whitelist_url'] = $this->buildWhitelistUrl($message['from_email']);
             $mail = Email::buildUnverifiedMessage($this->user, $message, $data);
             return [
                 'message' => $mail->generate(),
@@ -165,7 +154,7 @@ class MessageProcessor
 
         // whitelisted ?
         if ($result['access'] == Model\UserSenderRepository::ACCESS_ALLOWED) {
-            $mail = Email::buildMessage($this->user, $message);
+            $mail = Email::buildWhitelistedMessage($this->user, $message);
             $result = [
                 'message' => $mail->generate(),
                 'status' => Model\MessageRepository::STATUS_SENDER_WHITELISTED
@@ -214,7 +203,7 @@ class MessageProcessor
             $result['status'] = Model\MessageRepository::STATUS_FILTER_PASSED;
         } else {
             $mailOptions['failed_filters'] = $filter->getFailedFilters();
-            $mailOptions['whitelist_urls'] = $this->buildWhitelistUrls($message['from_email']);
+            $mailOptions['whitelist_url'] = $this->buildWhitelistUrl($message['from_email']);
             $result['status'] = Model\MessageRepository::STATUS_FILTER_FAILED;
         }
 

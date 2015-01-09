@@ -9,21 +9,11 @@ use Access2Me\Helper;
 use Access2Me\Model;
 
 
-$token = isset($_GET['token']) ? $_GET['token'] : null;
-$email = isset($_GET['email']) ? $_GET['email'] : null;
-$domain = isset($_GET['domain']) ? $_GET['domain'] : null;
+$token = isset($_REQUEST['token']) ? $_REQUEST['token'] : null;
+$email = isset($_REQUEST['email']) ? $_REQUEST['email'] : null;
 
 // check input params
-$sender = null;
-if ($email != null) {
-    $sender = $email;
-    $type = Model\UserSenderRepository::TYPE_EMAIL;
-} elseif ($domain != null) {
-    $sender = $domain;
-    $type = Model\UserSenderRepository::TYPE_EMAIL;
-}
-
-if (!$token || $sender == null || Helper\UserListProvider::isAddressValid($sender, $type)) {
+if (!$token || !Helper\Utils::isValidEmail($email)) {
     echo 'Invalid request';
     exit;
 }
@@ -33,7 +23,7 @@ $db = new Database;
 $tokenRepo = new Model\AuthTokenRepository($db);
 
 $tokenEntry = $tokenRepo->getByToken($token);
-if (!$tokenEntry) {
+if (!$tokenEntry || $tokenEntry['expires_at'] < new \DateTime()) {
     echo 'No such token';
     exit;
 }
@@ -43,20 +33,39 @@ if ($tokenEntry['user_id'] == null || !in_array(Model\Roles::USER_LIST_MANAGER, 
     exit;
 }
 
-// store sender entry
-$userSenderRepo = new Model\UserSenderRepository($db);
-$entry = $userSenderRepo->getByUserAndSender($tokenEntry['user_id'], $sender);
-if (!$entry) {
-    $entry = [
-        'user_id' => $tokenEntry['user_id'],
-        'sender' => $sender
-    ];
+
+$splitted = Helper\Email::splitEmail($email);
+$domain = $splitted['domain'];
+
+// whitelist type
+$sender = null;
+$type = null;
+if (isset($_POST['temail'])) {
+    $sender = $email;
+    $type = Model\UserSenderRepository::TYPE_EMAIL;
+} elseif (isset($_POST['tdomain'])) {
+    $sender = $domain;
+    $type = Model\UserSenderRepository::TYPE_DOMAIN;
 }
 
-$entry['type'] = $type;
-$entry['access'] = Model\UserSenderRepository::ACCESS_ALLOWED;
+// store sender entry
+if ($_POST && $type !== null) {
+    
+    $userSenderRepo = new Model\UserSenderRepository($db);
+    $entry = $userSenderRepo->getByUserAndSender($tokenEntry['user_id'], $sender);
+    if (!$entry) {
+        $entry = [
+            'user_id' => $tokenEntry['user_id'],
+            'sender' => $sender
+        ];
+    }
 
-$userSenderRepo->save($entry);
-$tokenRepo->delete($tokenEntry['id']);
+    $entry['type'] = $type;
+    $entry['access'] = Model\UserSenderRepository::ACCESS_ALLOWED;
 
-echo 'Sender\'s address added to your whitelist.';
+    $userSenderRepo->save($entry);
+    $tokenRepo->delete($tokenEntry['id']);
+    $whitelisted = true;
+}
+
+require 'views/whitelist_sender.html';

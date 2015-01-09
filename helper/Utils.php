@@ -7,7 +7,7 @@ class Utils
 {
     public static function isValidEmail($email)
     {
-        return !$empty($email) && \ezcMailTools::validateEmailAddress($email);
+        return !empty($email) && \ezcMailTools::validateEmailAddress($email);
     }
 
     public static function isValidDomain($domain)
