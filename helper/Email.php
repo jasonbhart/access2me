@@ -103,13 +103,16 @@ class Email
         $mail = $message['mail'];
         $record = array();
 
-        $record['messageId'] = $mail->messageId;
+        $record['message_id'] = $mail->messageId;
+        $record['from_name'] = $mail->from->name;
+        $record['from_email'] = $mail->from->email;
+        $record['to_email'] = $mail->to[0]->email;
         $record['subject']   = $mail->subject;
-        $record['to']        = $mail->to[0]->email;
-        $record['from']      = $mail->from->name;
-        $record['fromEmail'] = $mail->from->email;
         $record['header']    = $message['raw_header'];
         $record['body']      = $message['raw_body'];
+        $record['status']    = 0;
+        $record['appended_to_unverified'] = 0;
+        
 
         // parse Date header
         $date = strtotime($mail->getHeader('Date'));
@@ -125,7 +128,7 @@ class Email
         $replyTo = \ezcMailTools::parseEmailAddress($mail->getHeader('Reply-To'));
         
         // parse headers to find Return-Path or From for reply_email
-        $record['replyEmail'] = isset($replyTo)
+        $record['reply_email'] = isset($replyTo)
             ? $replyTo->email : $mail->from->email;
         
         return $record;

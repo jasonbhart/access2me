@@ -34,8 +34,6 @@ function getMessageOwner(\ezcMail $mail, Model\UserRepository $usersRepo)
 
 $imap = new IMAP($appConfig['imap']);
 
-echo "<pre>";
-
 // get raw messages
 $rawMessages = $imap->getInboxRaw();
 $messages = array();
@@ -61,6 +59,7 @@ foreach ($rawMessages as $raw) {
 
 $db = new Database;
 $usersRepo = new Access2Me\Model\UserRepository($db);
+$mesgRepo = new Access2Me\Model\MessageRepository($db);
 
 // process messages and save them into the database
 foreach($messages AS $message) {
@@ -84,37 +83,7 @@ foreach($messages AS $message) {
         continue;
     }
 
-    $record['userId'] = $user['id'];
+    $record['user_id'] = $user['id'];
 
-    $db->insert(
-        'messages',
-        array(
-            'message_id',
-            'user_id',
-            'from_name',
-            'from_email',
-            'reply_email',
-            'to_email',
-            'created_at',
-            'subject',
-            'header',
-            'body'
-        ),
-        array(
-            $record['messageId'],
-            $record['userId'],
-            $record['from'],
-            $record['fromEmail'],
-            $record['replyEmail'],
-            $record['to'],
-            $record['created_at'],
-            $record['subject'],
-            $record['header'],
-            $record['body']
-        ),
-        true
-    );
-
-    echo "<br />";
+    $mesgRepo->insert($record);
 }
-
