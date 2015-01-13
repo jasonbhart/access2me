@@ -49,7 +49,7 @@ class Database
 
         for ($x = 0; $x < sizeof($columns); $x++) {
             if ($x > 0) { $statement .= ', '; }
-            $statement .= $columns[$x];
+            $statement .= '`' . $columns[$x] . '`';
         }
 
         $statement .= ")";

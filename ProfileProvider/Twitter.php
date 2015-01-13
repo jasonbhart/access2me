@@ -33,8 +33,7 @@ class Twitter implements ProfileProviderInterface
                 $ex->getMessage(),
                 array('exception' => $ex)
             );
-
-            return false;
+            throw new ProfileProviderException('Can\'t fetch profile');
         }
     }
 

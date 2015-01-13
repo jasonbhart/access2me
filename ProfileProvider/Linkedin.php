@@ -33,14 +33,14 @@ class Linkedin implements ProfileProviderInterface
                 $ex->getMessage(),
                 array('exception' => $ex)
             );
-            return false;
+            throw new ProfileProviderException('Can\'t fetch profile');
         }
     }
 
     public function parseProfileData($xml)
     {
         if (!$xml) {
-            return false;
+            throw new ProfileProviderException('Invalid profile data');
         }
 
         $profile = new Profile\Profile();

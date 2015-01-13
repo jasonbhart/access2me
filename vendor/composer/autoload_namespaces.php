@@ -17,6 +17,7 @@ return array(
     'Zend\\Math\\' => array($vendorDir . '/zendframework/zend-math'),
     'Zend\\Mail\\' => array($vendorDir . '/zendframework/zend-mail'),
     'Zend\\Loader\\' => array($vendorDir . '/zendframework/zend-loader'),
+    'Zend\\EventManager\\' => array($vendorDir . '/zendframework/zend-eventmanager'),
     'Zend\\Crypt\\' => array($vendorDir . '/zendframework/zend-crypt'),
     'Symfony\\Component\\EventDispatcher\\' => array($vendorDir . '/symfony/event-dispatcher'),
     'Psr\\Log\\' => array($vendorDir . '/psr/log'),

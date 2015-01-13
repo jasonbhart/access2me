@@ -2,185 +2,262 @@
 
 namespace Access2Me\Helper;
 
-use Access2Me\Model;
+use Access2Me\Helper;
 
-class SenderProfileProvider
+interface SenderProfileProviderInterface
+{
+    function getProviders();
+
+    /**
+     * Currently we store services and sender in one table.
+     * That's why we have senderS here.
+     * In the future we need to normalize this.
+     * 
+     * @param array $request [sender => Model\Sender, services => [id=>servicedata]]
+     */
+    function getProfiles($request, array $providerIds=[]);
+
+    function getProfile($request, $providerId);
+}
+
+class SenderProfileProvider implements SenderProfileProviderInterface
 {
     /**
      * @var \Access2Me\ProfileProvider\ProfileProviderInterface[] 
      */
-    private $providers;
-    
+    protected $providers;
+
+    /**
+     * 
+     * @param array $providers map of serviceId => ['authRequired' => boolean, 'provider' => ProfileProviderInterface]
+     */
     public function __construct($providers = array())
     {
         $this->providers = $providers;
     }
 
-    /**
-     * Checks that profile data is recent
-     * 
-     * @param \Access2Me\Model\Sender $sender
-     * @return boolean
-     */
-    public function isRecent($sender)
+    public function getProviders()
     {
-        if ($sender->getProfile() == null) {
-            return false;
-        }
-
-        // two weekes
-        $interval = new \DateInterval('P2W');
-        $isRecent = $sender->getProfileDate() > (new \DateTime())->sub($interval);
-            
-        return $isRecent;
+        return $this->providers;
     }
 
     /**
-     * Returns senders profile for every available service
-     * using cached version if it is available and recent
-     * 
-     * @param \Access2Me\Model\Sender[] $senders
-     * @param boolean $useCached
-     * @return array Profile 
-     *      array(
-     *          sender => \Access2Me\Model\Sender(),
-     *          services => array(
-     *              array(serviceId => array(
-     *                  'cached' => boolean,
-     *                  'recent' => boolean,
-     *                  'profile' => Access2Me\ProfileProvider\Profile
-     *              )
-     *          )
-     *      )
+     * Converts array of services into the indexed by serviceId array of services
+     * @param array $services
+     * @return array
      */
-    public function getProfiles($senders, $useCached = true)
+    protected function getServiceMap(array $services)
     {
-        if (empty($senders)) {
+        $serviceMap = [];
+        foreach ($services as $service) {
+            $serviceMap[$service->getService()] = $service;
+        }
+
+        return $serviceMap;
+    }
+
+    /**
+     * Collect info about sender
+     * 
+     * @param array $request [sender => Model\Sender, services => [id=>servicedata]]
+     * @return array
+     */
+    public function getProfiles($request, array $providerIds=[])
+    {
+        $sender = $request['sender'];
+        $services = $request['services'];
+
+        $serviceMap = $this->getServiceMap($services);
+        $providerIds = !empty($providerIds) ? $providerIds : array_keys($this->getProviders());
+
+        // collect profiles
+        $result = [];
+        foreach ($providerIds as $pid) {
+
+            if (!isset($this->providers[$pid])) {
+                throw new \Exception('Unknown provider ' . $pid);
+            }
+
+            $provider = $this->providers[$pid];
+            $profile = null;
+            
+            // provider requires auth
+            if ($provider['authRequired']) {
+                // we have corresponding auth
+                if (isset($serviceMap[$pid])) {
+                    $profile = $provider['provider']->fetchProfile(
+                        /*$sender,*/
+                        $serviceMap[$pid]
+                    );
+                }
+                // do not call provider if auth is not specified
+            } else {
+                $profile = $provider['provider']->fetchProfile($sender);
+            }
+
+            $result[$pid] = $profile;
+        }
+
+        return $result;
+    }
+
+    public function getProfile($request, $providerId)
+    {
+        $profile = $this->getProfiles($request, [$providerId]);
+        return empty($profile) ? null : $profile[$providerId];
+    }
+}
+
+
+class CachedSenderProfileProvider implements SenderProfileProviderInterface
+{
+    /**
+     * @var \Access2Me\Helper\Cache
+     */
+    private $cache;
+
+    /**
+     * @var string in \DateInterval format
+     */
+    private $cachingPeriod = 'P2W';
+
+    /**
+     * @var SenderProfileProviderInterface
+     */
+    private $profileProvider;
+
+    public function __construct(Helper\Cache $cache, SenderProfileProviderInterface $profileProvider)
+    {
+        $this->cache = $cache;
+        $this->profileProvider = $profileProvider;
+    }
+
+    public function getProviders()
+    {
+        return $this->profileProvider->getProviders();
+    }
+
+    protected function getKey($sender, $serviceId)
+    {
+        return $sender . '_profile_' . $serviceId;
+    }
+
+    public function getProfiles($request, array $providerIds=[])
+    {
+        // todo: check cache
+        $toFetch = [];
+        $result = [];
+
+        $sender = $request['sender'];
+        $providerIds = !empty($providerIds) ? $providerIds : array_keys($this->getProviders());
+
+        // check cache
+        foreach ($providerIds as $pid) {
+            $key = $this->getKey($sender->getSender(), $pid);
+            try {
+                $result[$pid] = $this->cache->get($key);
+            } catch (Helper\CacheException $ex) {
+                $toFetch[] = $pid;
+            }
+        }
+
+        // do we have something to fetch ?
+        if ($toFetch) {
+            
+            $fetched = $this->profileProvider->getProfiles($request, $toFetch);
+
+            // cache results
+            foreach ($fetched as $pid=>$profile) {
+                $key = $this->getKey($sender->getSender(), $pid);
+                $this->cache->set($key, $profile, $this->cachingPeriod);
+                $result[$pid] = $profile;
+            }
+        }
+
+        return $result;
+    }
+
+    function getProfile($request, $providerId)
+    {
+        $profile = $this->getProfiles($request, [$providerId]);
+        return empty($profile) ? null : $profile[$providerId];
+    }
+}
+
+/**
+ * Normalizes array of senders to array of sender and services
+ * [
+ *  'sender' => sender,
+ *  'services' => []
+ * ]
+ */
+class NormalizedSenderProfileProvider implements SenderProfileProviderInterface
+{
+    /**
+     * @var SenderProfileProviderInterface
+     */
+    private $profileProvider;
+
+    public function __construct(SenderProfileProviderInterface $profileProvider)
+    {
+        $this->profileProvider = $profileProvider;
+    }
+
+    public function getProviders()
+    {
+        return $this->profileProvider->getProviders();
+    }
+
+    /**
+     * Convert senders into the [sender, services]
+     * 
+     * @param \Access2Me\Model\Sender $senders
+     * @return array
+     */
+    public static function normalizeSenders($senders)
+    {
+        $senders = (array)$senders;
+
+        if (!$senders) {
             return null;
         }
 
-        if (!is_array($senders)) {
-            $senders = array($senders);
-        }
+        $result = [
+            'sender' => $senders[0],
+            'services' => []
+        ];
 
-        $profile = array(
-            'sender' => $senders[0]->getSender(),
-            'services' => array()
-        );
-
+        // map services to service data (auth)
         foreach ($senders as $sender) {
-            $prof = null;
-
-            // do we have cached profile ?
-            $haveCached = $sender->getProfile() !== null && $useCached;
-            
-            // do we have recent cached profile ?
-            if ($haveCached && $this->isRecent($sender)) {
-                $prof = array(
-                    'cached' => true,
-                    'recent' => true,
-                    'profile' => $sender->getProfile()
-                );
-            } else {
-                // we don't have cached profile or it is old
-                $prof = $this->fetchProfile($sender);
-                
-                // new profile fecthed
-                if ($prof !== false) {
-                    $prof = array(
-                        'cached' => false,
-                        'recent' => true,
-                        'profile' => $prof
-                    );
-                } else {
-                    // can't fetch profile, try to use old
-                    if ($haveCached) {
-                        $prof = array(
-                            'cached' => true,
-                            'recent' => false,
-                            'profile' => $sender->getProfile()
-                        );
-                    }
-                }
-            }
-            
-            $profile['services'][$sender->getService()] = $prof;
+            // todo: only oauth is needed (not the whole sender)
+            $result['services'][] = $sender; //$sender->getOAuth();
         }
 
-        return $profile;
+        return $result;
     }
 
-    /**
-     * Fetches profile using specified service
-     * 
-     * @param \Access2Me\Model\Sender $sender
-     * @return array
-     * @throws Exception
-     */
-    protected function fetchProfile(Model\Sender $sender)
-    {
-        $serviceId = $sender->getService();
 
-        if (!isset($this->providers[$serviceId])) {
-            throw new \Exception('Unknown service ' . $serviceId);
+    public function getProfiles($request, array $providerIds=[])
+    {
+        // normalize if not normalized
+        if (!array_key_exists('sender', $request)) {
+            $request = $this->normalizeSenders($request);
         }
 
-        return $this->providers[$serviceId]->fetchProfile($sender);
+        if (!$request) {
+            throw new \InvalidArgumentException('request');
+        }
+
+        return $this->profileProvider->getProfiles($request, $providerIds);
     }
 
-    /**
-     * Save profiles for caching purpose
-     * Doesn't commit changes
-     * 
-     * @param \Access2Me\Model\Sender[] $senders
-     * @param array $profiles
-     */
-    public function storeProfiles($senders, $profiles)
+    function getProfile($request, $providerId)
     {
-        if ($profiles) {
-            $map = array();
-            foreach ($senders as $sender) {
-                $map[$sender->getService()] = $sender;
-            }
-
-            foreach ($profiles['services'] as $id => $service) {
-                if ($service !== null
-                    && $service['cached'] == false
-                ) {
-                    $map[$id]->setProfile($service['profile']);
-                    $map[$id]->setProfileDate(new \DateTime());
-                }
-            }
-        }
-    }
-
-    /**
-     * 
-     * @param array $profiles profiles returned by getProfiles
-     * @param int $serviceId
-     */
-    public function getProfileByServiceId($profiles, $serviceId)
-    {
-        if (isset($profiles['services'][$serviceId]['profile'])) {
-            return $profiles['services'][$serviceId]['profile'];
-        }
-        
-        return null;
-    }
-
-    public function getCombiner($profiles)
-    {
-        if (!$profiles || !isset($profiles['services'])) {
-            throw new \InvalidArgumentException('profiles');
+        // normalize if not normalized
+        if (!array_key_exists('sender', $request)) {
+            $request = $this->normalizeSenders($request);
         }
 
-        $data = array();
-        foreach ($profiles['services'] as $serviceId=>$item) {
-            if ($item) {
-                $data[$serviceId] = $item['profile'];
-            }
-        }
-
-        return new ProfileCombiner($data);
+        return $this->profileProvider->getProfile($request, $providerId);
     }
 }

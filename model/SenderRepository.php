@@ -4,10 +4,6 @@ namespace Access2Me\Model;
 
 class SenderRepository
 {
-    const SERVICE_LINKEDIN = 1;
-    const SERVICE_FACEBOOK = 2;
-    const SERVICE_TWITTER  = 3;
-
     const TABLE_NAME = 'senders';
 
     private $db;
@@ -38,41 +34,6 @@ class SenderRepository
     {
         return json_decode($encodedOAuthKey, true);
     }
-
-     /**
-     * Encodes profile to be stored in database
-     * 
-     * @param string|array $profile
-     */
-    protected function encodeProfile($profile)
-    {
-        // store null values as NULL in databases instead of json "null"
-        if ($profile === null) {
-            return null;
-        }
-
-        return serialize($profile);
-    }
-
-    protected function decodeProfile($profile)
-    {
-        $data = unserialize($profile);
-        return $data === false ? null : $data;
-    }
-
-    protected function encodeProfileDate($dt)
-    {
-        return $dt instanceof \DateTime ? $dt->format('Y-m-d H:i:s') : null;
-    }
-
-    protected function decodeProfileDate($dt)
-    {
-        try {
-            return !empty($dt) ? new \DateTime($dt) : null;
-        } catch (\Exception $ex) {
-            return null;
-        }
-    }
     
     /**
      * Helper method to decode values in all passed objects
@@ -87,13 +48,9 @@ class SenderRepository
 
         if (is_object($senders)) {
             $senders->setOAuthKey($this->decodeOAuthKey($senders->getOAuthKey()));
-            $senders->setProfile($this->decodeProfile($senders->getProfile()));
-            $senders->setProfileDate($this->decodeProfileDate($senders->getProfileDate()));
         } else {
             foreach ($senders as $sender) {
                 $sender->setOAuthKey($this->decodeOAuthKey($sender->getOAuthKey()));
-                $sender->setProfile($this->decodeProfile($sender->getProfile()));
-                $sender->setProfileDate($this->decodeProfileDate($sender->getProfileDate()));
             }
         }
     }
@@ -146,6 +103,26 @@ class SenderRepository
         return $sender !== false ? $sender : null;
     }
 
+    public function findByMessageId($messageId)
+    {
+        $query = 'SELECT s.* FROM `' . self::TABLE_NAME. '` s'
+            . ' JOIN `' . MessageRepository::TABLE_NAME . '` m'
+                . ' ON m.`from_email` = s.`sender`'
+            . ' WHERE `m`.id = :id';
+
+        $conn = $this->db->getConnection();
+        $st = $conn->prepare($query);
+        $st->setFetchMode(\PDO::FETCH_CLASS, '\\Access2Me\\Model\\Sender');
+        $st->bindValue(':id', $messageId, \PDO::PARAM_INT);
+        $st->execute();
+        $senders = $st->fetchAll();
+        $st->closeCursor();
+        
+        $this->decodeSenders($senders);
+
+        return $senders;
+    }
+
     /**
      * @param Sender $sender
      */
@@ -156,16 +133,12 @@ class SenderRepository
             array(
                 'sender',
                 'service',
-                'oauth_key',
-                'profile',
-                'profile_date'
+                'oauth_key'
             ),
             array(
                 $sender->getSender(),
                 $sender->getService(),
-                $this->encodeOAuthKey($sender->getOAuthKey()),
-                $this->encodeProfile($sender->getProfile()),
-                $this->encodeProfileDate($sender->getProfileDate())
+                $this->encodeOAuthKey($sender->getOAuthKey())
             ),
             true
         );
@@ -180,19 +153,15 @@ class SenderRepository
             . ' SET'
             . ' sender = :sender,'
             . ' service = :service,'
-            . ' oauth_key = :oauth_key,'
-            . ' profile = :profile,'
-            . ' profile_date = :profile_date'
+            . ' oauth_key = :oauth_key'
             . ' WHERE id = :id';
 
         $conn = $this->db->getConnection();
         $st = $conn->prepare($query);
-        $st->bindValue(':id', $sender->getId(), \PDO::PARAM_INT);
-        $st->bindValue(':oauth_key', $this->encodeOAuthKey($sender->getOAuthKey()));
-        $st->bindValue(':profile', $this->encodeProfile($sender->getProfile()));
-        $st->bindValue(':profile_date', $this->encodeProfileDate($sender->getProfileDate()));
         $st->bindValue(':sender', $sender->getSender());
         $st->bindValue(':service', $sender->getService(), \PDO::PARAM_INT);
+        $st->bindValue(':oauth_key', $this->encodeOAuthKey($sender->getOAuthKey()));
+        $st->bindValue(':id', $sender->getId(), \PDO::PARAM_INT);
         $st->execute();
     }
 

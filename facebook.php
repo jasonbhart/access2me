@@ -8,6 +8,7 @@ use Facebook\FacebookRedirectLoginHelper;
 
 use Access2Me\Helper;
 use Access2Me\Model;
+use Access2Me\Service\Service;
 
 /*
  * TODO:
@@ -57,12 +58,12 @@ try {
         // create new or update existing sender
         $email = $message['from_email'];
         $senderRepo = new Model\SenderRepository($db);
-        $sender = $senderRepo->getByEmailAndService($email, Model\SenderRepository::SERVICE_FACEBOOK);
+        $sender = $senderRepo->getByEmailAndService($email, Service::FACEBOOK);
 
         if ($sender == null) {
             $sender = new Model\Sender();
             $sender->setSender($email);
-            $sender->setService(Model\SenderRepository::SERVICE_FACEBOOK);
+            $sender->setService(Service::FACEBOOK);
         }
         
         $sender->setOAuthKey($session->getToken());
@@ -70,17 +71,7 @@ try {
         // fetch user's profile
         $senders = array($sender);
         $defaultProfileProvider = Helper\Registry::getProfileProvider();
-        $profiles = $defaultProfileProvider->getProfiles($senders, false);
-        $profile = $defaultProfileProvider->getProfileByServiceId(
-            $profiles,
-            Model\SenderRepository::SERVICE_FACEBOOK
-        );
-
-        if ($profile == null) {
-            throw new \Exception('Can\'t retrieve profile');
-        }
-        
-        $defaultProfileProvider->storeProfiles($senders, $profiles);
+        $profile = $defaultProfileProvider->getProfile($senders, Service::FACEBOOK);
 
         $senderRepo->save($sender);
 

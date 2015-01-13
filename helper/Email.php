@@ -51,6 +51,23 @@ class Email
         return true;
     }
 
+    public static function splitEmail($email)
+    {
+        $pos = strrpos($email, '@');
+        if ($pos === false) {
+            return false;
+        }
+
+        $result['mailbox'] = substr($email, 0, $pos);
+        $result['domain'] = substr($email, $pos+1);
+
+        if (empty($result['mailbox']) || empty($result['domain'])) {
+            return false;
+        }
+
+        return $result;
+    }
+
     /**
      * Correct parsing of "Received" header is very complex (rfc5321, rfc5322)
      * 
@@ -185,6 +202,10 @@ class Email
             'location' => $profComb->getFirst('location'),
             'summary'  => $profComb->getFirst('summary')
         );
+
+        if (isset($profComb->angelList)) {
+            $contact['angel_list'] = $profComb->angelList;
+        }
 
         ob_start();
         include __DIR__ . '/../views/email_info_header.html';

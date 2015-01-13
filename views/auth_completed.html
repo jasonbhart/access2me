@@ -13,7 +13,7 @@
     <h1 style="color: #ffffff;">Congratulations, Access2.me Has Validated You!</h1>
 
       <div class="box">
-        <?php if ($profile->pictureUrl): ?>
+        <?php if (isset($profile->pictureUrl)): ?>
         <div class="userbox">
             <div class="pic"><img src="<?php echo htmlentities($profile->pictureUrl); ?>"></div>
         </div>
@@ -26,7 +26,7 @@
                 Profile: <a href="<?php echo htmlentities($profile->profileUrl); ?>" target="_blank">link</a>
                 <?php endif; ?>
                 <br />
-                <?php if ($profile->summary): ?>
+                <?php if (property_exists($profile, 'summary') && !empty($profile->summary)): ?>
                 Summary: <?php echo htmlentities($profile->summary); ?>
                 <?php endif; ?>
                 <br />

@@ -11,6 +11,7 @@ require_once __DIR__ . "/logging.php";
 require_once __DIR__ . "/config/database.php";
 require_once __DIR__ . "/database.php";
 require_once __DIR__ . "/helper/Auth.php";
+require_once __DIR__ . "/helper/Cache.php";
 require_once __DIR__ . "/helper/GmailImap.php";
 require_once __DIR__ . "/helper/Google.php";
 require_once __DIR__ . "/helper/Email.php";
@@ -23,17 +24,26 @@ require_once __DIR__ . "/helper/Registry.php";
 require_once __DIR__ . "/helper/SenderAuthentication.php";
 require_once __DIR__ . "/helper/SenderProfileProvider.php";
 require_once __DIR__ . "/helper/Template.php";
+require_once __DIR__ . "/model/CacheRepository.php";
 require_once __DIR__ . "/model/MessageRepository.php";
 require_once __DIR__ . "/model/SenderRepository.php";
 require_once __DIR__ . "/model/UserRepository.php";
+require_once __DIR__ . "/model/Cache.php";
 require_once __DIR__ . "/model/Sender.php";
 require_once __DIR__ . "/model/Profile/Profile.php";
 require_once __DIR__ . "/model/Profile/Position.php";
 require_once __DIR__ . "/model/Profile/ProfileRepository.php";
 require_once __DIR__ . "/ProfileProvider/ProfileProviderInterface.php";
+require_once __DIR__ . "/ProfileProvider/ProfileProviderException.php";
+require_once __DIR__ . "/ProfileProvider/AngelList.php";
 require_once __DIR__ . "/ProfileProvider/Facebook.php";
 require_once __DIR__ . "/ProfileProvider/Linkedin.php";
 require_once __DIR__ . "/ProfileProvider/Twitter.php";
+require_once __DIR__ . "/ProfileProvider/Profile/Facebook.php";
+require_once __DIR__ . "/Service/Service.php";
+require_once __DIR__ . "/Service/CrunchBase.php";
+require_once __DIR__ . "/Service/AngelList.php";
+
 
 if (getenv('DOM_DEV_MACHINE')) {
     $localUrl = 'http://localhost/a2m';
@@ -78,7 +88,10 @@ $appConfig = array(
     'services' => array(
         'linkedin' => $linkedinAuth,
         'facebook' => $facebookAuth,
-        'twitter' => $twitterAuth
+        'twitter' => $twitterAuth,
+        'crunchbase' => [
+            'user_key' => ''
+        ]
     )
 );
 

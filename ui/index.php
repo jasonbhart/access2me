@@ -5,6 +5,7 @@
 
 <?php
 use Access2Me\Helper;
+use Access2Me\Service;
 
 $db = new Database;
 $auth = new Helper\Auth($db);
@@ -13,32 +14,29 @@ $user = $auth->getLoggedUser();
 $messageSql = "SELECT `id`, `from_email`, `from_name`, `subject` FROM `messages` WHERE `user_id` = '" . $user['id'] . "' LIMIT 10;";
 $messages = $db->getArray($messageSql);
 
+$senderRepo = new \Access2Me\Model\SenderRepository($db);
 foreach ($messages AS &$message) {
-    $sql = "SELECT a.`from_name`, a.`from_email`,b.`service`,b.`profile` FROM `messages` AS a LEFT JOIN `senders` AS b ON a.`from_email` = b.`sender` WHERE a.`id` = '" . $message['id'] . "'";
-    $sender = $db->getArray($sql);
+    $senders = $senderRepo->findByMessageId($message['id']);
 
-    foreach ($sender AS &$service) {
-        if ($service['service'] == '1') {
-            $linkedinProfile = unserialize($service['profile']);
+    if (!$senders) {
+        continue;
+    }
 
-            if (!empty($linkedinProfile->profileUrl)) {
-                $message['profileUrl']['linkedin'] = $linkedinProfile->profileUrl;
+    $profProv = Helper\Registry::getProfileProvider();
+    $profiles = $profProv->getProfiles($senders);
+
+    foreach ($profiles as $sid=>$profile) {
+        if ($sid == Service\Service::LINKEDIN) {
+            if (!empty($profile->profileUrl)) {
+                $message['profileUrl']['linkedin'] = $profile->profileUrl;
             }
-        }
-
-        if ($service['service'] == '2') {
-            $facebookProfile = unserialize($service['profile']);
-
-            if (!empty($facebookProfile->profileUrl)) {
-                $message['profileUrl']['facebook'] = $facebookProfile->profileUrl;
+        } else if ($sid == Service\Service::FACEBOOK) {
+            if (!empty($profile->profileUrl)) {
+                $message['profileUrl']['facebook'] = $profile->profileUrl;
             }
-        }
-
-        if ($service['service'] == '3') {
-            $twitterProfile = unserialize($service['profile']);
-
-            if (!empty($twitterProfile->profileUrl)) {
-                $message['profileUrl']['twitter'] = $twitterProfile->profileUrl;
+        } else if ($sid == Service\Service::TWITTER) {
+            if (!empty($profile->profileUrl)) {
+                $message['profileUrl']['twitter'] = $profile->profileUrl;
             }
         }
     }
