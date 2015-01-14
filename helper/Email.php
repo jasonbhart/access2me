@@ -111,6 +111,17 @@ class Email
         $record['header']    = $message['raw_header'];
         $record['body']      = $message['raw_body'];
 
+        // parse Date header
+        $date = strtotime($mail->getHeader('Date'));
+        if ($date === false) {
+            $date = null;
+        } else {
+            $date = gmstrftime('%F %T', $date);
+        }
+
+        // date in UTC
+        $record['created_at'] = $date;
+
         $replyTo = \ezcMailTools::parseEmailAddress($mail->getHeader('Reply-To'));
         
         // parse headers to find Return-Path or From for reply_email
