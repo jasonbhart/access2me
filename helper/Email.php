@@ -96,7 +96,7 @@ class Email
     /**
      * Converts parsed email to the form to be stored in the database
      *
-     * @param array $mail
+     * @param array $message
      */
     public static function toDatabaseRecord($message)
     {
