@@ -112,15 +112,14 @@ class Email
         $record['body']      = $message['raw_body'];
 
         // parse Date header
-        $date = strtotime($mail->getHeader('Date'));
-        if ($date === false) {
-            $date = null;
-        } else {
-            $date = gmstrftime('%F %T', $date);
+        try {
+            $date = new \DateTime($mail->getHeader('Date'));
+            // convert date to UTC tz
+            $date->setTimezone(new \DateTimeZone('UTC'));
+            $record['created_at'] = $date->format('Y-m-d H:i:s');
+        } catch (\Exception $ex) {
+            $record['created_at'] = null;
         }
-
-        // date in UTC
-        $record['created_at'] = $date;
 
         $replyTo = \ezcMailTools::parseEmailAddress($mail->getHeader('Reply-To'));
         
