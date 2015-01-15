@@ -88,7 +88,12 @@ class GmailImapStorage extends Storage\Imap implements StorageFolderInterface
             if (in_array($mid, $messageIds)) {
                 $this->removeMessage($id);
             }
-        }    
+        }
+    }
+
+    public static function getImapStorage(GoogleAuth $auth)
+    {
+        return new GmailImapStorage(GmailImap::getImap($auth));
     }
 }
 
@@ -99,26 +104,30 @@ class GmailImap extends Protocol\Imap
         return base64_encode("user=$username\1auth=Bearer $accessToken\1\1");
     }
 
-    public function loginOAuth2($username, $accessToken)
+    public function authenticateWithOAuth2Token($username, $accessToken)
     {
         $authenticateParams = array(
             'XOAUTH2',
             $this->constructAuthString($username, $accessToken)
         );
         $this->sendRequest('AUTHENTICATE', $authenticateParams);
+        $this->processOAuth2Response();
+    }
 
-        while (true) {
-            $response = "";
+    protected function processOAuth2Response()
+    {
+         while (true) {
+            $response = '';
             $is_plus = $this->readLine($response, '+', true);
             if ($is_plus) {
-                \Logging::getLogger()->addDebug('got an extra server challenge: ' . $response);
+                \Logging::getLogger()->addDebug('processOAuth2Reponse: got an extra server challenge: ' . $response);
                 // Send empty client response.
                 $this->sendRequest('');
             } else {
                 if (preg_match('/^NO /i', $response) || preg_match('/^BAD /i', $response)) {
-                    throw new \Exception("got failure response: $response");
-                } else if (preg_match("/^OK /i", $response)) {
-                    return true;
+                    throw new \Exception('got failure response: ' . $response);
+                } else if (preg_match('/^OK /i', $response)) {
+                    return;
                 } else {
                     // Some untagged response, such as CAPABILITY
                 }
@@ -126,55 +135,23 @@ class GmailImap extends Protocol\Imap
         }
     }
 
-    public static function getImap($email, $accessToken)
+    /**
+     * Connects to user's gmail mailbox using provided token provider
+     * Refreshes token if it has expired
+     * 
+     * @param string $username
+     * @param GoogleAuth $auth
+     * @throws \Exception
+     */
+    public function loginWithOAuth2($auth)
+    {
+        $this->authenticateWithOAuth2Token($auth->username, $auth->token['access_token']);
+    }
+
+    public static function getImap(GoogleAuth $auth)
     {
         $imap = new self('imap.gmail.com', '993', 'ssl');
-        $imap->loginOAuth2($email, $accessToken);
+        $imap->loginWithOAuth2($auth);
         return $imap;
     }
-
-    public static function getImapStorage($user, $db)
-    {
-        // connect to user's gmail mailbox
-        try {
-            $mailbox = $user['mailbox'];
-            $accessToken = $user['gmail_access_token'];
-            $imap = self::getImap($mailbox, $accessToken);
-        } catch (\Exception $ex) {
-
-            // check that token is valid
-            if (Google::isTokenValid($accessToken)) {
-                \Logging::getLogger()->error(
-                    sprintf('Google token is valid but we can\'t connect to mailbox (user id: %d)', $user['id']),
-                    array('exception' => $ex)
-                );
-                return null;
-            }
-
-            // token is invalid, try to refresh it
-            try {
-                $accessToken = Google::requestAuthToken($user['gmail_refresh_token']);
-            } catch (\Exception $ex) {
-                $msg = sprintf('Can\'t refresh google token (user id: %d)', $user['id']);
-                \Logging::getLogger()->error($msg);
-                return null;
-            }
-
-            // now we have fresh token, save it
-            $db->updateOne('users', 'gmail_access_token', $accessToken, 'id', $user['id']);
-
-            // try again to connect to gmail
-            try {
-                $imap = self::getImap($mailbox, $accessToken);
-            } catch (\Exception $ex) {
-                \Logging::getLogger()->error('Try #2, can\'t connect to user\'s (%d) gmail mailbox', $user['id']);
-                return null;
-            }
-        }
-
-        $storage = new GmailImapStorage($imap);
-
-        return $storage;
-    }
-
 }

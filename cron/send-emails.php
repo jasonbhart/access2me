@@ -9,6 +9,8 @@ $db = new Database;
 $userRepo = new Model\UserRepository($db);
 $mesgRepo = new Model\MessageRepository($db);
 
+$authProvider = new Helper\GoogleAuthProvider($appConfig['services']['gmail'], $userRepo);
+
 foreach ($userRepo->findAll() as $user) {
     try {
         $messages = $mesgRepo->findByUser($user['id']);
@@ -21,15 +23,13 @@ foreach ($userRepo->findAll() as $user) {
         // Filter
         // Profileprovider
 
-        $storage = Helper\GmailImap::getImapStorage($user, $db);
-        if ($storage == null) {
-            Logging::getLogger()->info('Can\'t get storage handle for user id: ' . $user['id']);
-            continue;
-        }
+        $googleAuth = $authProvider->getAuth($user['username']);
+        $storage = Helper\GmailImapStorage::getImapStorage($googleAuth);
 
         $userSenderRepo = new Model\UserSenderRepository($db);
         $userSendersList = new Helper\UserListProvider($user['id'], $userSenderRepo);
 
+        // token generator for whitelisting
         $tokenRepo = new Model\AuthTokenRepository($db);
         $tokenManager = new Helper\AuthTokenManager($tokenRepo, $appConfig['secret']);
 

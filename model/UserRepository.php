@@ -16,10 +16,54 @@ class UserRepository
         $this->db = $db;
     }
 
+    protected function encodeAccessToken($accessToken)
+    {
+        return $accessToken;
+
+        // store null values as NULL in databases instead of json "null"
+        if ($accessToken === null) {
+            return null;
+        }
+
+        return json_encode($accessToken);
+    }
+
+    protected function decodeAccessToken($encodedAccessToken)
+    {
+        return $encodedAccessToken;
+        return json_decode($encodedAccessToken, true);
+    }
+
+    protected function decodeUsers(&$users)
+    {
+        if ($users === false) {
+            return;
+        }
+
+        // check if this is an entity array
+        if (isset($users['username'])) {
+            // google client encodes token itself
+            //$users['gmail_access_token'] = $this->decodeAccessToken($users['gmail_access_token']);
+        } else {
+            foreach ($users as &$user) {
+                //$user['gmail_access_token'] = $this->decodeAccessToken($user['gmail_access_token']);
+            }
+        }
+    }
+
     public function getById($userId)
     {
         $query = 'SELECT * FROM `' . self::TABLE_NAME . '` WHERE `id` = :id';
         $users = $this->db->getArray($query, array('id' => $userId));
+        $this->decodeUsers($users);
+        return $users ? $users[0] : null;
+    }
+
+    public function getByUsername($username)
+    {
+        $query = 'SELECT * FROM `' . self::TABLE_NAME . '` WHERE `username` = :username';
+        $users = $this->db->getArray($query, array('username' => $username));
+        $this->decodeUsers($users);
         return $users ? $users[0] : null;
     }
 
@@ -27,6 +71,7 @@ class UserRepository
     {
         $query = 'SELECT * FROM `' . self::TABLE_NAME . '`';
         $users = $this->db->getArray($query);
+        $this->decodeUsers($users);
         return $users ? $users : [];
     }
 
@@ -41,6 +86,7 @@ class UserRepository
         $query = 'SELECT * FROM `' . self::TABLE_NAME . '`'
             . ' WHERE `mailbox` IN (' . implode(',', $values) . ')';
         $users = $this->db->getArray($query);
+        $this->decodeUsers($users);
 
         return $users ? $users : [];
     }
@@ -59,7 +105,6 @@ class UserRepository
                 'username',
                 'password',
                 'gmail_access_token',
-                'gmail_refresh_token',
                 'recipients_imported'
             ),
             array(
@@ -68,8 +113,7 @@ class UserRepository
                 $entry['name'],
                 $entry['username'],
                 $entry['password'],
-                $entry['gmail_access_token'],
-                $entry['gmail_refresh_token'],
+                $this->encodeAccessToken($entry['gmail_access_token']),
                 $entry['recipients_imported']
             ),
             true
@@ -89,7 +133,6 @@ class UserRepository
             . ' `username` = :username,'
             . ' `password` = :password,'
             . ' `gmail_access_token` = :gmail_access_token,'
-            . ' `gmail_refresh_token` = :gmail_refresh_token,'
             . ' `recipients_imported` = :recipients_imported'
             . ' WHERE id = :id';
 
@@ -100,8 +143,7 @@ class UserRepository
         $st->bindValue(':name', $entry['name']);
         $st->bindValue(':username', $entry['username']);
         $st->bindValue(':password', $entry['password']);
-        $st->bindValue(':gmail_access_token', $entry['gmail_access_token']);
-        $st->bindValue(':gmail_refresh_token', $entry['gmail_refresh_token']);
+        $st->bindValue(':gmail_access_token', $this->encodeAccessToken($entry['gmail_access_token']));
         $st->bindValue(':recipients_imported', $entry['recipients_imported'], \PDO::PARAM_INT);
         $st->bindValue(':id', $entry['id'], \PDO::PARAM_INT);
         $st->execute();
