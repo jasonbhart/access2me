@@ -12,6 +12,9 @@ class MessageRepository
     const STATUS_FILTER_PASSED = 3;
     const STATUS_FILTER_FAILED = 4;
 
+    const STATUS_SENDER_WHITELISTED = 5;
+    const STATUS_SENDER_BLACKLISTED = 6;
+
     const TABLE_NAME = 'messages';
 
     /**

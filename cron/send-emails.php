@@ -27,7 +27,10 @@ foreach ($userRepo->findAll() as $user) {
             continue;
         }
 
-        $processor = new Helper\MessageProcessor($user, $db, $storage);
+        $userSenderRepo = new Model\UserSenderRepository($db);
+        $userSendersList = new Helper\UserListProvider($user['id'], $userSenderRepo);
+
+        $processor = new Helper\MessageProcessor($user, $db, $storage, $userSendersList);
         $processor->process($messages);
 
         $storage->close();

@@ -13,13 +13,19 @@ class MessageProcessor
     private $user;
 
     private $storage;
+
+    /**
+     * @var \Access2Me\Helper\UserListProvider
+     */
+    private $userSendersList;
     
     private $unverifiedFolderName = 'Unverified';
 
-    public function __construct($user, $db, $storage) {
+    public function __construct($user, $db, $storage, $userSendersList) {
         $this->user = $user;
         $this->db = $db;
         $this->storage = $storage;
+        $this->userSendersList = $userSendersList;
     }
 
     /**
@@ -150,11 +156,40 @@ class MessageProcessor
      */
     public function process($messages)
     {
+        // check sender is in white/black list
+        $notProcessed = [];
+        foreach ($messages as $message) {
+            $sender = $message['from_email'];
+
+            // doesn sender's address matches some list ?
+            $result = $this->userSendersList->search($sender);
+            if ($result === false) {
+                $notProcessed[] = $message;
+                continue;
+            }
+
+            // whitelisted ?
+            if ($result['access'] == Model\UserSenderRepository::ACCESS_ALLOWED) {
+                $mail = Email::buildMessage($this->user, $message);
+                $newMessage = $mail->generate();
+                $this->storage->appendMessage($newMessage, null, array(\Zend\Mail\Storage::FLAG_RECENT));
+                $this->db->updateOne('messages', 'status', Model\MessageRepository::STATUS_SENDER_WHITELISTED, 'id', $message['id']);
+            } else {
+                // blacklisted
+                $this->db->updateOne('messages', 'status', Model\MessageRepository::STATUS_SENDER_BLACKLISTED, 'id', $message['id']);
+                $msg = sprintf(
+                    'Do not sending message %d because sender %s is blacklisted',
+                    $message['id'], $sender
+                );
+                \Logging::getLogger()->debug($message);
+            }
+        }
+
         $this->createUnverifiedFolder();
 
         $verified = [];
         
-        foreach ($messages as $message) {
+        foreach ($notProcessed as $message) {
             if ($message['status'] == Model\MessageRepository::STATUS_NOT_VERIFIED
                 || $message['status'] == Model\MessageRepository::STATUS_VERIFY_REQUESTED
             ) {
