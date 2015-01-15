@@ -30,16 +30,16 @@ class UserRepository
         return $users ? $users : [];
     }
 
-    public function findAllByEmails($emails)
+    public function findAllByMailboxes($mailboxes)
     {
         $values = [];
         $conn = $this->db->getConnection();
-        foreach ($emails as $email) {
-            $values[] = $conn->quote($email);
+        foreach ($mailboxes as $mailbox) {
+            $values[] = $conn->quote($mailbox);
         }
 
         $query = 'SELECT * FROM `' . self::TABLE_NAME . '`'
-            . ' WHERE email IN (' . implode(',', $values) . ')';
+            . ' WHERE `mailbox` IN (' . implode(',', $values) . ')';
         $users = $this->db->getArray($query);
 
         return $users ? $users : [];
