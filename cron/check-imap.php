@@ -119,5 +119,3 @@ foreach($messages AS $message) {
 
     echo "<br />";
 }
-
-
