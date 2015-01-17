@@ -62,11 +62,6 @@ $userRepo = new Model\UserRepository($db);
 foreach ($userRepo->findAll() as $user) {
     try {
 
-        // debug
-        if ($user['id'] != 4) {
-            continue;
-        }
-
         if ($user['recipients_imported'] == true) {
             Logging::getLogger()->debug('Recipients already imported for user: ' . $user['id']);
             continue;
