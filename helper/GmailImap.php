@@ -7,6 +7,7 @@ use Zend\Mail\Storage;
 
 class GmailImapStorage extends Storage\Imap
 {
+    const FOLDER_SENT = '[Gmail]/Sent Mail';
     const FOLDER_TRASH = '[Gmail]/Trash';
     /**
      * Moves message to the Trash
