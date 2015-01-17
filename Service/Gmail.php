@@ -4,13 +4,6 @@ namespace Access2Me\Service;
 
 class Gmail
 {
-    private $config;
-
-    public function __construct($config)
-    {
-        $this->config = $config;
-    }
-
     public static function getProfile(\Google_Client $client, $userId = 'me')
     {
         $gmail = new \Google_Service_Gmail($client);
