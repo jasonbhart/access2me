@@ -101,10 +101,10 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` (`id`, `mailbox`, `email`, `name`, `username`, `password`, `gmail_access_token`, `gmail_refresh_token`) VALUES
-(1, 'dom@access2.me', 'dom@leadwrench.com', 'Domenic R. Merenda', 'edgeprod', '41141571bb2bb18ad03a1a9227794489', 'ya29.pwDQdE6IaZS7ELXJ7Moz_Q-bCfsvCsIeK0xOyuT4qgO7g2yCj4VYxHPAvLZ4vtGXUOIP7pzzj44OfA', NULL),
-(2, 'jasonbhart@gmail.com', 'jbh@domainmethods.com', 'Jason B. Hart', 'souther', '1822701cf2c52534d591b08ccbe25a83', NULL, NULL),
-(3, 'brpisetzner@gmail.com', 'brpisetzner@gmail.com', 'Bruce Pisetzner', '', '', NULL, NULL);
+INSERT INTO `users` (`id`, `mailbox`, `email`, `name`, `username`, `password`, `gmail_access_token`) VALUES
+(1, 'dom@access2.me', 'dom@leadwrench.com', 'Domenic R. Merenda', 'edgeprod', '41141571bb2bb18ad03a1a9227794489', NULL),
+(2, 'jasonbhart@gmail.com', 'jbh@domainmethods.com', 'Jason B. Hart', 'souther', '1822701cf2c52534d591b08ccbe25a83', NULL),
+(3, 'brpisetzner@gmail.com', 'brpisetzner@gmail.com', 'Bruce Pisetzner', '', '', NULL);
 
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
