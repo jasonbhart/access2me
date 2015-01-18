@@ -5,24 +5,6 @@ require_once __DIR__ . '/../boot.php';
 use Access2Me\Helper;
 use Access2Me\Model;
 
-function validateSenderAddress($sender, $type) {
-    // validate sender's address (email)
-    if ($type == Model\UserSenderRepository::TYPE_EMAIL) {
-        if (!ezcMailTools::validateEmailAddress($sender)) {
-            return false;
-        }
-    } else if ($type == Model\UserSenderRepository::TYPE_DOMAIN) {
-        // validate as domain name
-        if (!dns_get_record($sender)) {
-            return false;
-        }        
-    } else {
-        // unknown type
-        return false;
-    }
-
-    return true;
-}
 
 $db = new Database();
 $auth = new Helper\Auth($db);
@@ -52,7 +34,7 @@ if ($action == 'save') {
     }
 
     // validate sender's address (email/domain)
-    if (!validateSenderAddress($sender, $type)) {
+    if (!Helper\UserListProvider::isAddressValid($sender, $type)) {
         echo json_encode([
             'status' => 'error',
             'message' => 'Invalid sender'

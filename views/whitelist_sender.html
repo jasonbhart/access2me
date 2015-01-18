@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Whitelisting sender</title>
+    <link rel="stylesheet" type="text/css" href="css/profile.css">
+    <link rel="stylesheet" type="text/css" href="css/style.css">
+</head>
+
+<body>
+    <div id="wrapper">
+        <div id="container">
+            <div id="content">
+                <div class="top"></div>
+
+                <div class="middle">
+                    <?php if (isset($whitelisted)): ?>
+                    <div class="post">
+                        <div style="font-size: x-large">
+                            Sender's address (<?php echo htmlentities($sender); ?>) added to your whitelist.
+                        </div>
+                        <div class="clear"></div>
+                    </div>
+                    <?php else: ?>
+                    <div class="post">
+                        <h2>Whitelisting sender</h2>
+                        <div class="clear"></div>
+                    </div>
+
+                    <div class="post" style="margin: 1em auto">
+                        <form method="POST">
+                            <input type="hidden" name="token" value="<?php echo htmlspecialchars($token); ?>" />
+                            <input type="hidden" name="email" value="<?php echo htmlspecialchars($email); ?>" />
+                            <div style="margin: auto; text-align: left; width: 60%">
+                                <div style="margin-bottom: 0.5em">
+                                    Whitelist just email (<?php echo htmlentities($email); ?>)
+                                    <input type="submit" name="temail" value="whitelist" />
+                                </div>
+                                <div>
+                                    Whitelist the whole domain (<?php echo htmlentities($domain); ?>)
+                                    <input type="submit" name="tdomain" value="whitelist" />
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <?php endif; ?>
+                    <div class="clear"></div>
+                </div>
+                
+                <div class="bottom"></div>
+                <div class="clear"></div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

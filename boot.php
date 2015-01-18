@@ -11,6 +11,7 @@ require_once __DIR__ . "/logging.php";
 require_once __DIR__ . "/config/database.php";
 require_once __DIR__ . "/database.php";
 require_once __DIR__ . "/helper/Auth.php";
+require_once __DIR__ . "/helper/AuthTokenManager.php";
 require_once __DIR__ . "/helper/Cache.php";
 require_once __DIR__ . "/helper/DateTime.php";
 require_once __DIR__ . "/helper/GmailImap.php";
@@ -28,12 +29,15 @@ require_once __DIR__ . "/helper/SenderAuthentication.php";
 require_once __DIR__ . "/helper/SenderProfileProvider.php";
 require_once __DIR__ . "/helper/Template.php";
 require_once __DIR__ . "/helper/UserListProvider.php";
+require_once __DIR__ . "/helper/Utils.php";
+require_once __DIR__ . "/model/AuthTokenRepository.php";
 require_once __DIR__ . "/model/CacheRepository.php";
 require_once __DIR__ . "/model/MessageRepository.php";
 require_once __DIR__ . "/model/SenderRepository.php";
 require_once __DIR__ . "/model/UserRepository.php";
 require_once __DIR__ . "/model/UserSenderRepository.php";
 require_once __DIR__ . "/model/Cache.php";
+require_once __DIR__ . "/model/Roles.php";
 require_once __DIR__ . "/model/Sender.php";
 require_once __DIR__ . "/model/Profile/Profile.php";
 require_once __DIR__ . "/model/Profile/Position.php";
@@ -98,7 +102,8 @@ $appConfig = array(
             'user_key' => ''
         ]
     ),
-    'dateTimeFormat' => 'Y-m-d H:i:s'
+    'secret' => 'rO2RL7H0mWeFs5.zRF1yOx9ITgFo9rwkTbx3Q6YuyA/7BjjH6t5AoSfsd32kL9h1UKs',
+    'dateTimeFormat' => 'Y-m-d H:i:s',
 );
 
 

@@ -30,7 +30,10 @@ foreach ($userRepo->findAll() as $user) {
         $userSenderRepo = new Model\UserSenderRepository($db);
         $userSendersList = new Helper\UserListProvider($user['id'], $userSenderRepo);
 
-        $processor = new Helper\MessageProcessor($user, $db, $storage, $userSendersList);
+        $tokenRepo = new Model\AuthTokenRepository($db);
+        $tokenManager = new Helper\AuthTokenManager($tokenRepo, $appConfig['secret']);
+
+        $processor = new Helper\MessageProcessor($user, $db, $storage, $userSendersList, $tokenManager);
         $processor->process($messages);
 
         $storage->close();

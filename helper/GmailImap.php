@@ -5,10 +5,41 @@ namespace Access2Me\Helper;
 use Zend\Mail\Protocol;
 use Zend\Mail\Storage;
 
-class GmailImapStorage extends Storage\Imap
+class StorageFolder
 {
-    const FOLDER_SENT = '[Gmail]/Sent Mail';
-    const FOLDER_TRASH = '[Gmail]/Trash';
+    const INBOX = 1;
+    const SENT = 2;
+    const TRASH = 3;
+    const UNVERIFIED = 4;    
+    const UNIMPORTANT = 5;    
+}
+
+interface StorageFolderInterface
+{
+    /**
+     * @param int $id
+     * @return string
+     */
+    public function getFolderName($id);
+}
+
+
+class GmailImapStorage extends Storage\Imap implements StorageFolderInterface
+{
+    // Gmail has labels instead of folders
+    private $foldersMap = [
+        StorageFolder::INBOX => 'INBOX',
+        StorageFolder::SENT => '[Gmail]/Sent Mail',
+        StorageFolder::TRASH => '[Gmail]/Trash',
+        StorageFolder::UNVERIFIED => 'Unverified',
+        StorageFolder::UNIMPORTANT => 'Unimportant'
+    ];
+
+    public function getFolderName($folderId)
+    {
+        return $this->foldersMap[$folderId];
+    }
+
     /**
      * Moves message to the Trash
      * 
@@ -17,7 +48,7 @@ class GmailImapStorage extends Storage\Imap
      */
     public function moveToTrashByNumberId($id)
     {
-        return $this->copyMessage($id, self::FOLDER_TRASH);
+        return $this->copyMessage($id, $this->getFolderName(StorageFolder::FOLDER_TRASH));
     }
 
     /**
