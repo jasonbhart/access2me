@@ -53,6 +53,7 @@ require_once __DIR__ . "/Service/AngelList.php";
 require_once __DIR__ . "/Service/CrunchBase.php";
 require_once __DIR__ . "/Service/Gmail.php";
 require_once __DIR__ . "/Service/Service.php";
+require_once __DIR__ . "/Service/TokenRefresher.php";
 
 
 if (getenv('DOM_DEV_MACHINE')) {
@@ -90,12 +91,23 @@ $twitterAuth = array(
 
 $appConfig = array(
     'siteUrl' => $localUrl,
-    'imap' => array(
+    'imap' => [
         'host'     => 'mail.access2.me',
         'user'     => 'catchall@access2.me',
         'password' => 'catch123'
-    ),
-    'services' => array(
+    ],
+    'smtp' => [
+        'host' => 'mail.access2.me',
+        'port' => 587,
+        'encryption' => 'tls',
+        'auth' => true,
+        'username' => 'noreply@access2.me',
+        'password' => 'access123'
+    ],
+    'email' => [
+        'no_reply' => 'noreply@access2.me'
+    ],
+    'services' => [
         'gmail' => [
             'client_id' => '523467224320-5evqo2ovdnqqntulu3531298cp8hfh12.apps.googleusercontent.com',
             'client_secret' => '8s74XEEucknNhYb6keO0yzBw'
@@ -106,7 +118,7 @@ $appConfig = array(
         'crunchbase' => [
             'user_key' => ''
         ]
-    ),
+    ],
     'secret' => 'rO2RL7H0mWeFs5.zRF1yOx9ITgFo9rwkTbx3Q6YuyA/7BjjH6t5AoSfsd32kL9h1UKs',
     'dateTimeFormat' => 'Y-m-d H:i:s',
 );
