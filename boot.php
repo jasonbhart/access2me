@@ -49,9 +49,10 @@ require_once __DIR__ . "/ProfileProvider/Facebook.php";
 require_once __DIR__ . "/ProfileProvider/Linkedin.php";
 require_once __DIR__ . "/ProfileProvider/Twitter.php";
 require_once __DIR__ . "/ProfileProvider/Profile/Facebook.php";
-require_once __DIR__ . "/Service/Service.php";
-require_once __DIR__ . "/Service/CrunchBase.php";
 require_once __DIR__ . "/Service/AngelList.php";
+require_once __DIR__ . "/Service/CrunchBase.php";
+require_once __DIR__ . "/Service/Gmail.php";
+require_once __DIR__ . "/Service/Service.php";
 
 
 if (getenv('DOM_DEV_MACHINE')) {
@@ -95,6 +96,10 @@ $appConfig = array(
         'password' => 'catch123'
     ),
     'services' => array(
+        'gmail' => [
+            'client_id' => '523467224320-5evqo2ovdnqqntulu3531298cp8hfh12.apps.googleusercontent.com',
+            'client_secret' => '8s74XEEucknNhYb6keO0yzBw'
+        ],
         'linkedin' => $linkedinAuth,
         'facebook' => $facebookAuth,
         'twitter' => $twitterAuth,

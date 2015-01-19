@@ -23,11 +23,9 @@ class Auth
 
     protected function getUser($username)
     {
-        $sql = "SELECT `id`, `mailbox`, `email`, `name`, `username`, `password`, `gmail_access_token`, `gmail_refresh_token`"
-                . " FROM `users` WHERE `username` = ? LIMIT 1;";
-        $user = $this->db->getArray($sql, [$username]);
-
-        return $user !== false ? $user[0] : null;
+        $repo = new \Access2Me\Model\UserRepository($this->db);
+        $user = $repo->getByUsername($username);
+        return $user;
     }
 
     protected function checkPassword($user, $passwordHash)
@@ -64,7 +62,7 @@ class Auth
         setcookie('a2mauth', $hash, $expire);
 
         session_destroy();        
-        $_SESSION['user'] = $user;
+        $_SESSION['username'] = $user['username'];
     }
 
     public function isAuthenticated()
@@ -92,18 +90,19 @@ class Auth
 
     public function getLoggedUser()
     {
-        // user may not be fully authenticated (entered credentials in this session)
-        if (isset($_SESSION['user'])) {
-            return $_SESSION['user'];
-        } else {
-            $user = $this->getUser($_COOKIE['a2muser']);
-
-            if (!$this->checkPassword($user, $_COOKIE['a2mauth'])) {
-                throw new AuthException('Not authenticated');
-            }
-
-            $_SESSION['user'] = $user;
+        if (isset($_SESSION['username'])) {
+            return $this->getUser($_SESSION['username']);
         }
+
+        // user may not be fully authenticated
+        // not entered credentials in this session but has cookies
+        $user = $this->getUser($_COOKIE['a2muser']);
+
+        if (!$this->checkPassword($user, $_COOKIE['a2mauth'])) {
+            throw new AuthException('Not authenticated');
+        }
+
+        $_SESSION['username'] = $user['username'];
         
         return $user;
     }

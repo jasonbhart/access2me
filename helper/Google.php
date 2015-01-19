@@ -2,65 +2,107 @@
 
 namespace Access2Me\Helper;
 
-class Google
+class GoogleAuth
 {
-    protected static function getTokenInfo($accessToken)
+    /**
+     * @var string Google username
+     */
+    public $username;
+
+    /**
+     * @var \Google_Client
+     */
+    public $client;
+
+    /**
+     * @var array
+     */
+    public $token;
+
+    public function __construct($username, \Google_Client $client, array $token)
     {
-        $url = 'https://www.googleapis.com/oauth2/v1/tokeninfo';
-        $fields = array('access_token' => $accessToken);
-        $query = http_build_query($fields, '', '&');
+        $this->username = $username;
+        $this->client = $client;
+        $this->token = $token;
+    }
+}
 
-        $cURL = curl_init();
+/**
+ * Provides google access for specified user.
+ * Handles caching and token expiration.
+ */
+class GoogleAuthProvider
+{
+    private $config;
 
-        curl_setopt($cURL, CURLOPT_VERBOSE, true);
-        curl_setopt($cURL, CURLOPT_URL, $url);
-        curl_setopt($cURL, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($cURL, CURLOPT_POST, 1);
-        curl_setopt($cURL, CURLOPT_POSTFIELDS, $query);
-        curl_setopt($cURL, CURLOPT_RETURNTRANSFER, 1);
+    /**
+     * @var \Access2Me\Model\UserRepository
+     */
+    private $userRepo;
 
-        $result = curl_exec($cURL);
-        curl_close($cURL);
-
-        return json_decode($result, true);
+    public function __construct($config, $userRepo)
+    {
+        $this->config = $config;
+        $this->userRepo = $userRepo;
     }
 
-    public static function isTokenValid($accessToken)
+    /**
+     * @return \Google_Client not authenticated client
+     */
+    public function getClient()
     {
-        $info = self::getTokenInfo($accessToken);
-        return !isset($info['error']);
-    }
-
-    public static function requestAuthToken($refreshToken)
-    {
-        $url = 'https://accounts.google.com/o/oauth2/token';
-        $fields = array(
-            'client_id' => '523467224320-5evqo2ovdnqqntulu3531298cp8hfh12.apps.googleusercontent.com',
-            'client_secret' => '8s74XEEucknNhYb6keO0yzBw',
-            'refresh_token' => $refreshToken,
-            'grant_type' => 'refresh_token'
-
-        );
-        $query = http_build_query($fields, '', '&');
-
-        $cURL = curl_init();
-
-        curl_setopt($cURL, CURLOPT_VERBOSE, true);
-        curl_setopt($cURL, CURLOPT_URL, $url);
-        curl_setopt($cURL, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($cURL, CURLOPT_POST, 1);
-        curl_setopt($cURL, CURLOPT_POSTFIELDS, $query);
-        curl_setopt($cURL, CURLOPT_RETURNTRANSFER, 1);
-
-        $result = curl_exec($cURL);
-        curl_close($cURL);
-
-        $json = json_decode($result, true);
-
-        if (!isset($json['access_token'])) {
-            throw new \Exception('Can\'t get access token');
-        }
+        $client = new \Google_Client();
+        $client->setClientId($this->config['client_id']);
+        $client->setClientSecret($this->config['client_secret']);
         
-        return $json['access_token'];
+        return $client;
+    }
+
+    /**
+     * Refreshes token if it has expired
+     * 
+     * @param \Google_Client $client
+     * @param string $token
+     * @return bool
+     */
+    protected function refreshToken(\Google_Client $client, $token)
+    {
+        $client->setAccessToken($token);
+
+        // check if token is valid
+        if (!$client->isAccessTokenExpired()) {
+            return false;
+        }
+
+        // refresh token
+        $client->refreshToken($client->getRefreshToken());
+        
+        return true;
+    }
+
+    /**
+     * @param string $username
+     * @return GoogleAuth
+     */
+    public function getAuth($username)
+    {
+        $client = $this->getClient();
+
+        // load token from storage
+        $user = $this->userRepo->getByUsername($username);
+        $refreshed = $this->refreshToken($client, $user['gmail_access_token']);
+        
+        if ($refreshed) {
+            $user['gmail_access_token'] = $client->getAccessToken();
+            $this->userRepo->save($user);
+        }
+
+        $token = json_decode($client->getAccessToken(), true);
+
+        return new GoogleAuth(
+            $user['mailbox'],
+            $client,
+            $token
+        );
     }
 }

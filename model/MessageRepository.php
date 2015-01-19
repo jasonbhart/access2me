@@ -70,4 +70,103 @@ class MessageRepository
         $messages = $this->db->getArray($query, $params);
         return $messages ? $messages : array();
     }
+
+        /**
+     * @param array $entry
+     */
+    public function insert($entry)
+    {
+        return $this->db->insert(
+            self::TABLE_NAME,
+            array(
+                'message_id',
+                'user_id',
+                'from_name',
+                'from_email',
+                'reply_email',
+                'to_email',
+                'created_at',
+                'subject',
+                'header',
+                'body',
+                'status',
+                'appended_to_unverified'
+            ),
+            array(
+                $entry['message_id'],
+                $entry['user_id'],
+                $entry['from_name'],
+                $entry['from_email'],
+                $entry['reply_email'],
+                $entry['to_email'],
+                $entry['created_at'],
+                $entry['subject'],
+                $entry['header'],
+                $entry['body'],
+                $entry['status'],
+                $entry['appended_to_unverified']
+            ),
+            true
+        );
+    }
+
+    /**
+     * @param array $entry
+     */
+    public function update($entry)
+    {
+        $query = 'UPDATE `' . self::TABLE_NAME . '`'
+            . ' SET'
+            . ' `message_id` = :message_id,'
+            . ' `user_id` = :user_id,'
+            . ' `from_name` = :from_name,'
+            . ' `from_email` = :from_email,'
+            . ' `reply_email` = :reply_email,'
+            . ' `to_email` = :to_email,'
+            . ' `created_at` = :created_at,'
+            . ' `subject` = :subject,'
+            . ' `header` = :header,'
+            . ' `body` = :body,'
+            . ' `status` = :status,'
+            . ' `appended_to_unverified` = :appended_to_unverified'
+            . ' WHERE id = :id';
+
+        $conn = $this->db->getConnection();
+        $st = $conn->prepare($query);
+        $st->bindValue(':message_id', $entry['message_id']);
+        $st->bindValue(':user_id', $entry['user_id'], \PDO::PARAM_INT);
+        $st->bindValue(':from_name', $entry['from_name']);
+        $st->bindValue(':from_email', $entry['from_email']);
+        $st->bindValue(':reply_email', $entry['reply_email']);
+        $st->bindValue(':to_email', $entry['to_email']);
+        $st->bindValue(':created_at', $entry['created_at']);
+        $st->bindValue(':subject', $entry['subject']);
+        $st->bindValue(':header', $entry['header']);
+        $st->bindValue(':body', $entry['body']);
+        $st->bindValue(':status', $entry['status'], \PDO::PARAM_INT);
+        $st->bindValue(':appended_to_unverified', $entry['appended_to_unverified'], \PDO::PARAM_INT);
+        $st->bindValue(':id', $entry['id'], \PDO::PARAM_INT);
+        $st->execute();
+    }
+
+    public function save($entry)
+    {
+        if (!isset($entry['id'])) {
+            return $this->insert($entry);
+        } else {
+            $this->update($entry);
+            return $entry['id'];
+        }
+    }
+
+    /**
+     * @param int id
+     */
+    public function delete($id)
+    {
+        $query = 'DELETE FROM `' . self::TABLE_NAME . '`'
+            . ' WHERE `id` = :id';
+
+        return $this->db->execute($query, ['id' => $id]);
+    }
 }
