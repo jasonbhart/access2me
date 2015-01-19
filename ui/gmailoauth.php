@@ -12,7 +12,7 @@ $auth = new Helper\Auth($db);
 $user = $auth->getLoggedUser();
 
 if (!$user) {
-    dia('Access denied');
+    die('Access denied');
 }
 
 $userRepo = new Model\UserRepository($db);
