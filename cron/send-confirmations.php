@@ -4,7 +4,6 @@ require_once __DIR__ . "/../boot.php";
 
 use Access2Me\Helper;
 use Access2Me\Model;
-use Access2Me\Service;
 
 
 class AuthRequest
@@ -87,31 +86,13 @@ $db = new Database;
 $mesgRepo = new Model\MessageRepository($db);
 $senderRepo = new Model\SenderRepository($db);
 
-$tokenRefresher = new Service\TokenRefresher($appConfig);
 $notVerified = $mesgRepo->findByStatus(Model\MessageRepository::STATUS_NOT_VERIFIED);
 
+// request verification from the senders
 foreach ($notVerified AS $message) {
     $senders = $senderRepo->getByEmail($message['from_email']);
 
-    // remove invalid tokens
-    $tokens = [];
-    foreach ($senders as $sender) {
-
-        // process only expired tokens
-        if ($tokenRefresher->isExpired($sender)) {
-
-            // try extend lifetime of expire token and save it to he storage
-            if ($tokenRefresher->extendLifetime($sender)) {
-                $senderRepo->save($sender);
-                $tokens[] = $sender;
-            } else {
-                $senderRepo->delete($sender->getId());
-            }
-        }
-    }
-
-    // send auth request if we don't have valid tokens
-    if (!$tokens) {
+    if (!$senders) {
         $authRequest = new AuthRequest($appConfig, $db);
         if ($authRequest->request($message)) {
             $message['status'] = Model\MessageRepository::STATUS_VERIFY_REQUESTED;

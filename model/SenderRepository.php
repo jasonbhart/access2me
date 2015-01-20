@@ -136,6 +136,22 @@ class SenderRepository
         return $sender !== false ? $sender : null;
     }
 
+    public function findAll()
+    {
+        $query = 'SELECT * FROM `' . self::TABLE_NAME. '`';
+
+        $conn = $this->db->getConnection();
+        $st = $conn->prepare($query);
+        $st->setFetchMode(\PDO::FETCH_CLASS, '\\Access2Me\\Model\\Sender');
+        $st->execute();
+        $senders = $st->fetchAll();
+        $st->closeCursor();
+        
+        $this->decodeSenders($senders);
+
+        return $senders;
+    }
+
     public function findByMessageId($messageId)
     {
         $query = 'SELECT s.* FROM `' . self::TABLE_NAME. '` s'

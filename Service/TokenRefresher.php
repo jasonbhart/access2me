@@ -23,7 +23,7 @@ class TokenRefresher
         $this->appConfig = $appConfig;
     }
 
-    public function isExpired(Model\Sender $sender)
+    public function isDueToExpire(Model\Sender $sender)
     {
         // assume token is valid if it is not expired
         if ($sender->getExpiresAt() == null) {
