@@ -25,7 +25,7 @@ class RecipientsImporter
     public function import()
     {
         // open sent folder
-        $this->gmailStorage->selectFolder(Helper\GmailImapStorage::FOLDER_SENT);
+        $this->gmailStorage->selectFolder($this->gmailStorage->getFolderName(Helper\StorageFolder::SENT));
 
         // loop through messages
         foreach ($this->gmailStorage as $message) {
@@ -58,6 +58,7 @@ class RecipientsImporter
 
 $db = new Database;
 $userRepo = new Model\UserRepository($db);
+$authProvider = new Helper\GoogleAuthProvider($appConfig['services']['gmail'], $userRepo);
 
 foreach ($userRepo->findAll() as $user) {
     try {
@@ -66,8 +67,10 @@ foreach ($userRepo->findAll() as $user) {
             Logging::getLogger()->debug('Recipients already imported for user: ' . $user['id']);
             continue;
         }
-
-        $storage = Helper\GmailImap::getImapStorage($user, $db);
+        
+        $googleAuth = $authProvider->getAuth($user['username']);
+        $storage = Helper\GmailImapStorage::getImapStorage($googleAuth);
+        
         if ($storage == null) {
             Logging::getLogger()->info('Can\'t get storage handle for user: ' . $user['id']);
             continue;
