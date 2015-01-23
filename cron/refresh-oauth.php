@@ -6,6 +6,8 @@ require_once '../boot.php';
 
 use Access2Me\Helper;
 use Access2Me\Model;
+use Access2Me\Service;
+
 
 $db = new Database();
 $userRepo = new Model\UserRepository($db);
@@ -53,5 +55,29 @@ foreach ($userRepo->findAll() as $user) {
                 ['exception' => $ex]
             );
         }
+    }
+}
+
+// refresh service tokens (Twitter etc.)
+$senderRepo = new Model\SenderRepository($db);
+$tokenRefresher = new Service\TokenRefresher($appConfig);
+
+foreach ($senderRepo->findAll() as $sender) {
+    try {
+        // process only expiring tokens
+        if ($tokenRefresher->isDueToExpire($sender)) {
+
+            // try extend lifetime of expiring token and save it to the storage
+            if ($tokenRefresher->extendLifetime($sender)) {
+                $senderRepo->save($sender);
+            } else {
+                $senderRepo->delete($sender->getId());
+            }
+        }
+    } catch (\Exception $ex) {
+        Logging::getLogger()->error(
+            sprintf('Can\'t extend lifetime of sender\'s access token: %d', $sender->getId()),
+            ['exception' => $ex]
+        );
     }
 }

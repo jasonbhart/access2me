@@ -1,6 +1,6 @@
 <?php
 
-require_once 'boot.php';
+require_once '../boot.php';
 
 $db = new Database();
 
