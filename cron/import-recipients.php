@@ -62,12 +62,6 @@ $authProvider = new Helper\GoogleAuthProvider($appConfig['services']['gmail'], $
 
 foreach ($userRepo->findAll() as $user) {
     try {
-
-        if ($user['recipients_imported'] == true) {
-            Logging::getLogger()->debug('Recipients already imported for user: ' . $user['id']);
-            continue;
-        }
-        
         $googleAuth = $authProvider->getAuth($user['username']);
         $storage = Helper\GmailImapStorage::getImapStorage($googleAuth);
         
@@ -81,13 +75,10 @@ foreach ($userRepo->findAll() as $user) {
         // import
         $importer = new RecipientsImporter($user, $storage, $userSenderRepo);
         $importer->import();
-
-        // flag user as processed
-        $user['recipients_imported'] = 1;
-        $userRepo->save($user);
         
         $storage->close();
     } catch (Exception $ex) {
         Logging::getLogger()->error('Whitelisting senders of user: ' . $user['id'], ['exception' => $ex]);
     }
 }
+
