@@ -104,8 +104,7 @@ class UserRepository
                 'name',
                 'username',
                 'password',
-                'gmail_access_token',
-                'recipients_imported'
+                'gmail_access_token'
             ),
             array(
                 $entry['mailbox'],
@@ -113,8 +112,7 @@ class UserRepository
                 $entry['name'],
                 $entry['username'],
                 $entry['password'],
-                $this->encodeAccessToken($entry['gmail_access_token']),
-                $entry['recipients_imported']
+                $this->encodeAccessToken($entry['gmail_access_token'])
             ),
             true
         );
@@ -132,8 +130,7 @@ class UserRepository
             . ' `name` = :name,'
             . ' `username` = :username,'
             . ' `password` = :password,'
-            . ' `gmail_access_token` = :gmail_access_token,'
-            . ' `recipients_imported` = :recipients_imported'
+            . ' `gmail_access_token` = :gmail_access_token'
             . ' WHERE id = :id';
 
         $conn = $this->db->getConnection();
@@ -144,7 +141,6 @@ class UserRepository
         $st->bindValue(':username', $entry['username']);
         $st->bindValue(':password', $entry['password']);
         $st->bindValue(':gmail_access_token', $this->encodeAccessToken($entry['gmail_access_token']));
-        $st->bindValue(':recipients_imported', $entry['recipients_imported'], \PDO::PARAM_INT);
         $st->bindValue(':id', $entry['id'], \PDO::PARAM_INT);
         $st->execute();
     }
@@ -159,3 +155,4 @@ class UserRepository
         }
     }
 }
+
