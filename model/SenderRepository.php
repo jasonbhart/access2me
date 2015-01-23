@@ -34,7 +34,36 @@ class SenderRepository
     {
         return json_decode($encodedOAuthKey, true);
     }
-    
+
+    protected function encodeCreatedAt($dt)
+    {
+        return $dt instanceof \DateTimeInterface ? $dt->format('Y-m-d H:i:s') : null;
+    }
+
+    protected function decodeCreatedAt($dt)
+    {
+        try {
+            return !empty($dt) ? new \DateTime($dt) : null;
+        } catch (\Exception $ex) {
+            return null;
+        }
+    }
+
+    protected function encodeExpiresAt($dt)
+    {
+        return $dt instanceof \DateTimeInterface ? $dt->format('Y-m-d H:i:s') : null;
+    }
+
+    protected function decodeExpiresAt($dt)
+    {
+        try {
+            return !empty($dt) ? new \DateTime($dt) : null;
+        } catch (\Exception $ex) {
+            return null;
+        }
+    }
+
+
     /**
      * Helper method to decode values in all passed objects
      * 
@@ -48,9 +77,13 @@ class SenderRepository
 
         if (is_object($senders)) {
             $senders->setOAuthKey($this->decodeOAuthKey($senders->getOAuthKey()));
+            $senders->setCreatedAt($this->decodeCreatedAt($senders->getCreatedAt()));
+            $senders->setExpiresAt($this->decodeExpiresAt($senders->getExpiresAt()));
         } else {
             foreach ($senders as $sender) {
                 $sender->setOAuthKey($this->decodeOAuthKey($sender->getOAuthKey()));
+                $sender->setCreatedAt($this->decodeCreatedAt($sender->getCreatedAt()));
+                $sender->setExpiresAt($this->decodeExpiresAt($sender->getExpiresAt()));
             }
         }
     }
@@ -59,7 +92,7 @@ class SenderRepository
      * Returns list of sender authenticated services
      * 
      * @param string $email
-     * @return Sender[]
+     * @return \Access2Me\Model\Sender[]
      */
     public function getByEmail($email)
     {
@@ -103,6 +136,22 @@ class SenderRepository
         return $sender !== false ? $sender : null;
     }
 
+    public function findAll()
+    {
+        $query = 'SELECT * FROM `' . self::TABLE_NAME. '`';
+
+        $conn = $this->db->getConnection();
+        $st = $conn->prepare($query);
+        $st->setFetchMode(\PDO::FETCH_CLASS, '\\Access2Me\\Model\\Sender');
+        $st->execute();
+        $senders = $st->fetchAll();
+        $st->closeCursor();
+        
+        $this->decodeSenders($senders);
+
+        return $senders;
+    }
+
     public function findByMessageId($messageId)
     {
         $query = 'SELECT s.* FROM `' . self::TABLE_NAME. '` s'
@@ -133,12 +182,16 @@ class SenderRepository
             array(
                 'sender',
                 'service',
-                'oauth_key'
+                'oauth_key',
+                'created_at',
+                'expires_at'
             ),
             array(
                 $sender->getSender(),
                 $sender->getService(),
-                $this->encodeOAuthKey($sender->getOAuthKey())
+                $this->encodeOAuthKey($sender->getOAuthKey()),
+                $this->encodeCreatedAt($sender->getCreatedAt()),
+                $this->encodeExpiresAt($sender->getExpiresAt())
             ),
             true
         );
@@ -151,9 +204,11 @@ class SenderRepository
     {
         $query = "UPDATE `" . self::TABLE_NAME ."`"
             . ' SET'
-            . ' sender = :sender,'
-            . ' service = :service,'
-            . ' oauth_key = :oauth_key'
+            . ' `sender` = :sender,'
+            . ' `service` = :service,'
+            . ' `oauth_key` = :oauth_key,'
+            . ' `created_at` = :created_at,'
+            . ' `expires_at` = :expires_at'
             . ' WHERE id = :id';
 
         $conn = $this->db->getConnection();
@@ -161,6 +216,8 @@ class SenderRepository
         $st->bindValue(':sender', $sender->getSender());
         $st->bindValue(':service', $sender->getService(), \PDO::PARAM_INT);
         $st->bindValue(':oauth_key', $this->encodeOAuthKey($sender->getOAuthKey()));
+        $st->bindValue(':created_at', $this->encodeCreatedAt($sender->getCreatedAt()));
+        $st->bindValue(':expires_at', $this->encodeExpiresAt($sender->getExpiresAt()));
         $st->bindValue(':id', $sender->getId(), \PDO::PARAM_INT);
         $st->execute();
     }
@@ -172,5 +229,14 @@ class SenderRepository
         } else {
             $this->update($sender);
         }
+    }
+
+    /**
+     * @param int id
+     */
+    public function delete($id)
+    {
+        $query = 'DELETE FROM `' . self::TABLE_NAME . '`' . ' WHERE `id` = :id';
+        return $this->db->execute($query, ['id' => $id]);
     }
 }

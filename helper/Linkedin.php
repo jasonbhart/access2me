@@ -49,25 +49,27 @@ class Linkedin
         $url .= "location:(name))";
         $url .= "?oauth2_access_token=" . urlencode($token);
 
-        try {
-            $cURL = curl_init();
+        $cURL = curl_init();
 
-            curl_setopt($cURL, CURLOPT_VERBOSE, true);
-            curl_setopt($cURL, CURLOPT_URL, $url);
-            curl_setopt($cURL, CURLOPT_SSL_VERIFYPEER, false);
-            curl_setopt($cURL, CURLOPT_HTTPGET, true);
-            curl_setopt($cURL, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($cURL, CURLOPT_VERBOSE, true);
+        curl_setopt($cURL, CURLOPT_URL, $url);
+        curl_setopt($cURL, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($cURL, CURLOPT_HTTPGET, true);
+        curl_setopt($cURL, CURLOPT_RETURNTRANSFER, 1);
 
-            $result = curl_exec($cURL);
-            curl_close($cURL);
+        $result = curl_exec($cURL);
+        $code = curl_getinfo($cURL, CURLINFO_HTTP_CODE);
+        curl_close($cURL);
 
-            $xml = new \SimpleXMLElement($result);
-            $person = $xml->xpath('/person');
-
-            return isset($person[0]) ? $person[0] : false;
-
-        } catch (\Exception $ex) {
-            throw new LinkedinException($ex->getMessage(), $ex->getCode(), $ex);
+        $xml = new \SimpleXMLElement($result);
+        if ($code >= 400) {
+            $code = isset($xml->{'error-code'}) ? (int)$xml->{'error-code'} : $code;
+            $message = isset($xml->message) ? (string)$xml->message : 'Service error';
+            throw new LinkedinException($message, $code);
         }
+
+        $person = $xml->xpath('/person');
+
+        return isset($person[0]) ? $person[0] : false;
     }
 }

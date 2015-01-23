@@ -14,6 +14,8 @@ class Sender
     private $sender;
     private $service;
     private $oauth_key;
+    private $created_at;
+    private $expires_at;
 
     public function getId()
     {
@@ -48,5 +50,31 @@ class Sender
     public function setOAuthKey($oauthKey)
     {
         $this->oauth_key = $oauthKey;
+    }
+
+    /**
+     * @return \DateTime
+     */
+    public function getCreatedAt()
+    {
+        return $this->created_at;
+    }
+    
+    public function setCreatedAt($createdAt)
+    {
+        $this->created_at = $createdAt;
+    }
+
+    /**
+     * @return \DateTime
+     */
+    public function getExpiresAt()
+    {
+        return $this->expires_at;
+    }
+    
+    public function setExpiresAt($expiresAt)
+    {
+        $this->expires_at = $expiresAt;
     }
 }

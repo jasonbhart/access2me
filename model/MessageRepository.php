@@ -45,6 +45,13 @@ class MessageRepository
         return $message !== false ? $message : null;
     }
 
+    public function findByStatus($status)
+    {
+        $query = 'SELECT * FROM `' . self::TABLE_NAME . '` WHERE `status` = :status';
+        $messages = $this->db->getArray($query, ['status' => $status]);
+        return $messages ? $messages : array();
+    }
+
     public function findByUserAndSender($userId, $sender)
     {
         $query = 'SELECT * FROM `' . self::TABLE_NAME . '` WHERE `user_id` = :user_id AND `from_email` = :sender';
