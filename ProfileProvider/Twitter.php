@@ -21,7 +21,7 @@ class Twitter implements ProfileProviderInterface
      * @param \Access2Me\Model\Sender $sender
      * @return array
      */
-    public function fetchProfile($sender)
+    public function fetchProfile(\Access2Me\Model\Sender $sender)
     {
         try {
             $twitter = new Helper\Twitter($this->serviceConfig);
@@ -29,11 +29,7 @@ class Twitter implements ProfileProviderInterface
             $profile = $this->convertToProfile($data);
             return $profile;
         } catch (Helper\TwitterException $ex) {
-            \Logging::getLogger()->error(
-                $ex->getMessage(),
-                array('exception' => $ex)
-            );
-            throw new ProfileProviderException('Can\'t fetch profile');
+            throw new ProfileProviderException('Can\'t fetch profile', 0, $ex);
         }
     }
 

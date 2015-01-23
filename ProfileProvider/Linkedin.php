@@ -4,6 +4,7 @@ namespace Access2Me\ProfileProvider;
 
 use Access2Me\Helper;
 use Access2Me\Model\Profile;
+use Access2Me\Service;
 
 class Linkedin implements ProfileProviderInterface
 {
@@ -21,7 +22,7 @@ class Linkedin implements ProfileProviderInterface
      * @param \Access2Me\Model\Sender $sender
      * @return array
      */
-    public function fetchProfile($sender)
+    public function fetchProfile(\Access2Me\Model\Sender $sender)
     {
         try {
             $linkedin = new Helper\Linkedin($this->serviceConfig);
@@ -29,11 +30,7 @@ class Linkedin implements ProfileProviderInterface
             $profile = $this->parseProfileData($xml);
             return $profile;
         } catch (\Exception $ex) {
-            \Logging::getLogger()->error(
-                $ex->getMessage(),
-                array('exception' => $ex)
-            );
-            throw new ProfileProviderException('Can\'t fetch profile');
+            throw new ProfileProviderException('Can\'t fetch profile', 0, $ex);
         }
     }
 

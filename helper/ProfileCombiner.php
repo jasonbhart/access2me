@@ -18,6 +18,7 @@ class ProfileCombiner
 
     public $crunchBase;
     public $angelList;
+    public $fullContact;
 
     /**
      * 
@@ -28,9 +29,16 @@ class ProfileCombiner
         if (isset($profiles[Service\Service::CRUNCHBASE])) {
             $this->crunchBase = $profiles[Service\Service::CRUNCHBASE];
             unset($profiles[Service\Service::CRUNCHBASE]);
-        } else if (isset($profiles[Service\Service::ANGELLIST])) {
+        }
+
+        if (isset($profiles[Service\Service::ANGELLIST])) {
             $this->angelList = $profiles[Service\Service::ANGELLIST];
             unset($profiles[Service\Service::ANGELLIST]);
+        }
+
+        if (isset($profiles[Service\Service::FULLCONTACT])) {
+            $this->fullContact = $profiles[Service\Service::FULLCONTACT];
+            unset($profiles[Service\Service::FULLCONTACT]);
         }
 
         $this->profiles = $profiles;

@@ -6,7 +6,7 @@ interface ProfileProviderInterface
 {
     /**
      * @param \Access2Me\Model\Sender $sender
-     * @return array
+     * @return array|object
      */
-    public function fetchProfile($sender);
+    public function fetchProfile(\Access2Me\Model\Sender $sender);
 }

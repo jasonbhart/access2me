@@ -27,15 +27,15 @@ class AngelList
         $client = new GuzzleHttp\Client([
             'base_url' => $this->apiUrl
         ]);
-        $res = $client->get(
-            $url,
-            ['query' => $params]
-        );
+        try {
+            $res = $client->get(
+                $url,
+                ['query' => $params]
+            );
+        } catch (\GuzzleHttp\Exception\BadResponseException $ex) {
+            throw new FullContactException('Bad response', 0, $ex);
+        }
 
-//        if ($res->getStatusCode() >= 400) {
-//            throw new \Exception($res->getReasonPhrase());
-//        }
-        
         return $res->json();
     }
 

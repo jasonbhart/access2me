@@ -36,6 +36,10 @@ class Registry
             Service::ANGELLIST => [
                 'authRequired' => false,
                 'provider' => new ProfileProvider\AngelList(null)
+            ],
+            Service::FULLCONTACT => [
+                'authRequired' => false,
+                'provider' => new ProfileProvider\FullContact($services['fullcontact'])
             ]
         ];
 

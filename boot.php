@@ -46,11 +46,14 @@ require_once __DIR__ . "/ProfileProvider/ProfileProviderInterface.php";
 require_once __DIR__ . "/ProfileProvider/ProfileProviderException.php";
 require_once __DIR__ . "/ProfileProvider/AngelList.php";
 require_once __DIR__ . "/ProfileProvider/Facebook.php";
+require_once __DIR__ . "/ProfileProvider/FullContact.php";
 require_once __DIR__ . "/ProfileProvider/Linkedin.php";
 require_once __DIR__ . "/ProfileProvider/Twitter.php";
 require_once __DIR__ . "/ProfileProvider/Profile/Facebook.php";
+require_once __DIR__ . "/ProfileProvider/Profile/FullContact.php";
 require_once __DIR__ . "/Service/AngelList.php";
 require_once __DIR__ . "/Service/CrunchBase.php";
+require_once __DIR__ . "/Service/FullContact.php";
 require_once __DIR__ . "/Service/Gmail.php";
 require_once __DIR__ . "/Service/Service.php";
 require_once __DIR__ . "/Service/TokenRefresher.php";
@@ -117,6 +120,9 @@ $appConfig = array(
         'twitter' => $twitterAuth,
         'crunchbase' => [
             'user_key' => ''
+        ],
+        'fullcontact' => [
+            'api_key' => 'a552145e97bce5af'
         ]
     ],
     'secret' => 'rO2RL7H0mWeFs5.zRF1yOx9ITgFo9rwkTbx3Q6YuyA/7BjjH6t5AoSfsd32kL9h1UKs',

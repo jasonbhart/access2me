@@ -23,7 +23,7 @@ class Facebook implements ProfileProviderInterface
      * @param \Access2Me\Model\Sender $sender
      * @return array
      */
-    public function fetchProfile($sender)
+    public function fetchProfile(\Access2Me\Model\Sender $sender)
     {
         try {
             // initialize facebook session
@@ -40,11 +40,7 @@ class Facebook implements ProfileProviderInterface
             return $profile;
 
         } catch (FacebookRequestException $ex) {
-            \Logging::getLogger()->error(
-                $ex->getMessage(),
-                array('exception' => $ex)
-            );
-            throw new ProfileProviderException('Can\'t fetch profile');
+            throw new ProfileProviderException('Can\'t fetch profile', 0, $ex);
         }
     }
 
