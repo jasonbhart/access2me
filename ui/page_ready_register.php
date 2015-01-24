@@ -1,3 +1,15 @@
+<?php 
+require_once __DIR__ . "/../boot.php";
+use Access2Me\Helper\Auth;
+
+$db = new Database;
+$auth = new Auth($db);
+
+if ($auth->isAuthenticated()) {
+    header('Location: index.php');
+    exit;
+} 
+?>
 <?php include 'inc/config.php'; ?>
 <?php include 'inc/template_start.php'; ?>
 
@@ -42,6 +54,14 @@ if ($_POST) {
         $errors['terms'] = 'Please accept the terms!';
     }
 
+    // check if username or mailbox is existing
+    if (!empty($username) && !is_null($auth->getUser($username))) {
+        $errors['username'] = 'Username <strong>"'.$username.'"</strong> is existing.';
+    }
+    if (!empty($mailbox) && !is_null($auth->getUserByMailbox($mailbox))) {
+        $errors['mailbox']  = 'Mailbox <strong>"'.$mailbox.'"</strong> is existing.';
+    }
+    
     // create user
     if (count($errors) == 0) {
         $db = new Database();
@@ -102,7 +122,7 @@ if ($_POST) {
 
         <!-- Register Form -->
         <form id="form-register" action="page_ready_register.php" method="post" class="form-horizontal">
-            <div class="form-group">
+            <div class="form-group" id="register-errors" style="color: red;">
                 <?php if (isset($errors)) {
                     foreach ($errors as $error) { ?>
                     <div>

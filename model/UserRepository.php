@@ -67,6 +67,14 @@ class UserRepository
         return $users ? $users[0] : null;
     }
 
+    public function getByMailbox($mailbox)
+    {
+        $query = 'SELECT * FROM `' . self::TABLE_NAME . '` WHERE `mailbox` = :mailbox';
+        $users = $this->db->getArray($query, array('mailbox' => $mailbox));
+        $this->decodeUsers($users);
+        return $users ? $users[0] : null;
+    }
+    
     public function findAll()
     {
         $query = 'SELECT * FROM `' . self::TABLE_NAME . '`';
