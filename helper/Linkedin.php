@@ -32,6 +32,7 @@ class Linkedin
         $url .= "industry,";
         $url .= "picture-url,";
         $url .= "site-standard-profile-request,";
+        $url .= "public-profile-url,";
         $url .= "num-connections,";
         $url .= "summary,";
         $url .= "specialties,";
@@ -47,7 +48,7 @@ class Linkedin
         $url .= "group-memberships,";
         $url .= "positions,";
         $url .= "location:(name))";
-        $url .= "?oauth2_access_token=" . urlencode($token);
+        $url .= "?secure-urls=true&oauth2_access_token=" . urlencode($token);
 
         $cURL = curl_init();
 

@@ -69,7 +69,11 @@ class Linkedin implements ProfileProviderInterface
             $profile->location = (string)$xml->{'location'}->{'name'};
         }
         
-        if (isset($xml->{'site-standard-profile-request'})
+        if (isset($xml->{'public-profile-url'})) {
+            $profile->profileUrl = (string)$xml->{'public-profile-url'};
+        }
+
+        if (!$profile->profileUrl && isset($xml->{'site-standard-profile-request'})
             && isset($xml->{'site-standard-profile-request'}->{'url'})
         ) {
             $profile->profileUrl = (string)$xml->{'site-standard-profile-request'}->{'url'};
