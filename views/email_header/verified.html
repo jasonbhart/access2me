@@ -5,9 +5,9 @@ use Access2Me\Helper\Template;
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <style>
+    <style type="text/css">
         a {color: #808080;}
-    </style>
+     </style>
 </head>
 <body>
     <table cellspacing="0" cellpadding="0" border="0" width="380">
@@ -71,6 +71,69 @@ use Access2Me\Helper\Template;
                         </td>
                     </tr>
                 </table>
+                <?php
+                    if (isset($contact['full_contact'])):
+                        $fullContact = $contact['full_contact'];
+                ?>
+                <fieldset style="border-radius: 5px;">
+                    <legend>Internet provided info</legend>
+                    <?php if (isset($fullContact->fullName)): ?>
+                    <div><b>Name:</b> <?php echo htmlentities($fullContact->fullName); ?></div>
+                    <?php elseif (isset($fullContact->firstName) || isset($fullContact->firstName)): ?>
+                    <div>
+                        <b>Name:</b>
+                        <?php if (isset($fullContact->firstName)) echo htmlentities($fullContact->firstName); ?>
+                        <?php if (isset($fullContact->lastName)) echo htmlentities($fullContact->lastName); ?>
+                    </div>
+                    <?php endif; ?>
+                    <?php if (isset($fullContact->gender)): ?>
+                    <div><b>Gender:</b> <?php echo htmlentities($fullContact->gender); ?></div>
+                    <?php endif; ?>
+                    <?php if ($fullContact->photos): ?>
+                    <div>
+                        <b>Photos:</b>
+                        <?php foreach($fullContact->photos as $photo): ?>
+                        <div style="border: 1px solid gray; display: inline-block; height: 50px; margin-bottom: 2px; margin-right: 4px; line-height: 50px; padding: 2px; text-align: center; width: 50px;">
+                            <a href="<?php echo htmlentities($photo['url']); ?>" style="border: 0px;">
+                                <img src="<?php echo htmlentities($photo['url']); ?>" style="max-height: 50px; max-width: 50px; vertical-align: middle;">
+                            </a>
+                        </div>
+                        <?php endforeach; ?>
+                    </div>
+                    <?php endif; ?>
+                    <?php if ($fullContact->socialProfiles): ?>
+                    <div>
+                        <b>Social profiles:</b>
+                        <?php foreach($fullContact->socialProfiles as $i=>$soc): ?>
+                        <?php if ($i != 0) echo '/'; ?>
+                        <a href="<?php echo htmlentities($soc['url']); ?>">
+                            <?php echo htmlentities($soc['typeName']); ?>
+                        </a>
+                        <?php endforeach; ?>
+                    </div>
+                    <?php endif; ?>
+                    <?php if ($fullContact->messengers): ?>
+                    <div>
+                        <b>Messenger:</b>
+                        <?php foreach($fullContact->messengers as $i=>$messg): ?>
+                        <?php if ($i != 0) echo '/'; ?>
+                        <?php echo htmlentities($messg['handle']); ?>
+                        <?php endforeach; ?>
+                    </div>
+                    <?php endif; ?>
+                    <?php if ($fullContact->websites): ?>
+                    <div>
+                        <b>Websites:</b>
+                        <?php foreach($fullContact->websites as $i=>$site): ?>
+                        <?php if ($i != 0) echo '/'; ?>
+                        <a href="<?php echo htmlentities($site); ?>">
+                            <?php echo htmlentities($site); ?>
+                        </a>
+                        <?php endforeach; ?>
+                    </div>
+                    <?php endif; ?>
+                </fieldset>
+                <?php endif; ?>
             </td>
            <td>
               <img src="http://app.access2.me/img/a2mbanner.png" border="0">

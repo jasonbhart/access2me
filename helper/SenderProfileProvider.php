@@ -81,18 +81,22 @@ class SenderProfileProvider implements SenderProfileProviderInterface
             $provider = $this->providers[$pid];
             $profile = null;
             
-            // provider requires auth
-            if ($provider['authRequired']) {
-                // we have corresponding auth
-                if (isset($serviceMap[$pid])) {
-                    $profile = $provider['provider']->fetchProfile(
-                        /*$sender,*/
-                        $serviceMap[$pid]
-                    );
+            try {
+                // provider requires auth
+                if ($provider['authRequired']) {
+                    // we have corresponding auth
+                    if (isset($serviceMap[$pid])) {
+                        $profile = $provider['provider']->fetchProfile(
+                            /*$sender,*/
+                            $serviceMap[$pid]
+                        );
+                    }
+                    // do not call provider if auth is not specified
+                } else {
+                    $profile = $provider['provider']->fetchProfile($sender);
                 }
-                // do not call provider if auth is not specified
-            } else {
-                $profile = $provider['provider']->fetchProfile($sender);
+            } catch (\Access2Me\ProfileProvider\ProfileProviderException $ex) {
+                \Logging::getLogger()->debug($ex->getMessage(), array('exception' => $ex));
             }
 
             $result[$pid] = $profile;
@@ -120,6 +124,7 @@ class CachedSenderProfileProvider implements SenderProfileProviderInterface
      * @var string in \DateInterval format
      */
     private $cachingPeriod = 'P2W';
+    private $cachingPeriodNegative = 'PT2H';        // for negative hits
 
     /**
      * @var SenderProfileProviderInterface
@@ -169,7 +174,8 @@ class CachedSenderProfileProvider implements SenderProfileProviderInterface
             // cache results
             foreach ($fetched as $pid=>$profile) {
                 $key = $this->getKey($sender->getSender(), $pid);
-                $this->cache->set($key, $profile, $this->cachingPeriod);
+                $cp = $profile === null ? $this->cachingPeriodNegative : $this->cachingPeriod;
+                $this->cache->set($key, $profile, $cp);
                 $result[$pid] = $profile;
             }
         }

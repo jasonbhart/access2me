@@ -253,6 +253,10 @@ class Email
             $contact['angel_list'] = $profComb->angelList;
         }
 
+        if (isset($profComb->fullContact) && $profComb->fullContact->likelihood > 0.8) {
+            $contact['full_contact'] = $profComb->fullContact;
+        }
+
         ob_start();
         include __DIR__ . '/../views/email_header/verified.html';
         $infoText = ob_get_clean();

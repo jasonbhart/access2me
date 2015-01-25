@@ -8,4 +8,5 @@ class Service {
     const TWITTER  = 3;
     const CRUNCHBASE = 4;
     const ANGELLIST = 5;
+    const FULLCONTACT = 6;
 }

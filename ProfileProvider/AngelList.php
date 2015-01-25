@@ -25,7 +25,7 @@ class AngelList implements ProfileProviderInterface
      * @param \Access2Me\Model\Sender $sender
      * @return array
      */
-    public function fetchProfile($sender)
+    public function fetchProfile(\Access2Me\Model\Sender $sender)
     {
         try {
             $address = $sender->getSender();
@@ -64,10 +64,7 @@ class AngelList implements ProfileProviderInterface
             
             return null;
         } catch (\Exception $ex) {
-            \Logging::getLogger()->error(
-                $ex->getMessage(),
-                array('exception' => $ex)
-            );
+            throw new ProfileProviderException('Can\'t fetch profile', 0, $ex);
         }
     }
 }
