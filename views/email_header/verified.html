@@ -60,11 +60,17 @@ use Access2Me\Helper\Template;
                                     </a>
                                 </div>
 
-                                <?php if (isset($contact['angel_list'])): ?>
-                                <div>Company url:
-                                    <a href="<?php echo htmlentities($contact['angel_list']['company_url']); ?>">
-                                        <?php echo htmlentities($contact['angel_list']['domain']); ?>
+                                <?php
+                                    if (isset($contact['angel_list'])):
+                                        $angelList = $contact['angel_list'];
+                                ?>
+                                <div>Company
+                                    <a href="<?php echo htmlentities($angelList['company_url']); ?>">
+                                        <?php echo htmlentities($angelList['name']); ?>
                                     </a>
+                                    <?php if ($angelList['fundraising']): ?>
+                                    ( fund-raised <?php echo $angelList['fundraising']['raised_amount']; ?> of <?php echo $angelList['fundraising']['raising_amount']; ?> )
+                                    <?php endif; ?>
                                 </div>
                                 <?php endif; ?>
                             </div>

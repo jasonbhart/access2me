@@ -54,10 +54,7 @@ class AngelList implements ProfileProviderInterface
 
                     // matches ?
                     if ($host == $email['domain']) {
-                        return [
-                            'domain' => $email['domain'],
-                            'company_url' => $info['company_url']
-                        ];
+                        return $this->parseInfo($email['domain'], $info);
                     }
                 }
             }
@@ -66,5 +63,24 @@ class AngelList implements ProfileProviderInterface
         } catch (\Exception $ex) {
             throw new ProfileProviderException('Can\'t fetch profile', 0, $ex);
         }
+    }
+
+    protected function parseInfo($domain, $info)
+    {
+        $parsed = [
+            'domain' => $domain,
+            'name' => $info['name'],
+            'company_url' => $info['company_url'],
+            'fundraising' => null
+        ];
+
+        if (is_array($info['fundraising'])) {
+            $parsed['fundraising'] = [
+                'raising_amount' => (float)$info['fundraising']['raising_amount'],
+                'raised_amount' => (float)$info['fundraising']['raised_amount']
+            ];
+        }
+
+        return $parsed;
     }
 }
