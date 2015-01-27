@@ -60,19 +60,30 @@ class FullContact implements ProfileProviderInterface
         }
 
         // parse websites
-        if (is_array($profileData['contactInfo']['websites'])) {
+        if (isset($profileData['contactInfo']['websites'])
+            && is_array($profileData['contactInfo']['websites'])
+        ) {
             foreach ($profileData['contactInfo']['websites'] as $website) {
                 $profile->webistes[] = $website['url'];
             }
         }
 
         // parse messengers
-        if (is_array($profileData['contactInfo']['chats'])) {
-            $profile->messengers = $profileData['contactInfo']['chats'];
+        if (isset($profileData['contactInfo']['chats'])
+            && is_array($profileData['contactInfo']['chats'])
+        ) {
+            $messengers = [];
+            // remove duplicate messengers
+            foreach ($profileData['contactInfo']['chats'] as $msngr) {
+                $messengers[$msngr['client'] . '_' . $msngr['handle']] = $msngr;
+            }
+            $profile->messengers = array_values($messengers);
         }
 
         // parse oganizations
-        if (is_array($profileData['organizations'])) {
+        if (isset($profileData['organizations'])
+            && is_array($profileData['organizations'])
+        ) {
             $profile->organizations = $profileData['organizations'];
         }
 

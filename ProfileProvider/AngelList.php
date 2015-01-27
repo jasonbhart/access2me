@@ -74,7 +74,7 @@ class AngelList implements ProfileProviderInterface
             'fundraising' => null
         ];
 
-        if (is_array($info['fundraising'])) {
+        if (isset($info['fundraising']) && is_array($info['fundraising'])) {
             $parsed['fundraising'] = [
                 'raising_amount' => (float)$info['fundraising']['raising_amount'],
                 'raised_amount' => (float)$info['fundraising']['raised_amount']
