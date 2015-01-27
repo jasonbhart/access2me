@@ -23,7 +23,7 @@ use Access2Me\Helper\Template;
                         <td width="7"></td>
                         <td width="370" align="left">
                             <?php foreach ($contact['profile_urls'] as $sid => $url): ?>
-                            <a href="<?php echo htmlentities($url); ?>"><img src="http://app.access2.me/images/<?php echo htmlentities(Template::getServiceImage($sid)); ?>" nosend="1" border="0" width="16" height="16"></a>
+                            <a href="<?php echo htmlentities($url); ?>"><img src="<?php echo htmlentities(Template::getServiceIcon($sid)); ?>" nosend="1" border="0" width="16" height="16"></a>
                             <?php endforeach; ?>
                             <img src="http://app.access2.me/images/clear.gif" nosend="1" border="0" width="3" height="1">
                         </td>
@@ -95,36 +95,40 @@ use Access2Me\Helper\Template;
                     <?php if (isset($fullContact->gender)): ?>
                     <div><b>Gender:</b> <?php echo htmlentities($fullContact->gender); ?></div>
                     <?php endif; ?>
-                    <?php if ($fullContact->photos): ?>
+                    <?php
+                        if ($fullContact->photos):
+                            $photo = $fullContact->photos[0];
+                    ?>
                     <div>
-                        <b>Photos:</b>
-                        <?php foreach($fullContact->photos as $photo): ?>
+                        <b>Photo:</b>
                         <div style="border: 1px solid gray; display: inline-block; height: 50px; margin-bottom: 2px; margin-right: 4px; line-height: 50px; padding: 2px; text-align: center; width: 50px;">
                             <a href="<?php echo htmlentities($photo['url']); ?>" style="border: 0px;">
                                 <img src="<?php echo htmlentities($photo['url']); ?>" style="max-height: 50px; max-width: 50px; vertical-align: middle;">
                             </a>
                         </div>
-                        <?php endforeach; ?>
                     </div>
                     <?php endif; ?>
                     <?php if ($fullContact->socialProfiles): ?>
                     <div>
                         <b>Social profiles:</b>
                         <?php foreach($fullContact->socialProfiles as $i=>$soc): ?>
-                        <?php if ($i != 0) echo '/'; ?>
-                        <a href="<?php echo htmlentities($soc['url']); ?>">
-                            <?php echo htmlentities($soc['typeName']); ?>
-                        </a>
+                        <a href="<?php echo htmlentities($soc['url']); ?>"><!--
+                            --><img src="<?php echo htmlentities(Template::getSocialIcon($soc['typeId'])); ?>" alt="<?php echo htmlentities($soc['typeName']); ?>" style="height: 32px; width: 32px;" /><!--
+                        --></a>
                         <?php endforeach; ?>
                     </div>
                     <?php endif; ?>
                     <?php if ($fullContact->messengers): ?>
                     <div>
-                        <b>Messenger:</b>
-                        <?php foreach($fullContact->messengers as $i=>$messg): ?>
-                        <?php if ($i != 0) echo '/'; ?>
-                        <?php echo htmlentities($messg['handle']); ?>
-                        <?php endforeach; ?>
+                        <div style="display: inline-block; font-weight: bold; padding-top: 0.4em; vertical-align: top">Messenger:</div>
+                        <div style="display: inline-block">
+                            <?php foreach($fullContact->messengers as $i=>$messg): ?>
+                            <div>
+                                <img src="<?php echo htmlentities(Template::getMessengerIcon($messg['client'])); ?>" alt="<?php echo htmlentities($messg['handle']); ?>" style="height: 32px; width: 32px; vertical-align: middle"/>
+                                <span style="vertical-align: middle"><?php echo htmlentities($messg['handle']); ?></span>
+                            </div>
+                            <?php endforeach; ?>
+                        </div>
                     </div>
                     <?php endif; ?>
                     <?php if ($fullContact->websites): ?>
