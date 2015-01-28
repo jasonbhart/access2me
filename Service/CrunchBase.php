@@ -2,9 +2,20 @@
 
 namespace Access2Me\Service;
 
+use GuzzleHttp;
+
+class CrunchBaseException extends \Exception {}
+
+class CrunchBaseSearchType
+{
+    const QUERY = 1;
+    const NAME = 2;
+    const DOMAIN_NAME = 3;
+}
+
 class CrunchBase {
 
-    private $apiUrl = 'http://api.crunchbase.com/v/2';
+    private $apiUrl = 'http://api.crunchbase.com/v/2/';
     private $userKey;
     
     public function __construct($config) {
@@ -15,44 +26,56 @@ class CrunchBase {
         $this->userKey = $config['user_key'];
     }
 
-    protected function fetchUrl($url)
+    protected function fetchUrl($endpoint, $params = [])
     {
-        $cURL = curl_init();
-
-        curl_setopt($cURL, CURLOPT_VERBOSE, true);
-        curl_setopt($cURL, CURLOPT_URL, $url);
-        curl_setopt($cURL, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($cURL, CURLOPT_HTTPGET, true);
-        curl_setopt($cURL, CURLOPT_RETURNTRANSFER, 1);
-
-        $result = curl_exec($cURL);
-
-        if (curl_errno($cURL) != 0) {
-            $exception = new \Exception(curl_error($cURL));
-        } elseif (curl_getinfo($cURL, CURLINFO_HTTP_CODE) >= 400) {
-            $exception = new \Exception($result);
+        $client = new GuzzleHttp\Client([
+            'base_url' => $this->apiUrl
+        ]);
+        try {
+            $res = $client->get(
+                $endpoint,
+                ['query' => $params]
+            );
+        } catch (\GuzzleHttp\Exception\BadResponseException $ex) {
+            throw new CrunchBaseException('Bad response', 0, $ex);
         }
 
-        curl_close($cURL);
-
-        if (isset($exception)) {
-            throw $exception;
-        }
-
-        return $result;
+        return $res->json();
     }
 
-    protected function getResult($url, $params)
+    protected function getResult($endpoint, $params = [])
     {
         $params['user_key'] = $this->userKey;
-        $url = $this->apiUrl . $url . '?' . http_build_query($params);
-        
-        return $this->fetchUrl($url);
+        return $this->fetchUrl($endpoint, $params);
     }
 
-    public function getOrganizations()
+    /**
+     * Searches organizations by domain name
+     * 
+     * @param string $value
+     * @return array
+     */
+    public function findOrganizations($value = null, $type = null)
     {
-        $params = ['page' => 1];
-        return $this->getResult('/organizations', $params);
+        if ($type == CrunchBaseSearchType::QUERY) {
+            $params = ['query' => $value];
+        }
+        elseif ($type == CrunchBaseSearchType::NAME) {
+            $params = ['name' => $value];
+        }
+        elseif ($type == CrunchBaseSearchType::DOMAIN_NAME) {
+            $params = ['domain_name' => $value];
+        }
+
+        return $this->getResult('organizations', $params);
+    }
+
+    public function getOrganization($permalink)
+    {
+        if (substr_compare('organization/', $permalink, 0, 13) != 0) {
+            $permalink = 'organization/' . $permalink;
+        }
+
+        return $this->getResult($permalink);
     }
 }

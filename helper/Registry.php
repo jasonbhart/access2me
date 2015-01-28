@@ -28,11 +28,10 @@ class Registry
                 'authRequired' => true,
                 'provider' => new ProfileProvider\Twitter($services['twitter'])
             ],
-            /*
-             * Service::CRUNCHBASE => [
-             *  'authRequired' => false
-             * ],
-             */
+            Service::CRUNCHBASE => [
+                'authRequired' => false,
+                'provider' => new ProfileProvider\CrunchBase($services['crunchbase'])
+            ],
             Service::ANGELLIST => [
                 'authRequired' => false,
                 'provider' => new ProfileProvider\AngelList(null)
@@ -45,7 +44,7 @@ class Registry
 
         $db = new \Database();
         $profileProvider = new SenderProfileProvider($profileProviders);
-        
+
         $cacheRepo = new Model\CacheRepository($db);
         $cache = new Helper\Cache($cacheRepo);
         $cached = new CachedSenderProfileProvider($cache, $profileProvider);

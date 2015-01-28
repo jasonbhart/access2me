@@ -52,4 +52,23 @@ class Template
         
         return self::$baseUrl . 'socials/' . $icon;
     }
+
+    public static function formatMoney($money)
+    {
+        $suffixes = ['', 'K', 'M', 'B', 'T'];
+        $base = 1000;
+
+        $l = (int)log($money, $base);
+        
+        if ($l >= 0 && $l < count($suffixes)) {
+            $money /= pow($base, $l);
+            
+            $result = round($money, 2);
+            $result .= $suffixes[$l];
+        } else {
+            $result = $money;
+        }
+
+        return (string)$result;
+    }
 }
