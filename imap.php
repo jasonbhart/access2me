@@ -279,10 +279,12 @@ class IMAP
         foreach ($emails as $email_number) {
 
             /* get information specific to this email */
+            $overview     = imap_fetch_overview($inbox, $email_number, 0);
             $header = imap_fetchheader($inbox, $email_number);
             $body = imap_body($inbox, $email_number);
 
             $output[] = array(
+                'overview' => $overview,
                 'header' => $header,
                 'body' => $body
             );

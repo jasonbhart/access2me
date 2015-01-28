@@ -6,15 +6,31 @@ require_once __DIR__ . "/../boot.php";
 
 $db = new Database;
 
-$params = array(
-    'host'     => 'mail.access2.me',
-    'user'     => 'catchall@access2.me',
-    'password' => 'catch123'
-);
+$imap = new IMAP($appConfig['imap']);
 
-$imap = new IMAP($params);
+// get raw messages
+$rawMessages = $imap->getInboxRaw();
+$messages = array();
 
-$messages = $imap->getInbox();
+// parse raw messages
+$parser = new \ezcMailParser();
+foreach ($rawMessages as $raw) {
+    $tmp = $raw['header']
+        . ezcMailTools::lineBreak()
+        . ezcMailTools::lineBreak()
+        . $raw['body']; 
+    $mail = $parser->parseMail(new ezcMailVariableSet($tmp));
+
+    if (isset($mail[0])) {
+        $messages[] = array(
+            'header' => $raw['header'],
+            'body' => $raw['body'],
+            'overview' => $raw['overview'],
+            'mail' => $mail[0]
+        );
+    }   
+}
+
 
 foreach($messages AS $message) {
     if (!Helper\Email::isSuitable($message)) {
