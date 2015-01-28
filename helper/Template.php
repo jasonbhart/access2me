@@ -21,9 +21,11 @@ class Template
 
     private static $socialIcons = [
         '500px' => '500px.png',
+        'aboutme' => 'aboutme.png',
         'adn' => 'adn.png',
         'aim' => 'aim.png',
         'amazon' => 'amazon.png',
+        'angellist' => 'angellist.png',
         'bbcid' => 'bbcid.png',
         'behance' => 'behance.png',
         'creativecommons' => 'creativecommons.png',
@@ -46,6 +48,7 @@ class Template
         'goodreads' => 'goodreads.png',
         'googleplus' => 'googleplus.png',
         'googleprofile' => 'googleprofile.png',
+        'gravatar' => 'gravatar.png',
         'huffduffer' => 'huffduffer.png',
         'identica' => 'identica.png',
         'imdb' => 'imdb.png',
@@ -63,6 +66,7 @@ class Template
         'picasa' => 'picasa.png',
         'pinboard' => 'pinboard.png',
         'pinterest' => 'pinterest.png',
+        'quora' => 'quora.png',
         'rdio' => 'rdio.png',
         'readability' => 'readability.png',
         'readernaut' => 'readernaut.png',
