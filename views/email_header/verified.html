@@ -64,13 +64,25 @@ use Access2Me\Helper\Template;
                                     if (isset($contact['angel_list'])):
                                         $angelList = $contact['angel_list'];
                                 ?>
-                                <div>Company
+                                <div>AngelList: 
                                     <a href="<?php echo htmlentities($angelList['company_url']); ?>">
                                         <?php echo htmlentities($angelList['name']); ?>
                                     </a>
                                     <?php if ($angelList['fundraising']): ?>
-                                    ( fund-raised <?php echo $angelList['fundraising']['raised_amount']; ?> of <?php echo $angelList['fundraising']['raising_amount']; ?> )
+                                    ( fund-raised <?php echo Template::formatMoney($angelList['fundraising']['raised_amount']); ?> of <?php echo Template::formatMoney($angelList['fundraising']['raising_amount']); ?> )
                                     <?php endif; ?>
+                                </div>
+                                <?php endif; ?>
+
+                                <?php
+                                    if (isset($contact['crunch_base'])):
+                                        $crunchBase = $contact['crunch_base'];
+                                ?>
+                                <div>CrunchBase list:
+                                    <a href="<?php echo htmlentities($crunchBase->homepageUrl); ?>">
+                                        <?php echo htmlentities($crunchBase->name); ?>
+                                    </a>
+                                    ( total fundings: $<?php echo Template::formatMoney($crunchBase->totalFunding); ?>)
                                 </div>
                                 <?php endif; ?>
                             </div>

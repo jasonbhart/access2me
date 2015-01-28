@@ -45,10 +45,12 @@ require_once __DIR__ . "/model/Profile/ProfileRepository.php";
 require_once __DIR__ . "/ProfileProvider/ProfileProviderInterface.php";
 require_once __DIR__ . "/ProfileProvider/ProfileProviderException.php";
 require_once __DIR__ . "/ProfileProvider/AngelList.php";
+require_once __DIR__ . "/ProfileProvider/CrunchBase.php";
 require_once __DIR__ . "/ProfileProvider/Facebook.php";
 require_once __DIR__ . "/ProfileProvider/FullContact.php";
 require_once __DIR__ . "/ProfileProvider/Linkedin.php";
 require_once __DIR__ . "/ProfileProvider/Twitter.php";
+require_once __DIR__ . "/ProfileProvider/Profile/CrunchBase.php";
 require_once __DIR__ . "/ProfileProvider/Profile/Facebook.php";
 require_once __DIR__ . "/ProfileProvider/Profile/FullContact.php";
 require_once __DIR__ . "/Service/AngelList.php";
@@ -119,7 +121,7 @@ $appConfig = array(
         'facebook' => $facebookAuth,
         'twitter' => $twitterAuth,
         'crunchbase' => [
-            'user_key' => ''
+            'user_key' => '5591b541c1ff22d43b11695082f85cfb'
         ],
         'fullcontact' => [
             'api_key' => 'a552145e97bce5af'

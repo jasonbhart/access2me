@@ -249,10 +249,10 @@ class Email
             'summary'  => $profComb->getFirst('summary')
         );
 
-        if (isset($profComb->angelList)) {
-            $contact['angel_list'] = $profComb->angelList;
-        }
+        $contact['angel_list'] = $profComb->angelList;
+        $contact['crunch_base'] = $profComb->crunchBase;
 
+        // use only if realness of profile is above 80%
         if (isset($profComb->fullContact) && $profComb->fullContact->likelihood > 0.8) {
             $contact['full_contact'] = $profComb->fullContact;
         }
