@@ -10,13 +10,20 @@ function getMessageOwner(\ezcMail $mail, Model\UserRepository $usersRepo)
 {
     // find owner (user) of this message among recipients
     $emails = Helper\Email::getTracedRecipients($mail);
+
+    // transform all emails to lowercase
+    foreach ($emails as &$email) {
+        $email = strtolower($email);
+    }
+
     $unique = array_unique($emails);
     $users = $usersRepo->findAllByMailboxes($unique);
 
     // map of users to their mailboxes
     $m2u = [];
     foreach ($users as $user) {
-        $m2u[$user['mailbox']] = $user;
+        $mailbox = strtolower($user['mailbox']);
+        $m2u[$mailbox] = $user;
     }
 
     // find first recipient that is our user
