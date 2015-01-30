@@ -3,7 +3,7 @@
 namespace Access2Me\ProfileProvider;
 
 use Facebook\FacebookSession;
-use Facebook\FacebookRequestException;
+use Facebook\FacebookSDKException;
 use Access2Me\Helper;
 use Access2Me\Model\Profile;
 
@@ -39,7 +39,7 @@ class Facebook implements ProfileProviderInterface
 
             return $profile;
 
-        } catch (FacebookRequestException $ex) {
+        } catch (FacebookSDKException $ex) {
             throw new ProfileProviderException('Can\'t fetch profile', 0, $ex);
         }
     }
