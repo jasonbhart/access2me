@@ -86,4 +86,14 @@ class Profile
      * @displayName Connections
      */
     public $connections;
+
+    /**
+     * @var array
+     */
+    public $primaryTwitterAccount;
+
+    /**
+     * @var array
+     */
+    public $twitterAccounts = [];
 }

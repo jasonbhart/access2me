@@ -61,6 +61,18 @@ use Access2Me\Helper\Template;
                                 </div>
 
                                 <?php
+                                    if (isset($contact['linkedin']->primaryTwitterAccount)):
+                                        $account = $contact['linkedin']->primaryTwitterAccount;
+                                ?>
+                                <div>
+                                    Twitter account:
+                                    <a href="<?php echo htmlentities(Template::getTwitterProfileUrl($account['id'])); ?>">
+                                        <?php echo htmlentities($account['name']); ?>
+                                    </a>
+                                </div>
+                                <?php endif; ?>
+
+                                <?php
                                     if (isset($contact['angel_list'])):
                                         $angelList = $contact['angel_list'];
                                 ?>

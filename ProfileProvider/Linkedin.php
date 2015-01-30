@@ -78,10 +78,45 @@ class Linkedin implements ProfileProviderInterface
         ) {
             $profile->profileUrl = (string)$xml->{'site-standard-profile-request'}->{'url'};
         }
+
+        if (isset($xml->{'primary-twitter-account'})) {
+            $profile->primaryTwitterAccount = $this->parseTwitterAccount($xml->{'primary-twitter-account'});
+        }
+
+        $profile->twitterAccounts = $this->parseTwitterAccounts($xml);
         
         $profile->positions = $this->parsePositions($xml);
 
         return $profile;
+    }
+
+    protected function parseTwitterAccount($xml)
+    {
+        if (isset($xml->{'provider-account-id'}) && isset($xml->{'provider-account-name'})) {
+            return [
+                'id' => (string)$xml->{'provider-account-id'},
+                'name' => (string)$xml->{'provider-account-name'}
+            ];
+        }
+        
+        return null;
+    }
+
+    protected function parseTwitterAccounts($xml)
+    {
+        $accounts = [];
+        if (isset($xml->{'twitter-accounts'})
+            && isset($xml->{'twitter-accounts'}->{'twitter-account'})
+        ) {
+            foreach ($xml->{'twitter-accounts'}->{'twitter-account'} as $account) {
+                $entry = $this->parseTwitterAccount($account);
+                if ($entry) {
+                    $accounts[] = $entry;
+                }
+            }
+        }
+
+        return $accounts;
     }
 
     protected function parsePositions($xml)

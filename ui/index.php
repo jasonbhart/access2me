@@ -11,7 +11,7 @@ use Access2Me\Service;
 $db = new Database;
 $auth = new Helper\Auth($db);
 $user = $auth->getLoggedUser();
-
+    
 $mesgRepo = new Model\MessageRepository($db);
 
 // process userlist actions

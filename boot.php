@@ -82,10 +82,14 @@ $facebookAuth = array(
     )
 );
 
-$linkedinAuth = array(
+$linkedinAuth = [
     'clientId'     => '75dl362rayg47t',
-    'clientSecret' => 'eCxKfjOpunoO9rSj'
-);
+    'clientSecret' => 'eCxKfjOpunoO9rSj',
+    'permissions' => [
+        'r_basicprofile',
+        'r_contactinfo',
+    ]
+];
 
 $twitterAuth = array(
     'consumer_key' => 'gEBjjVorzsmQy4Jar9TpM9NJ2',
