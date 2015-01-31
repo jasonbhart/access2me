@@ -8,6 +8,84 @@ use Access2Me\Helper;
 use Access2Me\Model;
 use Access2Me\Service;
 
+class IndexController
+{
+    public function process()
+    {
+         if (isset($_GET['sender']) && isset($_GET['messageId'])) {
+            $this->addSenderAction($_GET['sender'], $_GET['messageId']);
+            return true;
+        }
+
+        return false;
+    }
+
+    public function addSenderAction($action, $messageId)
+    {
+        $db = new Database();
+        $mesgRepo = new Model\MessageRepository($db);
+        
+        if ($action != 'allow' && $action != 'deny') {
+            Helper\FlashMessage::add('Unknown action', Helper\FlashMessage::ERROR);
+            return;
+        }
+
+        // get message
+        $message = $mesgRepo->getById($messageId);
+        if (!$message) {
+            Helper\FlashMessage::add('Message not exists', Helper\FlashMessage::ERROR);
+            return;
+        }
+
+        // get authenticated user
+        $auth = new Helper\Auth($db);
+        $user = $auth->getLoggedUser();
+
+        // validate email
+        $email = $message['from_email'];
+        if (!Helper\Utils::isValidEmail($email)) {
+            $msg = sprintf(
+                'Can\'t %s invalid email: %s',
+                $action == 'allow' ? 'whitelist' : 'blacklist',
+                htmlentities($email)
+            );
+            Helper\FlashMessage::add($msg, Helper\FlashMessage::ERROR);
+            return;
+        }
+
+        $access = $action == 'allow' ? Model\UserSenderRepository::ACCESS_ALLOWED : Model\UserSenderRepository::ACCESS_DENIED;
+
+        // add email
+        if ($this->addEmailToUserList($email, $access, $user, $db)) {
+            $msg = 'Sender <b>' . htmlentities($email) . '</b> ' . ($action == 'allow' ? 'whitelisted' : 'blacklisted');
+            Helper\FlashMessage::add($msg, Helper\FlashMessage::SUCCESS);
+        }
+    }
+
+    private function addEmailToUserList($email, $access, $user, $db)
+    {
+        $userListRepo = new Model\UserSenderRepository($db);
+
+        // find existing entry
+        $entry = $userListRepo->getByUserAndSender($user['id'], $email);
+        if (!$entry) {
+            $entry = [
+                'user_id' => $user['id'],
+                'sender' => $email,
+                'type' => Model\UserSenderRepository::TYPE_EMAIL
+            ];
+        }
+
+        $entry['access'] = $access;
+
+        // save list entry
+        $userListRepo->save($entry);
+
+        return true;
+    }
+}
+
+
 $db = new Database;
 $auth = new Helper\Auth($db);
 $user = $auth->getLoggedUser();
@@ -15,38 +93,8 @@ $user = $auth->getLoggedUser();
 $mesgRepo = new Model\MessageRepository($db);
 
 // process userlist actions
-if (isset($_GET['sender']) && isset($_GET['messageId'])) {
- 
-    $action = $_GET['sender'];
-    if ($action == 'allow' || $action == 'deny') {
-
-        $message = $mesgRepo->getById($_GET['messageId']);
-        if ($message) {
-
-            $access = $action == 'allow' ? Model\UserSenderRepository::ACCESS_ALLOWED : Model\UserSenderRepository::ACCESS_DENIED;
-            $sender = $message['from_email'];
-            $userListRepo = new Model\UserSenderRepository($db);
-
-            // find existing entry
-            $entry = $userListRepo->getByUserAndSender($user['id'], $sender);
-            if (!$entry) {
-                $entry = [
-                    'user_id' => $user['id'],
-                    'sender' => $sender,
-                    'value' => $sender,
-                    'type' => Model\UserSenderRepository::TYPE_EMAIL
-                ];
-            }
-
-            // save list entry
-            $entry['access'] = $access;
-            $userListRepo->save($entry);
-            
-            $msg = 'Sender <b>' . htmlentities($sender) . '</b> ' . ($action == 'allow' ? 'whitelisted' : 'blacklisted');
-            Helper\FlashMessage::add($msg, Helper\FlashMessage::SUCCESS);
-        }
-    }
-}
+$ctrl = new IndexController();
+$ctrl->process();
 
 $messages = $mesgRepo->findByUser($user['id'], 10);
 
