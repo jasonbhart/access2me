@@ -199,9 +199,7 @@ class Email
 
     protected static function getUnverifiedHeader($data)
     {
-        ob_start();
-        include __DIR__ . '/../views/email_header/unverified.html';
-        $text = ob_get_clean();
+        $text = Template::generate('email_header/unverified.html');
         
         // build our info header
         $altBody = new \ezcMailText('This is the body in plain text for non-HTML mail clients');
@@ -215,9 +213,7 @@ class Email
 
     protected static function getWhitelistedHeader()
     {
-        ob_start();
-        include __DIR__ . '/../views/email_header/whitelisted.html';
-        $text = ob_get_clean();
+        $text = Template::generate('email_header/whitelisted.html');
         
         // build our info header
         $altBody = new \ezcMailText('This is the body in plain text for non-HTML mail clients');
@@ -249,6 +245,7 @@ class Email
             'summary'  => $profComb->getFirst('summary')
         );
 
+        $contact['linkedin'] = $profComb->linkedin;
         $contact['angel_list'] = $profComb->angelList;
         $contact['crunch_base'] = $profComb->crunchBase;
 
@@ -257,9 +254,7 @@ class Email
             $contact['full_contact'] = $profComb->fullContact;
         }
 
-        ob_start();
-        include __DIR__ . '/../views/email_header/verified.html';
-        $infoText = ob_get_clean();
+        $infoText = Template::generate('email_header/verified.html', ['contact' => $contact]);
         
         // build our info header
         $altInfoBody = new \ezcMailText('This is the body in plain text for non-HTML mail clients');

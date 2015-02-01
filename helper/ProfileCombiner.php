@@ -16,6 +16,7 @@ class ProfileCombiner
      */
     protected $profiles = array();
 
+    public $linkedin;
     public $crunchBase;
     public $angelList;
     public $fullContact;
@@ -26,21 +27,25 @@ class ProfileCombiner
      */
     public function __construct($profiles)
     {
-        if (isset($profiles[Service\Service::CRUNCHBASE])) {
-            $this->crunchBase = $profiles[Service\Service::CRUNCHBASE];
-            unset($profiles[Service\Service::CRUNCHBASE]);
+        // some profiles can be requested directly for specific properties
+        $map = [
+            Service\Service::LINKEDIN => 'linkedin',
+            Service\Service::CRUNCHBASE => 'crunchBase',
+            Service\Service::ANGELLIST => 'angelList',
+            Service\Service::FULLCONTACT => 'fullContact',
+        ];
+
+        foreach ($map as $sid => $name) {
+            if (isset($profiles[$sid])) {
+                $this->{$name} = $profiles[$sid];
+            }
         }
 
-        if (isset($profiles[Service\Service::ANGELLIST])) {
-            $this->angelList = $profiles[Service\Service::ANGELLIST];
-            unset($profiles[Service\Service::ANGELLIST]);
-        }
+        unset($profiles[Service\Service::CRUNCHBASE]);
+        unset($profiles[Service\Service::ANGELLIST]);
+        unset($profiles[Service\Service::FULLCONTACT]);
 
-        if (isset($profiles[Service\Service::FULLCONTACT])) {
-            $this->fullContact = $profiles[Service\Service::FULLCONTACT];
-            unset($profiles[Service\Service::FULLCONTACT]);
-        }
-
+        // this profiles we use for combined properties
         $this->profiles = $profiles;
     }
 

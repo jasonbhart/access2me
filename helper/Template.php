@@ -2,7 +2,9 @@
 
 namespace Access2Me\Helper;
 
+use Access2Me\Helper\Twitter;
 use Access2Me\Service\Service;
+
 
 class Template
 {
@@ -136,5 +138,21 @@ class Template
         }
 
         return (string)$result;
+    }
+
+    public static function getTwitterProfileUrl($userId)
+    {
+        return Twitter::getProfileUrl($userId);
+    }
+
+    public static function generate($template, $data = null)
+    {
+        if ($data !== null) {
+            extract($data);
+        }
+
+        ob_start();
+        include __DIR__ . '/../views/' . $template;
+        return ob_get_clean();
     }
 }

@@ -12,12 +12,13 @@ use Access2Me\Service\Service;
 $db = new Database;
 
 if (!isset($_GET['code'])) {
-    $params = array(
+    $params = [
         'response_type' => 'code',
         'client_id' => $linkedinAuth['clientId'],
         'state' => 'ECEEFWF45453sdffef424',
-        'redirect_uri' => $localUrl . '/linkedin.php?message_id=' . $_GET['message_id']
-    );
+        'redirect_uri' => $localUrl . '/linkedin.php?message_id=' . $_GET['message_id'],
+        'scope' => implode(' ', $linkedinAuth['permissions'])
+    ];
 
     $query = http_build_query($params);
     header('Location: https://www.linkedin.com/uas/oauth2/authorization?' . $query);
@@ -68,6 +69,8 @@ if (!isset($_GET['code'])) {
 
     // we always have new token here whether user was authenticated before or not
     $sender->setOAuthKey($accessToken);
+    $tokenRefresher = new \Access2Me\Service\TokenRefresher($appConfig);
+    $tokenRefresher->extendExpireTime($sender, $accessToken);
 
     // fetch user's profile
     $senders = array($sender);
