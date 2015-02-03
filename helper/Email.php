@@ -339,7 +339,7 @@ class Email
         $newBody = new \ezcMailMultipartMixed($info, $body);
 
         // build new message
-        $fromName = $message['from_email'];
+        $fromName = $message['from_name'];
 
         $newMail = new \ezcMail();
         $newMail->from = new \ezcMailAddress('noreply@access2.me', $fromName);
