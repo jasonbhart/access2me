@@ -9,12 +9,13 @@ $db = new Database;
 
 // Check for a Gmail OAuth Token for the current user
 $auth = new Helper\Auth($db);
-$user = $auth->getLoggedUser();
 
-if (!$user) {
-    die('Access denied');
+if (!$auth->isAuthenticated()) {
+    header('Location: login.php');
+    exit;
 }
 
+$user = $auth->getLoggedUser();
 $userRepo = new Model\UserRepository($db);
 
 // get auth token provider
