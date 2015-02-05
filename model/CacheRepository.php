@@ -101,7 +101,7 @@ class CacheRepository
     {
         $query = 'SELECT * FROM `' . self::TABLE_NAME . '`'
                 . ' WHERE `key` = :key'
-                . ' AND `expires_at` > NOW()'
+                . ' AND (`expires_at` > NOW() OR `expires_at` IS NULL)'
                 . ' LIMIT 1';
 
         $conn = $this->db->getConnection();

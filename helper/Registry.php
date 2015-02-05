@@ -6,6 +6,7 @@ use Access2Me\Helper;
 use Access2Me\Model;
 use Access2Me\ProfileProvider;
 use Access2Me\Service\Service;
+use Access2Me\Data;
 
 class Registry
 {
@@ -58,5 +59,18 @@ class Registry
     public static function getProfileProvider()
     {
         return self::$profileProvider;
+    }
+
+    public static function getUserStats($userId)
+    {
+        $db = new \Database();
+        $cache = new Helper\Cache(new Model\CacheRepository($db));
+        $stats = new Data\UserStats($userId, $cache);
+        $stats->addResource(new Data\UserStats\ContactsCount(new Model\SenderRepository($db)));
+        $stats->addResource(new Data\UserStats\InvitesCount());
+        $stats->addResource(new Data\UserStats\FiltersCount($db));
+        $stats->addResource(new Data\UserStats\MessagesCount(new Model\MessageRepository($db)));
+        
+        return $stats;
     }
 }
