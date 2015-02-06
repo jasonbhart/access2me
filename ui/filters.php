@@ -21,6 +21,8 @@ foreach (Filter::getFiltersByUserId($userId, $db) as $filter) {
     );
 }
 
+$userStats = Helper\Registry::getUserStats($user['id']);
+
 ?>
 
 <div id="page-content">

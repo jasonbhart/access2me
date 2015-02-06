@@ -78,6 +78,15 @@ class MessageRepository
         return $messages ? $messages : array();
     }
 
+    public function getCountByUser($userId)
+    {
+        $query = 'SELECT COUNT(1) cnt FROM `' . self::TABLE_NAME . '` WHERE `user_id` = :user_id';
+        $params = ['user_id' => $userId];
+
+        $res = $this->db->getArray($query, $params);
+        return $res !== false ? (int)$res[0]['cnt'] : 0;
+    }
+
         /**
      * @param array $entry
      */

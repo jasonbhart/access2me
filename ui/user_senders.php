@@ -23,6 +23,8 @@ foreach ($userSenderRepo->findByUser($userId) as $sender) {
     ];
 }
 
+$userStats = Helper\Registry::getUserStats($user['id']);
+
 $types = [
     Model\UserSenderRepository::TYPE_DOMAIN => 'domain',
     Model\UserSenderRepository::TYPE_EMAIL => 'email'
