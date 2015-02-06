@@ -199,7 +199,7 @@ class Email
 
     protected static function getUnverifiedHeader($data)
     {
-        $text = Template::generate('email_header/unverified.html');
+        $text = Template::generate('email_header/unverified.html', $data);
         
         // build our info header
         $altBody = new \ezcMailText('This is the body in plain text for non-HTML mail clients');

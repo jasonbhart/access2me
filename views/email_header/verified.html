@@ -21,7 +21,7 @@ use Access2Me\Helper\Template;
                                             <a href="<?php echo htmlentities($url); ?>" style="border-radius:50%; display:inline-block; margin-right:3px; border:1px solid #d1d1d1; overflow:hidden; width:20px; height:20px; font-size:0; line-height:0;"><img style="width:20px; height:20px;" src="<?php echo htmlentities(Template::getServiceIcon($sid)); ?>" width="20" height="20" alt="" /></a>
                                             <?php endforeach; ?>
                                         </td>
-                                        <td style="text-align:right"><a href="#none" style="font-size:0; line-height:0;"><img src="http://app.access2.me/img/a2mbanner.png" width="150" height="40" alt="Access2.me" /></a></td>
+                                        <td style="text-align:right"><a href="#none" style="font-size:0; line-height:0;"><img src="http://app.access2.me/images/logo.jpg" width="150" height="40" alt="Access2.me" /></a></td>
                                     </tr>
                                 </table>
                             </td>
@@ -87,11 +87,13 @@ use Access2Me\Helper\Template;
                                             <a href="#none" style="color:#4fba81;">
                                                 <span style="display:inline-block; font-size:0; line-height:0; overflow:hidden; border-radius:50%; width:25px; height:25px; vertical-align:middle;">
                                                     <?php if ($contact['picture_url']): ?>
-                                                    <img style="width:25px; height:25px;" src="<?php echo htmlentities($contact['picture_url']); ?>" width="75" height="75" alt="" />
+                                                    <img style="width:25px; height:25px;" src="<?php echo htmlentities($contact['picture_url']); ?>"alt="" />
                                                     <?php endif;?>
                                                 </span> View full profile</a>
                                         </td>
-                                        <td style="padding:10px 0 0; text-align:right; padding-left:10px;">Add this sender's <a style="color:#4fba81;" href="#none">email</a> to the whitelist</td>
+                                        <td style="padding:10px 0 0; text-align:right; padding-left:10px;">
+                                            <?php require(__DIR__ . '/_whitelist_sender.html'); ?>
+                                        </td>
                                     </tr>
                                 </table>
                             </td>
