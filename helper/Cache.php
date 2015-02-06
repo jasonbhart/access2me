@@ -6,14 +6,21 @@ use Access2Me\Model;
 
 class CacheException extends \Exception {}
 
-class Cache
+interface CacheInterface
 {
+    public function exists($key);
+    public function get($key);
+    public function set($key, $value, $ttl = false);
+    public function delete($key);
+}
 
+class Cache implements CacheInterface
+{
     /**
      * @var \Access2Me\Model\CacheRepository
      */
     private $cacheRepo;
-    
+
     public function __construct(Model\CacheRepository $cacheRepo)
     {
         $this->cacheRepo = $cacheRepo;

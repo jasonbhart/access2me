@@ -136,6 +136,21 @@ class SenderRepository
         return $sender !== false ? $sender : null;
     }
 
+    public function getAuthenticatedCountByUser($userId)
+    {
+        $query = 'SELECT COUNT(DISTINCT s.sender) cnt'
+            . ' FROM `' . UserRepository::TABLE_NAME . '` u'
+            . ' JOIN `' . MessageRepository::TABLE_NAME . '` m'
+                . ' ON u.`id` = m.`user_id`'
+            . ' JOIN `' . self::TABLE_NAME . '` s'
+                . ' ON m.`from_email` = s.`sender`'
+            . ' WHERE u.`id` = :user_id';
+        $params = ['user_id' => $userId];
+
+        $res = $this->db->getArray($query, $params);
+        return $res !== false ? (int)$res[0]['cnt'] : 0;
+    }
+
     public function findAll()
     {
         $query = 'SELECT * FROM `' . self::TABLE_NAME. '`';

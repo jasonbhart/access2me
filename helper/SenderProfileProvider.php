@@ -116,7 +116,7 @@ class SenderProfileProvider implements SenderProfileProviderInterface
 class CachedSenderProfileProvider implements SenderProfileProviderInterface
 {
     /**
-     * @var \Access2Me\Helper\Cache
+     * @var \Access2Me\Helper\CacheInterface
      */
     private $cache;
 
@@ -131,7 +131,7 @@ class CachedSenderProfileProvider implements SenderProfileProviderInterface
      */
     private $profileProvider;
 
-    public function __construct(Helper\Cache $cache, SenderProfileProviderInterface $profileProvider)
+    public function __construct(Helper\CacheInterface $cache, SenderProfileProviderInterface $profileProvider)
     {
         $this->cache = $cache;
         $this->profileProvider = $profileProvider;
