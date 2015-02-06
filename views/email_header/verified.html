@@ -18,7 +18,7 @@ use Access2Me\Helper\Template;
                                     <tr>
                                         <td style="vertical-align:middle;">
                                             <?php foreach ($contact['profile_urls'] as $sid => $url): ?>
-                                            <a href="<?php echo htmlentities($url); ?>" style="border-radius:50%; display:inline-block; margin-right:3px; border:1px solid #d1d1d1; overflow:hidden; width:20px; height:20px; font-size:0; line-height:0;"><img style="width:20px; height:20px;" src="<?php echo htmlentities(Template::getServiceIcon($sid)); ?>" width="20" height="20" alt="" /></a>
+                                            <a href="<?php echo htmlentities($url); ?>" style="border-radius:50%; display:inline-block; margin-right:3px; border:1px solid #d1d1d1; overflow:hidden; width:20px; height:20px; font-size:0; line-height:0;vertical-align:middle;"><img style="width:20px; height:20px;" src="<?php echo htmlentities(Template::getServiceIcon($sid)); ?>" width="20" height="20" alt="" /></a>
                                             <?php endforeach; ?>
                                         </td>
                                         <td style="text-align:right"><a href="#none" style="font-size:0; line-height:0;"><img src="http://app.access2.me/images/logo.jpg" width="150" height="40" alt="Access2.me" /></a></td>
@@ -27,19 +27,18 @@ use Access2Me\Helper\Template;
                             </td>
                         </tr>
                         <tr>
-                            <td style="background:url(../../images/bg_header.gif) repeat 0 0; padding:10px; color:#e5e5e5;">
+                            <td style="background:url(../../images/bg_header.gif) repeat 0 0; padding:6px 10px; color:#e5e5e5;font-size:12px; line-height:16px">
                                 <table width="100%" border="0" cellspacing="0" cellpadding="0" style="border-collapse:collapse;">
                                     <tr>
                                         <td style="width:100px; vertical-align:top">
                                             <?php if ($contact['picture_url']): ?>
                                             <span style="border:3px solid #e1e0e0; float:left; position:relative;">
                                                 <img style="width:75px;" src="<?php echo htmlentities($contact['picture_url']); ?>" alt="" />
-                                                <!--<a href="#none" style="border-radius:50%; display:inline-block; margin-right:3px; border:1px solid #d1d1d1; overflow:hidden; width:20px; height:20px; font-size:0; line-height:0; position:absolute; bottom:-7px; right:-11px;"><img style="width:20px; height:20px;" src="icon_in.jpg" width="20" height="20" alt="" /></a>-->
                                             </span>
                                             <?php endif; ?>
                                         </td>
                                         <td style="vertical-align:top;">
-                                            <p style="font-size:16px; font-weight:700; margin:0 0 8px;"><?php echo htmlentities($contact['full_name']); ?></p>
+                                            <p style="font-size:14px; font-weight:700; margin:0 0 4px;"><?php echo htmlentities($contact['full_name']); ?></p>
                                             <p style="margin:0">
                                                 <?php if (!empty($contact['headline'])): ?>
                                                 <?php echo htmlentities($contact['headline']) . '<br/>'; ?>
@@ -54,47 +53,75 @@ use Access2Me\Helper\Template;
                                         </td>
                                     </tr>
                                 </table>
-
-                                <?php
-                                if (isset($contact['linkedin']->primaryTwitterAccount)):
-                                $account = $contact['linkedin']->primaryTwitterAccount;
-                                ?>
-                                <table width="100%" border="0" cellspacing="0" cellpadding="0"  style="border-collapse:collapse; margin-top:14px; border-top:1px solid #554a56;">
-                                    <tr>
-                                        <td style="padding:10px 0 0;"><strong>Twitter account:</strong> 
-                                            <a style="color:#4fba81;" href="<?php echo htmlentities(Template::getTwitterProfileUrl($account['id'])); ?>">
-                                                <?php echo htmlentities($account['name']); ?>
-                                            </a>
-                                        </td>
-                                    </tr>
-                                </table>
-                                <?php endif; ?>
-
-                                <?php
-                                if (isset($contact['crunch_base'])):
-                                $crunchBase = $contact['crunch_base'];
-                                ?>
-                                <table width="100%" border="0" cellspacing="0" cellpadding="0"  style="border-collapse:collapse; margin-top:14px; border-top:1px solid #554a56;">
-                                    <tr>
-                                        <td style="padding:10px 0 0;"><strong>CrunchBase:</strong> <a style="color:#4fba81;" href="<?php echo htmlentities($crunchBase->homepageUrl); ?>"><?php echo htmlentities($crunchBase->name); ?></a> <span style="background:#655b67 none; display:inline-block; padding:3px 5px; color:#b7b7b7;">(total fundings: <strong style="color:#ee2c33; font-size:14px;">$<?php echo Template::formatMoney($crunchBase->totalFunding); ?></strong>)</span></td>
-                                    </tr>
-                                </table>
-                                <?php endif; ?>
-
-                                <table width="100%" border="0" cellspacing="0" cellpadding="0"  style="border-collapse:collapse; margin-top:10px; border-top:1px solid #554a56;">
-                                    <tr>
-                                        <td style="padding:10px 0 0;">
-                                            <a href="#none" style="color:#4fba81;">
-                                                <span style="display:inline-block; font-size:0; line-height:0; overflow:hidden; border-radius:50%; width:25px; height:25px; vertical-align:middle;">
-                                                    <?php if ($contact['picture_url']): ?>
-                                                    <img style="width:25px; height:25px;" src="<?php echo htmlentities($contact['picture_url']); ?>"alt="" />
-                                                    <?php endif;?>
-                                                </span> View full profile</a>
-                                        </td>
-                                        <td style="padding:10px 0 0; text-align:right; padding-left:10px;">
-                                            <?php require(__DIR__ . '/_whitelist_sender.html'); ?>
-                                        </td>
-                                    </tr>
+                                
+                                <table width="100%" border="0" cellspacing="0" cellpadding="0"  style="border-collapse:collapse; margin-top:10px;">
+                                        <?php if (isset($contact['linkedin']->primaryTwitterAccount) || isset($contact['crunch_base'])) :?>
+                                        <tr>
+                                                <td style="padding:6px 0;border-top:1px solid #554a56; line-height:20px;">
+                                                        <?php
+                                                        if (isset($contact['linkedin']->primaryTwitterAccount)):
+                                                        $account = $contact['linkedin']->primaryTwitterAccount;
+                                                        ?>
+                                                        <span style="float:left; width:35%; margin-right:10px;"><strong>Twitter account:</strong> 
+                                                            <a style="color:#4fba81;" href="<?php echo htmlentities(Template::getTwitterProfileUrl($account['id'])); ?>">
+                                                                <?php echo htmlentities($account['name']); ?>
+                                                            </a>
+                                                        </span>
+                                                        <?php endif; ?>
+                                                        
+                                                        <?php
+                                                        if (isset($contact['crunch_base'])):
+                                                        $crunchBase = $contact['crunch_base'];
+                                                        ?>
+                                                        <span style="display:table-cell"><strong>CrunchBase:</strong><a style="color:#4fba81;" href="<?php echo htmlentities($crunchBase->homepageUrl); ?>"><?php echo htmlentities($crunchBase->name); ?></a> 
+                                                            <span style="background:#655b67 none; display:inline-block; padding:1px 5px; color:#b7b7b7;">(total fundings: <strong style="color:#ee2c33; font-size:14px;">$<?php echo Template::formatMoney($crunchBase->totalFunding); ?></strong>)
+                                                            </span>
+                                                        </span>
+                                                        <?php endif; ?>
+                                                </td>
+                                        </tr>
+                                        <?php endif;?>
+                                        
+                                        <?php
+                                        if (isset($contact['full_contact'])):
+                                        $fullContact = $contact['full_contact'];
+                                        ?>
+                                        <tr>
+                                                <td style="padding:6px 0; border-top:1px solid #554a56;color:#b7b7b7; line-height:20px;">
+                                                        <?php if (isset($fullContact->gender)): 
+                                                            if ($fullContact->gender == 'Male') {
+                                                                $icon = 'male.png';
+                                                            } else {
+                                                                $icon = 'femail.png';
+                                                            }
+                                                        ?>
+                                                        <span style="float:left; width:35%; margin-right:10px;"><strong>Gender:</strong> <span style="vertical-align:middle;font-size:0; line-height:0; display:inline-block;"><img src="http://app.access2.me/images/<?php echo $icon;?>" /></span></span>
+                                                        <?php endif; ?>
+                                                        
+                                                        <?php if ($fullContact->socialProfiles) :?>
+                                                        <span style="display:table-cell;">
+                                                            <strong>Social Profiles:</strong> 
+                                                            <?php foreach($fullContact->socialProfiles as $i=>$soc): ?>
+                                                            <a href="<?php echo htmlentities($soc['url']); ?>" style="border-radius:50%; display:inline-block; margin-right:3px; border:1px solid #d1d1d1; overflow:hidden; width:20px; height:20px; font-size:0; line-height:0; vertical-align:middle;">
+                                                                <img style="width:20px; height:20px;" src="<?php echo htmlentities(Template::getSocialIcon($soc['typeId'])); ?>" width="20" height="20" alt="<?php echo htmlentities($soc['typeName']); ?>" />
+                                                            </a> 
+                                                            <?php endforeach; ?>
+                                                        <?php endif; ?>
+                                                </td>
+                                        </tr>
+                                        <?php endif;?>
+                                        
+                                        <tr>
+                                                <td style="padding:6px 0 0;border-top:1px solid #554a56; line-height:25px;">
+                                                        <span style="float:left; width:35%; margin-right:10px;"><a href="#none" style="color:#4fba81;"><span style="display:inline-block; font-size:0; line-height:0; overflow:hidden; border-radius:50%; width:25px; height:25px; vertical-align:middle;">
+                                                            <?php if ($contact['picture_url']): ?>
+                                                            <img style="width:25px; height:25px;" src="<?php echo htmlentities($contact['picture_url']); ?>" alt="" />
+                                                            <?php endif;?>
+                                                            </span> View full profile</a>
+                                                        </span>
+                                                        <?php require(__DIR__ . '/_whitelist_sender.html'); ?>
+                                                </td>
+                                        </tr>
                                 </table>
                             </td>
                         </tr>
