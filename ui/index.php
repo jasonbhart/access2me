@@ -126,7 +126,7 @@ foreach ($messages AS &$message) {
     }
 }
 
-$userStats = Helper\Registry::getUserStats($user['id']);
+$userStats = Helper\Registry::getUserStats($user);
 
 ?>
 

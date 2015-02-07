@@ -1,5 +1,11 @@
 <?php
 
+ini_set('error_log', __DIR__ . '/logs/error.log');
+ini_set('error_reporting', E_ALL);
+ini_set('display_error', 1);
+ini_set('display_startup_errors', 1);
+
+
 session_start();
 
 date_default_timezone_set('America/Los_Angeles');
@@ -12,10 +18,12 @@ require_once __DIR__ . "/config/database.php";
 require_once __DIR__ . "/database.php";
 require_once __DIR__ . "/Data/UserStats.php";
 require_once __DIR__ . "/Data/UserStats/ResourceInterface.php";
-require_once __DIR__ . "/Data/UserStats/ContactsCount.php";
+require_once __DIR__ . "/Data/UserStats/AbstractResource.php";
 require_once __DIR__ . "/Data/UserStats/FiltersCount.php";
-require_once __DIR__ . "/Data/UserStats/InvitesCount.php";
-require_once __DIR__ . "/Data/UserStats/MessagesCount.php";
+require_once __DIR__ . "/Data/UserStats/GmailResource.php";
+require_once __DIR__ . "/Data/UserStats/GmailContactsCount.php";
+require_once __DIR__ . "/Data/UserStats/GmailMessagesCount.php";
+require_once __DIR__ . "/Data/UserStats/VerifiedSendersCount.php";
 require_once __DIR__ . "/helper/Auth.php";
 require_once __DIR__ . "/helper/AuthTokenManager.php";
 require_once __DIR__ . "/helper/Cache.php";
@@ -65,6 +73,7 @@ require_once __DIR__ . "/Service/FullContact.php";
 require_once __DIR__ . "/Service/Gmail.php";
 require_once __DIR__ . "/Service/Service.php";
 require_once __DIR__ . "/Service/TokenRefresher.php";
+require_once __DIR__ . "/Service/Google/Contacts.php";
 
 
 if (getenv('DOM_DEV_MACHINE')) {

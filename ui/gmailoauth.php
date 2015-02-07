@@ -41,6 +41,7 @@ if ($user['gmail_access_token'] != null) {
         $client->setAccessType('offline');          // we also need refresh_token
         $client->setApprovalPrompt('force');
         $client->addScope('https://mail.google.com/');
+        $client->addScope('https://www.googleapis.com/auth/contacts.readonly');
         header('Location: ' . $client->createAuthUrl());
         exit;
     } else {

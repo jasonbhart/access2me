@@ -11,10 +11,13 @@ use Access2Me\Data;
 class Registry
 {
 
+    private static $appConfig;
     private static $profileProvider;
 
     public static function setUp($appConfig)
     {
+        self::$appConfig = $appConfig;
+
         $services = $appConfig['services'];
         $profileProviders = [
             Service::LINKEDIN => [
@@ -61,15 +64,22 @@ class Registry
         return self::$profileProvider;
     }
 
-    public static function getUserStats($userId)
+    public static function getUserStats($user)
     {
         $db = new \Database();
-        $cache = new Helper\Cache(new Model\CacheRepository($db));
-        $stats = new Data\UserStats($userId, $cache);
-        $stats->addResource(new Data\UserStats\ContactsCount(new Model\SenderRepository($db)));
-        $stats->addResource(new Data\UserStats\InvitesCount());
+        $cache = new Helper\Cache(new Model\CacheRepository($db), 'PT2H');
+
+        $userRepo = new Model\UserRepository($db);
+        $authProvider = new Helper\GoogleAuthProvider(
+            self::$appConfig['services']['gmail'],
+            $userRepo
+        );
+
+        $stats = new Data\UserStats($user, $cache);
+        $stats->addResource(new Data\UserStats\GmailContactsCount($authProvider, $cache));
+        $stats->addResource(new Data\UserStats\VerifiedSendersCount(new Model\SenderRepository($db)));
         $stats->addResource(new Data\UserStats\FiltersCount($db));
-        $stats->addResource(new Data\UserStats\MessagesCount(new Model\MessageRepository($db)));
+        $stats->addResource(new Data\UserStats\GmailMessagesCount($authProvider, $cache));
         
         return $stats;
     }

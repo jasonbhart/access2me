@@ -4,7 +4,7 @@ namespace Access2Me\Service;
 
 class Gmail
 {
-    public static function getProfile(\Google_Client $client, $userId = 'me')
+    public static function getProfile(\Google_Client $client, $gmailUserId = 'me')
     {
         $gmail = new \Google_Service_Gmail($client);
     
@@ -26,6 +26,6 @@ class Gmail
             )
         );
         
-        return $profile->call('profile', [['userId' => $userId]]);
+        return $profile->call('profile', [['userId' => $gmailUserId]]);
     }
 }

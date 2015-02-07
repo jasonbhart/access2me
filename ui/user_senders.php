@@ -23,8 +23,6 @@ foreach ($userSenderRepo->findByUser($userId) as $sender) {
     ];
 }
 
-$userStats = Helper\Registry::getUserStats($user['id']);
-
 $types = [
     Model\UserSenderRepository::TYPE_DOMAIN => 'domain',
     Model\UserSenderRepository::TYPE_EMAIL => 'email'
@@ -38,8 +36,6 @@ $accessTypes = [
 ?>
 
 <div id="page-content">
-    <?php include('inc/page_status_icons.php'); ?>
-
     <div class="block">
         <!-- Table Styles Title -->
         <div class="block-title clearfix">
