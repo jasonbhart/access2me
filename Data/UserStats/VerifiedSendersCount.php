@@ -5,7 +5,7 @@ namespace Access2Me\Data\UserStats;
 use Access2Me\Data\UserStats;
 use Access2Me\Model\SenderRepository;
 
-class ContactsCount implements ResourceInterface
+class VerifiedSendersCount implements ResourceInterface
 {
     /**
      * @var SenderRepository
@@ -19,11 +19,11 @@ class ContactsCount implements ResourceInterface
 
     public function getType()
     {
-        return UserStats::CONTACTS_COUNT;
+        return UserStats::VERIFIED_SENDERS_COUNT;
     }
 
-    public function get($userId)
+    public function get($user)
     {
-        return $this->senderRepo->getAuthenticatedCountByUser($userId);
+        return $this->senderRepo->getAuthenticatedCountByUser($user['id']);
     }
 }

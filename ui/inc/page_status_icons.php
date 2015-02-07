@@ -11,25 +11,25 @@
                         <i class="gi gi-user text-muted"></i>
                     </div>
                     <h2 class="widget-heading h3 text-success">
-                        <i class="fa"></i> <strong><span data-toggle="counter" data-to="<?php echo $userStats->get(Access2Me\Data\UserStats::CONTACTS_COUNT); ?>"></span></strong>
+                        <i class="fa"></i> <strong><span data-toggle="counter" data-to="<?php echo $statsData['gmail_contacts_count']; ?>"></span></strong>
                     </h2>
-                    <span class="text-muted">AUTHENTICATED</span>
+                    <span class="text-muted">GOOGLE CONTACTS</span>
                 </div>
             </a>
         </div>
         <div class="col-sm-6 col-lg-3">
             <a href="javascript:void(0)" class="widget">
                 <div class="widget-content widget-content-mini themed-background-warning text-light-op">
-                    <i class="fa fa-clock-o"></i> <strong>Invites</strong>
+                    <i class="fa fa-clock-o"></i> <strong>Senders</strong>
                 </div>
                 <div class="widget-content text-right clearfix">
                     <div class="widget-icon pull-left">
                         <i class="gi gi-wifi text-muted"></i>
                     </div>
                     <h2 class="widget-heading h3 text-warning">
-                        <i class="fa"></i> <strong><span data-toggle="counter" data-to="<?php echo $userStats->get(Access2Me\Data\UserStats::INVITES_COUNT); ?>"></span></strong>
+                        <i class="fa"></i> <strong><span data-toggle="counter" data-to="<?php echo $statsData['verified_senders_count']; ?>"></span></strong>
                     </h2>
-                    <span class="text-muted">ACCEPTED</span>
+                    <span class="text-muted">VERIFIED SENDERS</span>
                 </div>
             </a>
         </div>
@@ -43,7 +43,7 @@
                         <i class="gi gi-wallet text-muted"></i>
                     </div>
                     <h2 class="widget-heading h3 text-danger">
-                        <i class="fa"></i> <strong><span data-toggle="counter" data-to="<?php echo $userStats->get(Access2Me\Data\UserStats::FILTERS_COUNT); ?>"></span></strong>
+                        <i class="fa"></i> <strong><span data-toggle="counter" data-to="<?php echo $statsData['filters_count']; ?>"></span></strong>
                     </h2>
                     <span class="text-muted">ACTIVE FILTERS</span>
                 </div>
@@ -59,7 +59,7 @@
                         <i class="gi gi-cardio text-muted"></i>
                     </div>
                     <h2 class="widget-heading h3">
-                        <strong><span data-toggle="counter" data-to="<?php echo $userStats->get(Access2Me\Data\UserStats::MESSAGES_COUNT); ?>"></span></strong>
+                        <strong><span data-toggle="counter" data-to="<?php echo $statsData['gmail_messages_count']; ?>"></span></strong>
                     </h2>
                     <span class="text-muted">TOTAL MESSAGES</span>
                 </div>

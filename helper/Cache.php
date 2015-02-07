@@ -21,9 +21,15 @@ class Cache implements CacheInterface
      */
     private $cacheRepo;
 
-    public function __construct(Model\CacheRepository $cacheRepo)
+    /**
+     * @var string $ttl string in \DateInterval format
+     */
+    private $defaultTTL;
+
+    public function __construct(Model\CacheRepository $cacheRepo, $defaultTTL = null)
     {
         $this->cacheRepo = $cacheRepo;
+        $this->defaultTTL = $defaultTTL;
     }
 
     protected function encodeKey($key)
@@ -57,7 +63,7 @@ class Cache implements CacheInterface
      * @param mixed $value
      * @param string $ttl string in \DateInterval format
      */
-    public function set($key, $value, $ttl = null)
+    public function set($key, $value, $ttl = false)
     {
         $key = $this->encodeKey($key);
         $entry = $this->cacheRepo->getByKey($key);
@@ -67,7 +73,12 @@ class Cache implements CacheInterface
         }
 
         $expiresAt = null;
-        if ($ttl != null) {
+
+        if ($ttl === false) {
+            $ttl = $this->defaultTTL;
+        }
+
+        if ($ttl !== null) {
             $expiresAt = new \DateTime();
             $expiresAt->add(new \DateInterval($ttl));
         }

@@ -1,7 +1,9 @@
 <?php require_once __DIR__ . "/login-check.php"; ?>
 <?php include 'inc/config.php'; $template['header_link'] = 'THE END OF SPAM AS WE KNOW IT'; ?>
+<?php ob_start(); ?>
 <?php include 'inc/template_start.php'; ?>
 <?php include 'inc/page_head.php'; ?>
+<?php $htmlHeader = ob_get_clean(); ?>
 
 <?php
 use Access2Me\Helper;
@@ -89,7 +91,7 @@ class IndexController
 $db = new Database;
 $auth = new Helper\Auth($db);
 $user = $auth->getLoggedUser();
-    
+
 $mesgRepo = new Model\MessageRepository($db);
 
 // process userlist actions
@@ -126,7 +128,29 @@ foreach ($messages AS &$message) {
     }
 }
 
-$userStats = Helper\Registry::getUserStats($user['id']);
+// we need this in case permissions changed
+try {
+    $userStats = Helper\Registry::getUserStats($user);
+    $statsData = [
+        'gmail_contacts_count' => $userStats->get(Access2Me\Data\UserStats::GMAIL_CONTACTS_COUNT),
+        'verified_senders_count' => $userStats->get(Access2Me\Data\UserStats::VERIFIED_SENDERS_COUNT),
+        'filters_count' => $userStats->get(Access2Me\Data\UserStats::FILTERS_COUNT),
+        'gmail_messages_count' => $userStats->get(Access2Me\Data\UserStats::GMAIL_MESSAGES_COUNT),
+    ];
+} catch (\Google_Exception $ex) {
+    // clear gmail access token
+    $userRepo = new Access2Me\Model\UserRepository($db);
+    $u = $userRepo->getById($user['id']);
+    $u['gmail_access_token'] = null;
+    $userRepo->save($u);
+
+    // request new permissions
+    $url = $appConfig['siteUrl'] . '/ui/gmailoauth.php';
+    header('Location: ' . $url);
+    exit;
+}
+
+echo $htmlHeader;
 
 ?>
 

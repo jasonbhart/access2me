@@ -21,13 +21,9 @@ foreach (Filter::getFiltersByUserId($userId, $db) as $filter) {
     );
 }
 
-$userStats = Helper\Registry::getUserStats($user['id']);
-
 ?>
 
 <div id="page-content">
-    <?php include('inc/page_status_icons.php'); ?>
-
     <div class="block">
         <!-- Table Styles Title -->
         <div class="block-title clearfix">

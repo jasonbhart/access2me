@@ -7,23 +7,33 @@ use Access2Me\Helper\CacheInterface;
 
 class UserStats
 {
-    const CONTACTS_COUNT = 1;
-    const INVITES_COUNT = 2;
+    const GMAIL_CONTACTS_COUNT = 1;
+    const VERIFIED_SENDERS_COUNT = 2;
     const FILTERS_COUNT = 3;
-    const MESSAGES_COUNT = 4;
+    const GMAIL_MESSAGES_COUNT = 4;
 
+    /**
+     *
+     * @var UserStats\ResourceInterface[]
+     */
     protected $resources = [];
 
-    protected $userId;
+    protected $user;
 
     /**
      * @var CacheInterface
      */
     protected $cache;
 
-    public function __construct($userId, CacheInterface $cache = null)
+    // cache ttl for specific resources
+    protected $ttl = [
+        self::GMAIL_CONTACTS_COUNT => 'PT60S',      // cache for 60 seconds
+        self::GMAIL_MESSAGES_COUNT => 'PT60S',
+    ];
+
+    public function __construct($user, CacheInterface $cache = null)
     {
-        $this->userId = $userId;
+        $this->user = $user;
         $this->cache = $cache;
     }
 
@@ -32,40 +42,38 @@ class UserStats
         $this->resources[$resource->getType()] = $resource;
     }
 
-    protected function getCacheKey($type, $userId)
+    protected function getCacheKey($type, $user)
     {
-        return 'stats_' . $type . '_' . $userId;
+        return 'stats_' . $type . '_' . $user['id'];
     }
 
     public function get($type)
     {
-        $key = $this->getCacheKey($type, $this->userId);
+        if (!isset($this->resources[$type])) {
+            throw new \RuntimeException('Not implemented Stats type');
+        }
+
+        $resource = $this->resources[$type];
+ 
+        $key = $this->getCacheKey($type, $this->user);
         if ($this->cache && $this->cache->exists($key)) {
             return $this->cache->get($key);
         }
 
-        $stats = $this->getFreshStats($type);
+        $stats = $resource->get($this->user);
 
         if ($this->cache) {
-            $this->cache->set($key, $stats);
+            $ttl = isset($this->ttl[$type]) ? $this->ttl[$type] : false;
+            $this->cache->set($key, $stats, $ttl);
         }
         
         return $stats;
     }
 
-    protected function getFreshStats($type)
-    {
-        if (isset($this->resources[$type])) {
-            return $this->resources[$type]->get($this->userId);
-        }
-        
-        throw new \RuntimeException('Not implemented Stats type');
-    }
-
     public function invalidate($type)
     {
         if ($this->cache) {
-            $key = $this->getCacheKey($type, $this->userId);
+            $key = $this->getCacheKey($type, $this->user);
             $this->cache->delete($key);
         }
     }

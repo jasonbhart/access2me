@@ -5,5 +5,10 @@ namespace Access2Me\Data\UserStats;
 interface ResourceInterface
 {
     public function getType();
-    public function get($userId);
+
+    /**
+     * @param array $user user entity
+     * @return mixed
+     */
+    public function get($user);
 }
