@@ -1,11 +1,5 @@
 <?php
 
-ini_set('error_log', __DIR__ . '/logs/error.log');
-ini_set('error_reporting', E_ALL);
-ini_set('display_error', 1);
-ini_set('display_startup_errors', 1);
-
-
 session_start();
 
 date_default_timezone_set('America/Los_Angeles');
