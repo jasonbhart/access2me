@@ -4,7 +4,6 @@ namespace Access2Me\Data\UserStats;
 
 interface ResourceInterface
 {
-    public function isCacheable();
     public function getType();
 
     /**

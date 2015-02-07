@@ -5,7 +5,7 @@ namespace Access2Me\Data\UserStats;
 use Access2Me\Data\UserStats;
 use Access2Me\Model\SenderRepository;
 
-class VerifiedSendersCount extends AbstractResource
+class VerifiedSendersCount implements ResourceInterface
 {
     /**
      * @var SenderRepository

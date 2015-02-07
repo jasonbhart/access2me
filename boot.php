@@ -18,7 +18,6 @@ require_once __DIR__ . "/config/database.php";
 require_once __DIR__ . "/database.php";
 require_once __DIR__ . "/Data/UserStats.php";
 require_once __DIR__ . "/Data/UserStats/ResourceInterface.php";
-require_once __DIR__ . "/Data/UserStats/AbstractResource.php";
 require_once __DIR__ . "/Data/UserStats/FiltersCount.php";
 require_once __DIR__ . "/Data/UserStats/GmailResource.php";
 require_once __DIR__ . "/Data/UserStats/GmailContactsCount.php";

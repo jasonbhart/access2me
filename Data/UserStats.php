@@ -25,6 +25,12 @@ class UserStats
      */
     protected $cache;
 
+    // cache ttl for specific resources
+    protected $ttl = [
+        self::GMAIL_CONTACTS_COUNT => 'PT60S',      // cache for 60 seconds
+        self::GMAIL_MESSAGES_COUNT => 'PT60S',
+    ];
+
     public function __construct($user, CacheInterface $cache = null)
     {
         $this->user = $user;
@@ -49,17 +55,16 @@ class UserStats
 
         $resource = $this->resources[$type];
  
-        if ($resource->isCacheable()) {
-            $key = $this->getCacheKey($type, $this->user);
-            if ($this->cache && $this->cache->exists($key)) {
-                return $this->cache->get($key);
-            }
+        $key = $this->getCacheKey($type, $this->user);
+        if ($this->cache && $this->cache->exists($key)) {
+            return $this->cache->get($key);
         }
 
         $stats = $resource->get($this->user);
 
-        if ($resource->isCacheable() && $this->cache) {
-            $this->cache->set($key, $stats);
+        if ($this->cache) {
+            $ttl = isset($this->ttl[$type]) ? $this->ttl[$type] : false;
+            $this->cache->set($key, $stats, $ttl);
         }
         
         return $stats;

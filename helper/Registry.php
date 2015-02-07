@@ -76,10 +76,10 @@ class Registry
         );
 
         $stats = new Data\UserStats($user, $cache);
-        $stats->addResource(new Data\UserStats\GmailContactsCount($authProvider, $cache));
+        $stats->addResource(new Data\UserStats\GmailContactsCount($authProvider));
         $stats->addResource(new Data\UserStats\VerifiedSendersCount(new Model\SenderRepository($db)));
         $stats->addResource(new Data\UserStats\FiltersCount($db));
-        $stats->addResource(new Data\UserStats\GmailMessagesCount($authProvider, $cache));
+        $stats->addResource(new Data\UserStats\GmailMessagesCount($authProvider));
         
         return $stats;
     }

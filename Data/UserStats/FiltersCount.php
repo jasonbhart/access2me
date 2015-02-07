@@ -4,7 +4,7 @@ namespace Access2Me\Data\UserStats;
 
 use Access2Me\Data\UserStats;
 
-class FiltersCount extends AbstractResource
+class FiltersCount implements ResourceInterface 
 {
     /**
      * @var \Database

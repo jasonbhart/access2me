@@ -12,7 +12,7 @@ class GmailMessagesCount extends GmailResource
         return UserStats::GMAIL_MESSAGES_COUNT;
     }
 
-    protected function getFreshValue($user)
+    public function get($user)
     {
         $googleAuth = $this->authProvider->getAuth($user['username']);
         $profile = Gmail::getProfile($googleAuth->client);

@@ -8,18 +8,18 @@ class Contacts extends \Google_Service
     {
       parent::__construct($client);
       $this->servicePath = 'm8/feeds/contacts/';
-      $this->version = 'v1';
+      $this->version = '3.0';       // seems that this doesn't impact anything
       $this->serviceName = 'm8';
     }
 
-    public static function getAll(\Google_Client $client, $googleUserId = 'me')
+    public static function getTotalCount(\Google_Client $client, $googleUserId)
     {
-        $gmail = new self($client);
+        $service = new self($client);
     
         $contacts = new \Google_Service_Resource(
-            $gmail, 'm8', 'contacts', array(
+            $service, 'm8', 'contacts', array(
                 'methods' => array(
-                    'getAll' => array(
+                    'getTotalCount' => array(
                         'path' => '{userId}/full',
                         'httpMethod' => 'GET',
                         'parameters' => array(
@@ -34,6 +34,7 @@ class Contacts extends \Google_Service
             )
         );
         
-        return $contacts->call('getAll', [['userId' => $googleUserId]]);
+        $result = $contacts->call('getTotalCount', [['userId' => $googleUserId, 'alt' => 'json']]);
+        return (int)$result['feed']['openSearch$totalResults']['$t'];
     }
 }
