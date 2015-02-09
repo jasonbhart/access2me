@@ -14,7 +14,14 @@ $userId = $auth->getLoggedUser()['id'];
 // prepare view data
 $userSenderRepo = new Model\UserSenderRepository($db);
 $senders = [];
-foreach ($userSenderRepo->findByUser($userId) as $sender) {
+
+if (!empty($_GET['type']) && (intval($_GET['type']) === Model\UserSenderRepository::ACCESS_DENIED)) {
+    $access = Model\UserSenderRepository::ACCESS_DENIED;
+} else {
+    $access = Model\UserSenderRepository::ACCESS_ALLOWED;
+}
+
+foreach ($userSenderRepo->findByUserAndAccess($userId, $access) as $sender) {
     $senders[] = [
         'id' => $sender['id'],
         'sender' => $sender['sender'],

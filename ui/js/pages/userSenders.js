@@ -73,6 +73,7 @@ var UserSenders = function() {
                 $.when(deff).always(function() {
                     control.close();                    
                 });
+                alert('saved');
             },
             cancel: function() {
                 var deff = typeof(settings.cancel) === 'function' ? settings.cancel() : null;
@@ -287,7 +288,22 @@ var UserSenders = function() {
             
             editForm.show();
         });
-
+        
+        // remove access-type based on whitelist/blacklist page
+        function getParameterByName(name) {
+            name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+            var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+                results = regex.exec(location.search);
+            return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+        }
+        if (getParameterByName('type') == 2) {
+            // blacklist - remove 'allowed' access option
+            $(".entry-access option[value='1']").remove();
+        } else {
+            // whitelist - remove 'denied' access option
+            $(".entry-access option[value='2']").remove();
+        }
+        
         return controller;
     }();
 

@@ -59,8 +59,13 @@ $primary_nav = array(
         'icon'  => 'fa fa-rocket'
     ),
     array(
-        'name'  => 'Sender list',
-        'url'   => 'user_senders.php',
+        'name'  => 'Whitelist senders',
+        'url'   => 'user_senders.php?type=1',
+        'icon'  => 'fa fa-user'
+    ),
+    array(
+        'name'  => 'Blacklist senders',
+        'url'   => 'user_senders.php?type=2',
         'icon'  => 'fa fa-user'
     )
 );

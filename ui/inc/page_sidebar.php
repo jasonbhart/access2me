@@ -25,7 +25,11 @@
             <?php if ($primary_nav) { ?>
             <!-- Sidebar Navigation -->
             <ul class="sidebar-nav">
-                <?php foreach( $primary_nav as $key => $link ) {
+                <?php 
+                if (!empty($_GET['type'])) {
+                    $template['active_page'] .= '?type='. $_GET['type'];
+                }
+                foreach( $primary_nav as $key => $link ) {
                     $link_class = '';
                     $li_active  = '';
                     $menu_link  = '';
