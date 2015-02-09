@@ -73,7 +73,6 @@ var UserSenders = function() {
                 $.when(deff).always(function() {
                     control.close();                    
                 });
-                alert('saved');
             },
             cancel: function() {
                 var deff = typeof(settings.cancel) === 'function' ? settings.cancel() : null;
