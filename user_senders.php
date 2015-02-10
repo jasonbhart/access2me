@@ -23,8 +23,13 @@ $db = new Database;
 $tokenRepo = new Model\AuthTokenRepository($db);
 
 $tokenEntry = $tokenRepo->getByToken($token);
-if (!$tokenEntry || $tokenEntry['expires_at'] < new \DateTime()) {
+if (!$tokenEntry) {
     echo 'No such token';
+    exit;
+}
+
+if ($tokenEntry['expires_at'] < new \DateTime()) {
+    echo 'Token expired';
     exit;
 }
 
