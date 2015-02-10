@@ -94,6 +94,24 @@ class Email
     }
 
     /**
+     * Parses and converts text date into uniform representation with UTC tz
+     * 
+     * @param string $date
+     * @return string
+     */
+    public static function parseDate($date)
+    {
+        try {
+            $dt = new \DateTime($date);
+            // convert date to UTC tz
+            $dt->setTimezone(new \DateTimeZone('UTC'));
+            return $dt->format('Y-m-d H:i:s');
+        } catch (\Exception $ex) {
+            return null;
+        }
+    }
+
+    /**
      * Converts parsed email to the form to be stored in the database
      *
      * @param array $message
@@ -113,16 +131,8 @@ class Email
         $record['status']    = 0;
         $record['appended_to_unverified'] = 0;
         
-
         // parse Date header
-        try {
-            $date = new \DateTime($mail->getHeader('Date'));
-            // convert date to UTC tz
-            $date->setTimezone(new \DateTimeZone('UTC'));
-            $record['created_at'] = $date->format('Y-m-d H:i:s');
-        } catch (\Exception $ex) {
-            $record['created_at'] = null;
-        }
+        $record['created_at'] = self::parseDate($mail->getHeader('Date'));
 
         $replyTo = \ezcMailTools::parseEmailAddress($mail->getHeader('Reply-To'));
         
