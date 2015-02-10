@@ -45,6 +45,13 @@ class MessageRepository
         return $message !== false ? $message : null;
     }
 
+    public function findAll()
+    {
+        $query = 'SELECT * FROM `' . self::TABLE_NAME . '`';
+        $messages = $this->db->getArray($query);
+        return $messages !== false ? $messages : [];
+    }
+
     public function findByStatus($status)
     {
         $query = 'SELECT * FROM `' . self::TABLE_NAME . '` WHERE `status` = :status';

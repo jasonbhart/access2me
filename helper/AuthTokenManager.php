@@ -27,7 +27,7 @@ class AuthTokenManager
         return sha1(microtime() . $this->seed . rand());
     }
 
-    public function generateToken($userId = null, array $roles)
+    public function generateToken($userId, array $roles)
     {
         $expiresAt = new \DateTime();
         $expiresAt->add(new \DateInterval($this->ttl));  // expires after one week
