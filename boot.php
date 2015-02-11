@@ -36,6 +36,7 @@ require_once __DIR__ . "/helper/SenderAuthentication.php";
 require_once __DIR__ . "/helper/SenderProfileProvider.php";
 require_once __DIR__ . "/helper/Template.php";
 require_once __DIR__ . "/helper/UserListProvider.php";
+require_once __DIR__ . "/helper/UserListTokenManager.php";
 require_once __DIR__ . "/helper/Utils.php";
 require_once __DIR__ . "/model/AuthTokenRepository.php";
 require_once __DIR__ . "/model/CacheRepository.php";

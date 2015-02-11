@@ -30,8 +30,7 @@ foreach ($userRepo->findAll() as $user) {
         $userSendersList = new Helper\UserListProvider($user['id'], $userSenderRepo);
 
         // token generator for whitelisting
-        $tokenRepo = new Model\AuthTokenRepository($db);
-        $tokenManager = new Helper\AuthTokenManager($tokenRepo, $appConfig['secret']);
+        $tokenManager = new Helper\UserListTokenManager($appConfig['secret']);
 
         $processor = new Helper\MessageProcessor($user, $db, $storage, $userSendersList, $tokenManager);
         $processor->process($messages);

@@ -10,6 +10,7 @@ use Access2Me\Model;
 
 
 $token = isset($_REQUEST['token']) ? $_REQUEST['token'] : null;
+$userId = isset($_REQUEST['uid']) ? $_REQUEST['uid'] : null;
 $email = isset($_REQUEST['email']) ? $_REQUEST['email'] : null;
 
 // check input params
@@ -20,19 +21,11 @@ if (!$token || !Helper\Utils::isValidEmail($email)) {
 
 // check auth token
 $db = new Database;
-$tokenRepo = new Model\AuthTokenRepository($db);
-
-$tokenEntry = $tokenRepo->getByToken($token);
-if (!$tokenEntry || $tokenEntry['expires_at'] < new \DateTime()) {
+$tokenManager = new Helper\UserListTokenManager($appConfig['secret']);
+if (!$tokenManager->isValid($token, $userId, $email)) {
     echo 'No such token';
     exit;
 }
-
-if ($tokenEntry['user_id'] == null || !in_array(Model\Roles::USER_LIST_MANAGER, $tokenEntry['roles'])) {
-    echo 'Access denied';
-    exit;
-}
-
 
 $splitted = Helper\Email::splitEmail($email);
 $domain = $splitted['domain'];
@@ -52,10 +45,10 @@ if (isset($_POST['temail'])) {
 if ($_POST && $type !== null) {
     
     $userSenderRepo = new Model\UserSenderRepository($db);
-    $entry = $userSenderRepo->getByUserAndSender($tokenEntry['user_id'], $sender);
+    $entry = $userSenderRepo->getByUserAndSender($userId, $sender);
     if (!$entry) {
         $entry = [
-            'user_id' => $tokenEntry['user_id'],
+            'user_id' => $userId,
             'sender' => $sender
         ];
     }
@@ -64,7 +57,6 @@ if ($_POST && $type !== null) {
     $entry['access'] = Model\UserSenderRepository::ACCESS_ALLOWED;
 
     $userSenderRepo->save($entry);
-    $tokenRepo->delete($tokenEntry['id']);
     $whitelisted = true;
 }
 
