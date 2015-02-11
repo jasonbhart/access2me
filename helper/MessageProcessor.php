@@ -20,17 +20,17 @@ class MessageProcessor
     private $userSendersList;
 
     /**
-     * @var \Access2Me\Helper\AuthTokenManager
+     * @var \Access2Me\Helper\UserListTokenManager
      */
-    private $authTokenManager;
+    private $userListTokenManager;
     
-    public function __construct($user, $db, $storage, $userSendersList, $authTokenManager)
+    public function __construct($user, $db, $storage, $userSendersList, $userListTokenManager)
     {
         $this->user = $user;
         $this->db = $db;
         $this->storage = $storage;
         $this->userSendersList = $userSendersList;
-        $this->authTokenManager = $authTokenManager;
+        $this->userListTokenManager = $userListTokenManager;
     }
 
     // get folder from user settings
@@ -75,12 +75,13 @@ class MessageProcessor
 
     private function buildWhitelistUrl($email)
     {
-        $tokenManager = $this->authTokenManager;
+        $tokenManager = $this->userListTokenManager;
         
         $baseUrl = 'http://app.access2.me/user_senders.php?';
-        $token = $tokenManager->generateToken($this->user['id'], [Model\Roles::USER_LIST_MANAGER]);
+        $token = $tokenManager->generateToken($this->user['id'], $email);
         $url = $baseUrl . http_build_query([
-            'token' => $token['token'],
+            'token' => $token,
+            'uid' => $this->user['id'],
             'email' => $email
         ]);
 
