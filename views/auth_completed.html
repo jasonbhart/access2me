@@ -1,52 +1,73 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>Congratulations, Access2.me Has Validated You!</title>
-    <link rel="stylesheet" type="text/css" href="css/profile.css">
-</head>
+<!--[if gt IE 9]><!--> <html class="no-js"> <!--<![endif]-->
+    <head>
+        <meta charset="utf-8">
 
-<body>
-    <center>
+        <title>Thank you!</title>
 
-    <br />
-    <h1 style="color: #ffffff;">Congratulations, Access2.me Has Validated You!</h1>
+        <meta name="description" content="<?php echo $template['description'] ?>">
+        <meta name="author" content="<?php echo $template['author'] ?>">
+        <meta name="robots" content="<?php echo $template['robots'] ?>">
 
-      <div class="box">
-        <?php if (isset($profile->pictureUrl)): ?>
-        <div class="userbox">
-            <div class="pic"><img src="<?php echo htmlentities($profile->pictureUrl); ?>"></div>
+        <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1.0">
+
+        <!-- Stylesheets -->
+        <!-- Bootstrap is included in its original form, unaltered -->
+        <link rel="stylesheet" href="../ui/css/bootstrap.min.css">
+
+        <!-- Related styles of various icon packs and plugins -->
+        <link rel="stylesheet" href="../ui/css/plugins.css">
+
+        <!-- The main stylesheet of this template. All Bootstrap overwrites are defined in here -->
+        <link rel="stylesheet" href="../ui/css/main.css">
+
+        <!-- The themes stylesheet of this template (for using specific theme color in individual elements - must included last) -->
+        <link rel="stylesheet" href="../ui/css/themes.css">
+        <!-- END Stylesheets -->
+    </head>
+    <body>
+
+        <div id="login-container">
+            <!-- Register Header -->
+            <h1 class="h2 text-light text-center push-top-bottom animation-slideDown">
+                <i class="fa fa-cube"></i> <strong>Access2.ME</strong>
+            </h1>
+            <!-- END Register Header -->
+
+            <!-- Register Form -->
+            <div class="block animation-fadeInQuickInv">
+                <!-- Register Title -->
+                <div class="block-title">
+                    <h2>Thank you!</h2>
+                </div>
+                <!-- END Register Title -->
+
+                <!-- Register Form -->
+                <form id="form-register" action="page_ready_register.php" method="post" class="form-horizontal">
+                    <div class="form-group">
+                        <div class="col-xs-12">
+                            <strong><span style="color: red"><?php echo $email?></span></strong> has successfully validated!
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-xs-12">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-xs-12">
+                            Try Access2.ME yourself?  <a href="http://access2.me"><strong>Request a BETA invite</strong></a>.
+                        </div>
+                    </div>
+                </form>
+                <!-- END Register Form -->
+            </div>
+            <!-- END Register Block -->
+
+            <!-- Footer -->
+            <footer class="text-muted text-center animation-pullUp">
+                <small><span id="year-copy"></span> &copy; <a href="http://access2.me" target="_blank">2014-15 © Access2.ME</a></small>
+            </footer>
+            <!-- END Footer -->
         </div>
-        <?php endif; ?>
-        <p>
-            <span class="user">
-                <strong><?php echo htmlentities($profile->fullName); ?></strong>
-                <br />
-                <?php if ($profile->profileUrl): ?>
-                Profile: <a href="<?php echo htmlentities($profile->profileUrl); ?>" target="_blank">link</a>
-                <?php endif; ?>
-                <br />
-                <?php if (property_exists($profile, 'summary') && !empty($profile->summary)): ?>
-                Summary: <?php echo htmlentities($profile->summary); ?>
-                <?php endif; ?>
-                <br />
-                <?php if ($profile->biography): ?>
-                Biography: <?php echo htmlentities($profile->biography); ?>
-                <?php endif; ?>
-                <br />
-                <?php if ($profile->location): ?>
-                Location: <?php echo htmlentities($profile->location); ?>
-                <?php endif; ?>
-                <br />
-                <?php if ($profile->website): ?>
-                Website: <?php echo htmlentities($profile->website); ?>
-                <?php endif; ?>
-                <br />
-            </span>
-        </p>
-      </div>
-
-    </center>
-</body>
-
+        <!-- END Login Container -->
+    </body>
 </html>

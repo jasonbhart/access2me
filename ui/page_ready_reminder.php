@@ -39,7 +39,7 @@
 
     <!-- Footer -->
     <footer class="text-muted text-center animation-pullUp">
-        <small><span id="year-copy"></span> &copy; <a href="http://goo.gl/RcsdAh" target="_blank"><?php echo $template['name'] . ' ' . $template['version']; ?></a></small>
+        <small><span id="year-copy"></span> &copy; <a href="http://access2.me" target="_blank"><?php echo $template['name'] . ' ' . $template['version']; ?></a></small>
     </footer>
     <!-- END Footer -->
 </div>

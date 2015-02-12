@@ -8,7 +8,7 @@ $auth = new Auth($db);
 if ($auth->isAuthenticated()) {
     header('Location: index.php');
     exit;
-} 
+}
 ?>
 <?php include 'inc/config.php'; ?>
 <?php include 'inc/template_start.php'; ?>
@@ -179,7 +179,7 @@ if ($_POST) {
 
     <!-- Footer -->
     <footer class="text-muted text-center animation-pullUp">
-        <small><span id="year-copy"></span> &copy; <a href="http://goo.gl/RcsdAh" target="_blank"><?php echo $template['name'] . ' ' . $template['version']; ?></a></small>
+        <small><span id="year-copy"></span> &copy; <a href="http://access2.me" target="_blank"><?php echo $template['name'] . ' ' . $template['version']; ?></a></small>
     </footer>
     <!-- END Footer -->
 </div>

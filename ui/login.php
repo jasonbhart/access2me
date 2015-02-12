@@ -8,6 +8,11 @@ use Access2Me\Helper\AuthException;
 $db = new Database;
 $auth = new Auth($db);
 
+//if ($auth->isAuthenticated()) {
+//    header('Location: index.php');
+//    exit;
+//}
+
 // redirect on success login
 $redirectTo = null;
 if (!empty($_REQUEST['redirect_to'])) {
@@ -101,7 +106,7 @@ if (isset($_GET['action']) && $_GET['action'] == 'logout') {
 
     <!-- Footer -->
     <footer class="text-muted text-center animation-pullUp">
-        <small><span id="year-copy"></span> &copy; <a href="http://goo.gl/RcsdAh" target="_blank"><?php echo $template['name'] . ' ' . $template['version']; ?></a></small>
+        <small><span id="year-copy"></span> &copy; <a href="http://access2.me" target="_blank"><?php echo $template['name'] . ' ' . $template['version']; ?></a></small>
     </footer>
     <!-- END Footer -->
 </div>
