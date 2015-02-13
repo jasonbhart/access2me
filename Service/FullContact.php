@@ -31,11 +31,14 @@ class FullContact
         try {
             $res = $client->get(
                 $url,
-                ['query' => $params]
+                [
+                    'query' => $params,
+                    'timeout' => 5
+                ]
             );
 
             $result = $res->json();
-        } catch (\GuzzleHttp\Exception\BadResponseException $ex) {
+        } catch (\GuzzleHttp\Exception\TransferException $ex) {
             throw new FullContactException('Bad response', 0, $ex);
         }
 
