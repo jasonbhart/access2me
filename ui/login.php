@@ -8,10 +8,10 @@ use Access2Me\Helper\AuthException;
 $db = new Database;
 $auth = new Auth($db);
 
-//if ($auth->isAuthenticated()) {
-//    header('Location: index.php');
-//    exit;
-//}
+if ($auth->isAuthenticated()) {
+    header('Location: index.php');
+    exit;
+}
 
 // redirect on success login
 $redirectTo = null;
