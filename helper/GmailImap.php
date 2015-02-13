@@ -48,7 +48,7 @@ class GmailImapStorage extends Storage\Imap implements StorageFolderInterface
      */
     public function moveToTrashByNumberId($id)
     {
-        return $this->copyMessage($id, $this->getFolderName(StorageFolder::FOLDER_TRASH));
+        return $this->copyMessage($id, $this->getFolderName(StorageFolder::TRASH));
     }
 
     /**

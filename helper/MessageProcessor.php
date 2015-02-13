@@ -4,6 +4,26 @@ namespace Access2Me\Helper;
 
 use Access2Me\Model;
 
+class ProcessingResult
+{
+    /**
+     * @var int one of Model\MessageRepository::STATUS_*
+     */
+    public $status;
+
+    /**
+     * New transformed message
+     * @var \ezcMail
+     */
+    public $message;
+
+    public function __construct($status = Model\MessageRepository::STATUS_NOT_VERIFIED, \ezcMail $message = null)
+    {
+        $this->status = $status;
+        $this->message = $message;
+    }
+}
+
 /**
  * Process messages
  */
@@ -92,7 +112,7 @@ class MessageProcessor
      * Appends unverified message to the Unverified folder on Gmail
      * 
      * @param Message entity $message
-     * @return boolean
+     * @return ProcessingResult|false
      */
     private function processUnverified($message)
     {
@@ -100,10 +120,7 @@ class MessageProcessor
         if (!$message['appended_to_unverified']) {
             $data['whitelist_url'] = $this->buildWhitelistUrl($message['from_email']);
             $mail = Email::buildUnverifiedMessage($this->user, $message, $data);
-            return [
-                'message' => $mail->generate(),
-                'status' => Model\MessageRepository::STATUS_NOT_VERIFIED
-            ];
+            return new ProcessingResult(Model\MessageRepository::STATUS_NOT_VERIFIED, $mail);
         }
 
         return false;
@@ -156,11 +173,7 @@ class MessageProcessor
         // whitelisted ?
         if ($result['access'] == Model\UserSenderRepository::ACCESS_ALLOWED) {
             $mail = Email::buildWhitelistedMessage($this->user, $message);
-            $result = [
-                'message' => $mail->generate(),
-                'status' => Model\MessageRepository::STATUS_SENDER_WHITELISTED
-            ];
-            return $result;
+            return new ProcessingResult(Model\MessageRepository::STATUS_SENDER_WHITELISTED, $mail);
         }
 
         // blacklisted
@@ -170,7 +183,7 @@ class MessageProcessor
         );
         \Logging::getLogger()->debug($msg);
 
-        return ['status' => Model\MessageRepository::STATUS_SENDER_BLACKLISTED];
+        return new ProcessingResult(Model\MessageRepository::STATUS_SENDER_BLACKLISTED, null);
     }
 
     /**
@@ -179,7 +192,7 @@ class MessageProcessor
      * to the user's Gmail INBOX.
      *
      * @param Message entity $message
-     * @return boolean
+     * @return ProcessingResult|false
      */
     private function processFilters($message)
     {
@@ -194,32 +207,34 @@ class MessageProcessor
             return false;
         }
 
-        $result = [];
+        $result = new ProcessingResult();
         $mailOptions = ['profile' => $profile];
         // todo: move filter out of class
         $filter = new \Filter($this->user['id'], $profile, $this->db);
         $filter->processFilters();
 
         if ($filter->status === true) {
-            $result['status'] = Model\MessageRepository::STATUS_FILTER_PASSED;
+            $result->status = Model\MessageRepository::STATUS_FILTER_PASSED;
         } else {
             $mailOptions['failed_filters'] = $filter->getFailedFilters();
             $mailOptions['whitelist_url'] = $this->buildWhitelistUrl($message['from_email']);
-            $result['status'] = Model\MessageRepository::STATUS_FILTER_FAILED;
+            $result->status = Model\MessageRepository::STATUS_FILTER_FAILED;
         }
 
         // build email
-        $mail = Email::buildVerifiedMessage(
+        $result->message = Email::buildVerifiedMessage(
             $this->user,
             $message,
             $mailOptions
         );
 
-        $result['message'] = $mail->generate();
-        
         return $result;
     }
 
+    /**
+     * @param array $message message entity
+     * @return ProcessingResult|false
+     */
     public function processMessage($message)
     {
         // check white/blacklists
@@ -246,6 +261,12 @@ class MessageProcessor
             || $this->getFailuresFolder() !== StorageFolder::UNVERIFIED;
     }
 
+    /**
+     * 
+     * @param string $mail
+     * @param int $status one of Model\MessageRepository::STATUS_*
+     * @throws \InvalidArgumentException
+     */
     protected function putMessage($mail, $status)
     {
         $dstFolders = [
@@ -304,28 +325,34 @@ class MessageProcessor
                 }
 
                 // processing result
-                if (in_array($result['status'], $processedStatuses, true)) {
+                if (in_array($result->status, $processedStatuses, true)) {
                     // if we have transformed message
-                    if (isset($result['message'])) {
-                        $this->putMessage($result['message'], $result['status']);
+                    if ($result->message) {
+                        $this->putMessage($result->message->generate(), $result->status);
                     }
 
                     // remove from unverified ?
-                    $remove = $message['appended_to_unverified'] && $this->canRemoveUnverified($result['status']);
-
-                    // flag message as processed
-                    $this->db->updateOne('messages', 'status', $result['status'], 'id', $message['id']);
-                    $this->db->updateOne('messages', 'appended_to_unverified', 0, 'id', $message['id']);
+                    $remove = $message['appended_to_unverified'] && $this->canRemoveUnverified($result->status);
 
                     // if message was in unverified folder before we need to remove it from there
                     if ($remove) {
-                        $removeFromUnverified[] = $message['message_id'];
+                        $removeFromUnverified[] = $message['appended_to_unverified'];
                     }
-                } else if ($result['status'] === Model\MessageRepository::STATUS_NOT_VERIFIED) {
+
+                    // flag message as processed
+                    $this->db->updateOne('messages', 'status', $result->status, 'id', $message['id']);
+                    $this->db->updateOne('messages', 'appended_to_unverified', null, 'id', $message['id']);
+                } else if ($result->status === Model\MessageRepository::STATUS_NOT_VERIFIED) {
                     // put message to `unverified` box
                     if (!$message['appended_to_unverified']) {
-                        $this->putMessage($result['message'], $result['status']);
-                        $this->db->updateOne('messages', 'appended_to_unverified', 1, 'id', $message['id']);
+                        $this->putMessage($result->message->generate(), $result->status);
+                        $this->db->updateOne(
+                            'messages',
+                            'appended_to_unverified',
+                            $result->message->getHeader('Message-Id'),
+                            'id',
+                            $message['id']
+                        );
                     }
                 }
 
