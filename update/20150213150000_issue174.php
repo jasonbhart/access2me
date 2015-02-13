@@ -8,5 +8,12 @@ $db = new Database();
 $query = 'ALTER TABLE `messages` MODIFY `appended_to_unverified` varchar(120) NULL';
 $db->execute($query);
 
-$query = 'UPDATE `messages` SET `appended_to_unverified`=NULL';
+// ensure unverified messages will not be pushed twice
+$query = <<<'EOT'
+UPDATE `messages`
+    SET
+        `appended_to_unverified`='QWERTY invalid message id'
+    WHERE `appended_to_unverified` != 0
+EOT;
 $db->execute($query);
+
