@@ -34,9 +34,12 @@ class CrunchBase {
         try {
             $res = $client->get(
                 $endpoint,
-                ['query' => $params]
+                [
+                    'query' => $params,
+                    'timeout' => 5
+                ]
             );
-        } catch (\GuzzleHttp\Exception\BadResponseException $ex) {
+        } catch (\GuzzleHttp\Exception\TransferException $ex) {
             throw new CrunchBaseException('Bad response', 0, $ex);
         }
 
