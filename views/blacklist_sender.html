@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Whitelisting sender</title>
+    <title>Blacklist sender</title>
     <link rel="stylesheet" type="text/css" href="css/profile.css">
     <link rel="stylesheet" type="text/css" href="css/style.css">
 </head>
@@ -17,13 +17,13 @@
                     <?php if (isset($saved)): ?>
                     <div class="post">
                         <div style="font-size: x-large">
-                            Sender's address (<?php echo htmlentities($sender); ?>) added to your whitelist.
+                            Sender's address (<?php echo htmlentities($sender); ?>) added to your blacklist.
                         </div>
                         <div class="clear"></div>
                     </div>
                     <?php else: ?>
                     <div class="post">
-                        <h2>Whitelisting sender</h2>
+                        <h2>Blacklisting sender</h2>
                         <div class="clear"></div>
                     </div>
 
@@ -31,15 +31,15 @@
                         <form method="POST">
                             <input type="hidden" name="token" value="<?php echo htmlspecialchars($token); ?>" />
                             <input type="hidden" name="email" value="<?php echo htmlspecialchars($email); ?>" />
-                            <input type="hidden" name="access" value="1" />
+                            <input type="hidden" name="access" value="2" />
                             <div style="margin: auto; text-align: left; width: 60%">
                                 <div style="margin-bottom: 0.5em">
-                                    Whitelist email (<?php echo htmlentities($email); ?>)
-                                    <input type="submit" name="temail" value="Whitelist" />
+                                    Blacklist email (<?php echo htmlentities($email); ?>)
+                                    <input type="submit" name="temail" value="Blacklist" />
                                 </div>
                                 <div>
-                                    Whitelist domain (<?php echo htmlentities($domain); ?>)
-                                    <input type="submit" name="tdomain" value="Whitelist" />
+                                    Blacklist domain (<?php echo htmlentities($domain); ?>)
+                                    <input type="submit" name="tdomain" value="Blacklist" />
                                 </div>
                             </div>
                         </form>

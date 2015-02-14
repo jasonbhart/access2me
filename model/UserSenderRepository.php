@@ -104,12 +104,21 @@ class UserSenderRepository
 
     public function save($entry)
     {
+        $result = false;
+        
         if (!isset($entry['id'])) {
-            return $this->insert($entry);
+            $result = $this->insert($entry);
         } else {
             $this->update($entry);
-            return $entry['id'];
+            $result = $entry['id'];
         }
+        
+        if ($result) {
+            // process related sender
+            $this->updateAccessTypeOfRelatedSender($entry);
+        }
+        
+        return $result;
     }
 
     /**
@@ -123,7 +132,7 @@ class UserSenderRepository
         return $this->db->execute($query, ['id' => $id]);
     }
     
-    public function updateAccessTypeOfRelatedSender($entry) {
+    private function updateAccessTypeOfRelatedSender($entry) {
         if ($entry['type'] == self::TYPE_DOMAIN) {
             $query = 'UPDATE `' . self::TABLE_NAME . '`'
             . ' SET `access` = :access'

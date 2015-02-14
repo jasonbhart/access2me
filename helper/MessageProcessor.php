@@ -102,7 +102,24 @@ class MessageProcessor
         $url = $baseUrl . http_build_query([
             'token' => $token,
             'uid' => $this->user['id'],
-            'email' => $email
+            'email' => $email,
+            'access_type' => Model\UserSenderRepository::ACCESS_ALLOWED
+        ]);
+
+        return $url;
+    }
+    
+    private function buildBlacklistUrl($email)
+    {
+        $tokenManager = $this->userListTokenManager;
+        
+        $baseUrl = 'http://app.access2.me/user_senders.php?';
+        $token = $tokenManager->generateToken($this->user['id'], $email);
+        $url = $baseUrl . http_build_query([
+            'token' => $token,
+            'uid' => $this->user['id'],
+            'email' => $email,
+            'access_type' => Model\UserSenderRepository::ACCESS_DENIED
         ]);
 
         return $url;
@@ -119,6 +136,7 @@ class MessageProcessor
         // append message to Unverified folder if it was not already appended
         if (!$message['appended_to_unverified']) {
             $data['whitelist_url'] = $this->buildWhitelistUrl($message['from_email']);
+            $data['blacklist_url'] = $this->buildBlacklistUrl($message['from_email']);
             $mail = Email::buildUnverifiedMessage($this->user, $message, $data);
             return new ProcessingResult(Model\MessageRepository::STATUS_NOT_VERIFIED, $mail);
         }
@@ -208,7 +226,7 @@ class MessageProcessor
         }
 
         $result = new ProcessingResult();
-        $mailOptions = ['profile' => $profile];
+        $data = ['profile' => $profile];
         // todo: move filter out of class
         $filter = new \Filter($this->user['id'], $profile, $this->db);
         $filter->processFilters();
@@ -216,16 +234,18 @@ class MessageProcessor
         if ($filter->status === true) {
             $result->status = Model\MessageRepository::STATUS_FILTER_PASSED;
         } else {
-            $mailOptions['failed_filters'] = $filter->getFailedFilters();
-            $mailOptions['whitelist_url'] = $this->buildWhitelistUrl($message['from_email']);
+            $data['failed_filters'] = $filter->getFailedFilters();
             $result->status = Model\MessageRepository::STATUS_FILTER_FAILED;
         }
-
+        
+        $data['whitelist_url']  = $this->buildWhitelistUrl($message['from_email']);
+        $data['blacklist_url']  = $this->buildBlacklistUrl($message['from_email']);
+        
         // build email
         $result->message = Email::buildVerifiedMessage(
             $this->user,
             $message,
-            $mailOptions
+            $data
         );
 
         return $result;

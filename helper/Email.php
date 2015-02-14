@@ -263,8 +263,9 @@ class Email
         if (isset($profComb->fullContact) && $profComb->fullContact->likelihood > 0.8) {
             $contact['full_contact'] = $profComb->fullContact;
         }
-
-        $infoText = Template::generate('email_header/verified.html', ['contact' => $contact]);
+        
+        $data['contact'] = $contact;
+        $infoText = Template::generate('email_header/verified.html', $data);
         
         // build our info header
         $altInfoBody = new \ezcMailText('This is the body in plain text for non-HTML mail clients');

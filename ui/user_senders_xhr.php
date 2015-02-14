@@ -77,9 +77,6 @@ if ($action == 'save') {
     $entry['access'] = $access;
     $id = $repo->save($entry);
     
-    // process related sender
-    $repo->updateAccessTypeOfRelatedSender($entry);
-    
     echo json_encode([
         'status' => 'success',
         'id' => $id 

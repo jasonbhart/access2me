@@ -1,0 +1,9 @@
+<?php if (isset($data['whitelist_url'])): ?>
+<span style="display:table-cell;">
+    Add this sender to the 
+    <a style="color:#4fba81;" href="<?php echo htmlentities($data['whitelist_url']); ?>">whitelist</a>
+    |
+    <a style="color:#ee2c33;" href="<?php echo htmlentities($data['blacklist_url']); ?>">blacklist</a>
+</span>
+<?php endif; ?>
+

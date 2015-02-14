@@ -12,6 +12,8 @@ use Access2Me\Model;
 $token = isset($_REQUEST['token']) ? $_REQUEST['token'] : null;
 $userId = isset($_REQUEST['uid']) ? $_REQUEST['uid'] : null;
 $email = isset($_REQUEST['email']) ? $_REQUEST['email'] : null;
+$accessType = (isset($_REQUEST['access_type']) && intval($_REQUEST['access_type']) === Model\UserSenderRepository::ACCESS_DENIED)
+                ? Model\UserSenderRepository::ACCESS_DENIED : Model\UserSenderRepository::ACCESS_ALLOWED;
 
 // check input params
 if (!$token || !Helper\Utils::isValidEmail($email)) {
@@ -30,7 +32,6 @@ if (!$tokenManager->isValid($token, $userId, $email)) {
 $splitted = Helper\Email::splitEmail($email);
 $domain = $splitted['domain'];
 
-// whitelist type
 $sender = null;
 $type = null;
 if (isset($_POST['temail'])) {
@@ -52,12 +53,19 @@ if ($_POST && $type !== null) {
             'sender' => $sender
         ];
     }
-
+    
     $entry['type'] = $type;
-    $entry['access'] = Model\UserSenderRepository::ACCESS_ALLOWED;
+    
+    $access = (!empty($_POST['access']) && intval($_POST['access']) === Model\UserSenderRepository::ACCESS_DENIED) 
+                ? Model\UserSenderRepository::ACCESS_DENIED : Model\UserSenderRepository::ACCESS_ALLOWED;
+    $entry['access'] = $access;
 
     $userSenderRepo->save($entry);
-    $whitelisted = true;
+    $saved = true;
 }
 
-require 'views/whitelist_sender.html';
+if ($accessType === Model\UserSenderRepository::ACCESS_ALLOWED) {
+    require 'views/whitelist_sender.html';
+} else {
+    require 'views/blacklist_sender.html';
+}
