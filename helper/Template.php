@@ -96,6 +96,18 @@ class Template
         'zerply' => 'zerply.png',
     ];
 
+    public static function getGenderIcon($gender)
+    {
+        $gender = strtolower($gender);
+        if ($gender == 'male') {
+            return self::$baseUrl . 'male.png';
+        } else if ($gender == 'female') {
+            return self::$baseUrl . 'female.png';
+        }
+
+        throw new \Exception('Unknown gender');
+    }
+
     public static function getServiceIcon($serviceId)
     {
         if (!isset(self::$serviceIcons[$serviceId])) {
@@ -145,6 +157,13 @@ class Template
         return Twitter::getProfileUrl($userId);
     }
 
+    /**
+     * 
+     * @deprecated please use `render` method
+     * @param type $template
+     * @param type $data
+     * @return type
+     */
     public static function generate($template, $data = null)
     {
         if ($data !== null) {
@@ -154,5 +173,17 @@ class Template
         ob_start();
         include __DIR__ . '/../views/' . $template;
         return ob_get_clean();
+    }
+
+    /**
+     * Renders template using Twig
+     * 
+     * @param string $template
+     * @param array $data
+     * @return string
+     */
+    public static function render($template, $data = null)
+    {
+        return Registry::getTwig()->render($template, $data);
     }
 }

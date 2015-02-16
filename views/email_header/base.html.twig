@@ -1,0 +1,30 @@
+<!doctype html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <title>{% block title %}{% endblock %}</title>
+    </head>
+
+    <body>
+        <div style="font-family:'Trebuchet MS', Arial, Helvetica, sans-serif; font-size:13px; line-height:18px;">
+            <table style="background:#4fba81 none; border: 0px; border-collapse:collapse; width: 100%">
+                <tr>
+                    <td style="padding-left: 1em; vertical-align: middle;">
+                        {% block header %}{% endblock %}
+                    </td>
+                    <td style="padding-right: 1em; text-align:right">
+                        <a href="#none" style="font-size:0; line-height:0;">
+                            <img src="http://app.access2.me/images/logo.jpg" width="150" height="40" alt="Access2.me" />
+                        </a>
+                    </td>
+                </tr>
+            </table>
+
+            {% block content %}{% endblock %}
+
+            <div style="background:#3f3240 repeat 0 0; border-top:1px solid #554a56; color:#e5e5e5; padding: 10px; vertical-align: middle;">
+                {% block footer %}{% endblock %}
+            </div>
+        </div>
+    </body>
+</html>

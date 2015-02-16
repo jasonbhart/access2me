@@ -1,0 +1,15 @@
+{% extends 'email_header/with_profile.html.twig' %}
+
+{% block footer %}
+<div style="display: inline-block; width:35%; margin-right:10px;">
+    <a href="#none" style="color:#4fba81;">
+        <span style="display:inline-block; font-size:0; line-height:0; overflow:hidden; border-radius:50%; width:25px; height:25px; vertical-align:middle;">
+        {% if profile.picture_url %}
+            <img style="width:25px; height:25px;" src="{{ profile.picture_url }}" alt="" />
+        {% endif %}
+        </span>
+    View full profile
+    </a>
+</div>
+{% include 'email_header/_whitelist_and_blacklist_sender.html.twig' %}
+{% endblock %}
