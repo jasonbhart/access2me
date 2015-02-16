@@ -1,18 +1,18 @@
 {% extends 'email_header/base.html.twig' %}
 
 {% block header %}
-    {% if profile %}
-    {% for sid,url in profile.profile_urls %}
-    <a href="{{ url }} ?>" style="border-radius:50%; display:inline-block; margin-right:3px; border:1px solid #d1d1d1; overflow:hidden; width:20px; height:20px; font-size:0; line-height:0;vertical-align:middle;">
-        <img style="width:20px; height:20px;" src="{{ service_icon(sid) }}" width="20" height="20" alt="" />
-    </a>
-    {% endfor %}
-    {% endif %}
+{% if profile %}
+{% for sid,url in profile.profile_urls %}
+<a href="{{ url }} ?>" style="border-radius:50%; display:inline-block; margin-right:3px; border:1px solid #d1d1d1; overflow:hidden; width:20px; height:20px; font-size:0; line-height:0;vertical-align:middle;">
+    <img style="width:20px; height:20px;" src="{{ service_icon(sid) }}" width="20" height="20" alt="" />
+</a>
+{% endfor %}
+{% endif %}
 {% endblock %}
 
 {% block content %}
 {% if profile %}
-<div style="background:#3f3240 repeat 0 0; color:#e5e5e5; padding:10px;">
+<div style="background:#3f3240 repeat 0 0; color:#e5e5e5; padding: 10px 0px">
     <table width="100%" border="0" cellspacing="0" cellpadding="0" style="border-collapse:collapse;">
         <tr>
             <td style="width:100px; vertical-align:top">

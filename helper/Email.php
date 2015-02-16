@@ -224,7 +224,7 @@ class Email
     protected static function getWhitelistedHeader($data)
     {
         // generate header
-        $text = Template::render('email_header/whitelisted.html', $data);
+        $text = Template::render('email_header/whitelisted.html.twig', $data);
 
         // build our info header
         $altBody = new \ezcMailText('This is the body in plain text for non-HTML mail clients');
@@ -367,7 +367,7 @@ class Email
         $newBody = new \ezcMailMultipartMixed($info, $body);
 
         // build new message
-        $fromName = $data['profile']->getFirst('fullName');
+        $fromName = $data['profile']['full_name'];
 
         $newMail = new \ezcMail();
         $newMail->from = new \ezcMailAddress('noreply@access2.me', $fromName);

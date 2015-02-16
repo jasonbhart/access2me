@@ -224,7 +224,7 @@ class MessageProcessor
             $profile = $this->getSenderProfile($message['from_email']);
             $data = [];
             if ($profile) {
-                $data['contact'] = $this->getProfileViewData($profile);
+                $data['profile'] = $this->getProfileViewData($profile);
             }
             $mail = Email::buildWhitelistedMessage($this->user, $message, $data);
             return new ProcessingResult(Model\MessageRepository::STATUS_SENDER_WHITELISTED, $mail);
@@ -276,7 +276,7 @@ class MessageProcessor
         
         $data['whitelist_url']  = $this->buildWhitelistUrl($message['from_email']);
         $data['blacklist_url']  = $this->buildBlacklistUrl($message['from_email']);
-        $data['contact'] = $this->getProfileViewData($profile);
+        $data['profile'] = $this->getProfileViewData($profile);
         
         // build email
         $result->message = Email::buildVerifiedMessage(
