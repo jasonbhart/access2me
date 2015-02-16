@@ -105,7 +105,7 @@ class Registry
             self::$twig->addFunction(new \Twig_SimpleFunction('messenger_icon', ['\Access2Me\Helper\Template', 'getMessengerIcon']));
             self::$twig->addFunction(new \Twig_SimpleFunction('format_money', ['\Access2Me\Helper\Template', 'formatMoney']));
             self::$twig->addFunction(new \Twig_SimpleFunction('service_icon', ['\Access2Me\Helper\Template', 'getServiceIcon']));
-            self::$twig->addFunction(new \Twig_SimpleFunction('social_icon', ['\Access2Me\Helper\Template', 'getMessengerIcon']));
+            self::$twig->addFunction(new \Twig_SimpleFunction('social_icon', ['\Access2Me\Helper\Template', 'getSocialIcon']));
             self::$twig->addFunction(new \Twig_SimpleFunction('twitter_profile_url', ['\Access2Me\Helper\Template', 'getTwitterProfileUrl']));
         }
         
