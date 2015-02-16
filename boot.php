@@ -108,6 +108,7 @@ $twitterAuth = array(
 );
 
 $appConfig = array(
+    'projectPath' => __DIR__,
     'siteUrl' => $localUrl,
     'imap' => [
         'host'     => 'mail.access2.me',
@@ -142,6 +143,7 @@ $appConfig = array(
     ],
     'secret' => 'rO2RL7H0mWeFs5.zRF1yOx9ITgFo9rwkTbx3Q6YuyA/7BjjH6t5AoSfsd32kL9h1UKs',
     'dateTimeFormat' => 'Y-m-d H:i:s',
+    'twigCache' => true
 );
 
 

@@ -175,6 +175,37 @@ class MessageProcessor
         return $profComb;
     }
 
+    
+    /**
+     * Prepares profile data to be used in email header
+     * 
+     * @param ProfileCombiner $profile
+     */
+    public function getProfileViewData(ProfileCombiner $profile)
+    {
+        // data for template
+        $data = [
+            'picture_url' => $profile->getFirst('pictureUrl'),
+            'profile_urls' => $profile->profileUrl,
+            'email' => $profile->getFirst('email'),
+            'full_name' => $profile->getFirst('fullName'),
+            'headline' => $profile->getFirst('headline'),
+            'location' => $profile->getFirst('location'),
+            'summary'  => $profile->getFirst('summary')
+        ];
+
+        $data['linkedin'] = $profile->linkedin;
+        $data['angel_list'] = $profile->angelList;
+        $data['crunch_base'] = $profile->crunchBase;
+
+        // use only if realness of profile is above 80%
+        if (isset($profile->fullContact) && $profile->fullContact->likelihood > 0.8) {
+            $data['full_contact'] = $profile->fullContact;
+        }
+
+        return $data;
+    }
+
     /**
      * @todo Do we need to add info header to such messages ? 
      */
@@ -190,7 +221,12 @@ class MessageProcessor
 
         // whitelisted ?
         if ($result['access'] == Model\UserSenderRepository::ACCESS_ALLOWED) {
-            $mail = Email::buildWhitelistedMessage($this->user, $message);
+            $profile = $this->getSenderProfile($message['from_email']);
+            $data = [];
+            if ($profile) {
+                $data['profile'] = $this->getProfileViewData($profile);
+            }
+            $mail = Email::buildWhitelistedMessage($this->user, $message, $data);
             return new ProcessingResult(Model\MessageRepository::STATUS_SENDER_WHITELISTED, $mail);
         }
 
@@ -240,6 +276,7 @@ class MessageProcessor
         
         $data['whitelist_url']  = $this->buildWhitelistUrl($message['from_email']);
         $data['blacklist_url']  = $this->buildBlacklistUrl($message['from_email']);
+        $data['profile'] = $this->getProfileViewData($profile);
         
         // build email
         $result->message = Email::buildVerifiedMessage(

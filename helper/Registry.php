@@ -10,57 +10,59 @@ use Access2Me\Data;
 
 class Registry
 {
-
     private static $appConfig;
-    private static $profileProvider;
 
     public static function setUp($appConfig)
     {
         self::$appConfig = $appConfig;
-
-        $services = $appConfig['services'];
-        $profileProviders = [
-            Service::LINKEDIN => [
-                'authRequired' => true,
-                'provider' => new ProfileProvider\Linkedin($services['linkedin'])
-            ],
-            Service::FACEBOOK => [
-                'authRequired' => true,
-                'provider' => new ProfileProvider\Facebook($services['facebook'])
-            ],
-            Service::TWITTER => [
-                'authRequired' => true,
-                'provider' => new ProfileProvider\Twitter($services['twitter'])
-            ],
-            Service::CRUNCHBASE => [
-                'authRequired' => false,
-                'provider' => new ProfileProvider\CrunchBase($services['crunchbase'])
-            ],
-            Service::ANGELLIST => [
-                'authRequired' => false,
-                'provider' => new ProfileProvider\AngelList(null)
-            ],
-            Service::FULLCONTACT => [
-                'authRequired' => false,
-                'provider' => new ProfileProvider\FullContact($services['fullcontact'])
-            ]
-        ];
-
-        $db = new \Database();
-        $profileProvider = new SenderProfileProvider($profileProviders);
-
-        $cacheRepo = new Model\CacheRepository($db);
-        $cache = new Helper\Cache($cacheRepo);
-        $cached = new CachedSenderProfileProvider($cache, $profileProvider);
-
-        self::$profileProvider = new NormalizedSenderProfileProvider($cached);
     }
+
+    private static $profileProvider;
 
     /**
      * @return \Access2Me\Helper\SenderProfileProviderInterface
      */
     public static function getProfileProvider()
     {
+        if (!self::$profileProvider) {
+            $services = self::$appConfig['services'];
+            $profileProviders = [
+                Service::LINKEDIN => [
+                    'authRequired' => true,
+                    'provider' => new ProfileProvider\Linkedin($services['linkedin'])
+                ],
+                Service::FACEBOOK => [
+                    'authRequired' => true,
+                    'provider' => new ProfileProvider\Facebook($services['facebook'])
+                ],
+                Service::TWITTER => [
+                    'authRequired' => true,
+                    'provider' => new ProfileProvider\Twitter($services['twitter'])
+                ],
+                Service::CRUNCHBASE => [
+                    'authRequired' => false,
+                    'provider' => new ProfileProvider\CrunchBase($services['crunchbase'])
+                ],
+                Service::ANGELLIST => [
+                    'authRequired' => false,
+                    'provider' => new ProfileProvider\AngelList(null)
+                ],
+                Service::FULLCONTACT => [
+                    'authRequired' => false,
+                    'provider' => new ProfileProvider\FullContact($services['fullcontact'])
+                ]
+            ];
+
+            $db = new \Database();
+            $profileProvider = new SenderProfileProvider($profileProviders);
+
+            $cacheRepo = new Model\CacheRepository($db);
+            $cache = new Helper\Cache($cacheRepo);
+            $cached = new CachedSenderProfileProvider($cache, $profileProvider);
+
+            self::$profileProvider = new NormalizedSenderProfileProvider($cached);
+        }
+
         return self::$profileProvider;
     }
 
@@ -82,5 +84,31 @@ class Registry
         $stats->addResource(new Data\UserStats\GmailMessagesCount($authProvider));
         
         return $stats;
+    }
+
+    /**
+     * @var \Twig_Environment
+     */
+    private static $twig = null;
+
+    /**
+     * @return \Twig_Environment
+     */
+    public static function getTwig()
+    {
+        if (!self::$twig) {
+            $loader = new \Twig_Loader_Filesystem(self::$appConfig['projectPath'] . '/views');
+            
+            $env['cache'] = self::$appConfig['twigCache'] ? self::$appConfig['projectPath'] . '/tmp/cache/twig' : false;
+            self::$twig = new \Twig_Environment($loader, $env);
+            self::$twig->addFunction(new \Twig_SimpleFunction('gender_icon', ['\Access2Me\Helper\Template', 'getGenderIcon']));
+            self::$twig->addFunction(new \Twig_SimpleFunction('messenger_icon', ['\Access2Me\Helper\Template', 'getMessengerIcon']));
+            self::$twig->addFunction(new \Twig_SimpleFunction('format_money', ['\Access2Me\Helper\Template', 'formatMoney']));
+            self::$twig->addFunction(new \Twig_SimpleFunction('service_icon', ['\Access2Me\Helper\Template', 'getServiceIcon']));
+            self::$twig->addFunction(new \Twig_SimpleFunction('social_icon', ['\Access2Me\Helper\Template', 'getMessengerIcon']));
+            self::$twig->addFunction(new \Twig_SimpleFunction('twitter_profile_url', ['\Access2Me\Helper\Template', 'getTwitterProfileUrl']));
+        }
+        
+        return self::$twig;
     }
 }

@@ -1,0 +1,15 @@
+{% extends 'email_header/with_profile.html.twig' %}
+
+{% block footer %}
+<div style="display: inline-block; width:35%; margin-right:10px;">
+    
+    <a href="#none" style="color:#4fba81;">
+        <span style="display:inline-block; font-size:0; line-height:0; overflow:hidden; border-radius:50%; width:25px; height:25px; vertical-align:middle;"></span>
+        This sender was whitelisted.
+    </a>
+</div>
+<div style="display: inline-block">
+    To manage your whitelist, click
+    <a style="color:#4fba81;" href="http://app.access2.me/ui/login.php?redirect_to={{ '/ui/user_senders.php'|url_encode }}">here</a>.
+</div>
+{% endblock %}

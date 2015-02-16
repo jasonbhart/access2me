@@ -19,6 +19,7 @@ return array(
     'Zend\\Loader\\' => array($vendorDir . '/zendframework/zend-loader'),
     'Zend\\EventManager\\' => array($vendorDir . '/zendframework/zend-eventmanager'),
     'Zend\\Crypt\\' => array($vendorDir . '/zendframework/zend-crypt'),
+    'Twig_' => array($vendorDir . '/twig/twig/lib'),
     'Symfony\\Component\\EventDispatcher\\' => array($vendorDir . '/symfony/event-dispatcher'),
     'Psr\\Log\\' => array($vendorDir . '/psr/log'),
     'Guzzle\\Tests' => array($vendorDir . '/guzzle/guzzle/tests'),

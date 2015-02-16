@@ -209,7 +209,7 @@ class Email
 
     protected static function getUnverifiedHeader($data)
     {
-        $text = Template::generate('email_header/unverified.html', $data);
+        $text = Template::render('email_header/unverified.html.twig', $data);
         
         // build our info header
         $altBody = new \ezcMailText('This is the body in plain text for non-HTML mail clients');
@@ -221,10 +221,11 @@ class Email
         return $header;
     }
 
-    protected static function getWhitelistedHeader()
+    protected static function getWhitelistedHeader($data)
     {
-        $text = Template::generate('email_header/whitelisted.html');
-        
+        // generate header
+        $text = Template::render('email_header/whitelisted.html.twig', $data);
+
         // build our info header
         $altBody = new \ezcMailText('This is the body in plain text for non-HTML mail clients');
         $body = new \ezcMailText($text);
@@ -243,30 +244,8 @@ class Email
      */
     public static function getInfoHeader($data)
     {
-        $profComb = $data['profile'];
-        // data for template
-        $contact = array(
-            'picture_url' => $profComb->getFirst('pictureUrl'),
-            'profile_urls' => $profComb->profileUrl,
-            'email' => $profComb->getFirst('email'),
-            'full_name' => $profComb->getFirst('fullName'),
-            'headline' => $profComb->getFirst('headline'),
-            'location' => $profComb->getFirst('location'),
-            'summary'  => $profComb->getFirst('summary')
-        );
+        $infoText = Template::render('email_header/verified.html.twig', $data);
 
-        $contact['linkedin'] = $profComb->linkedin;
-        $contact['angel_list'] = $profComb->angelList;
-        $contact['crunch_base'] = $profComb->crunchBase;
-
-        // use only if realness of profile is above 80%
-        if (isset($profComb->fullContact) && $profComb->fullContact->likelihood > 0.8) {
-            $contact['full_contact'] = $profComb->fullContact;
-        }
-        
-        $data['contact'] = $contact;
-        $infoText = Template::generate('email_header/verified.html', $data);
-        
         // build our info header
         $altInfoBody = new \ezcMailText('This is the body in plain text for non-HTML mail clients');
         $infoBody = new \ezcMailText($infoText);
@@ -338,7 +317,7 @@ class Email
     }
 
     
-    public static function buildWhitelistedMessage($to, $message)
+    public static function buildWhitelistedMessage($to, $message, $data)
     {
         // get message body of the original message
         $body = self::getMessageBody(
@@ -346,7 +325,7 @@ class Email
         );
 
         // join our header and content of the original message
-        $info = self::getWhitelistedHeader();
+        $info = self::getWhitelistedHeader($data);
         $newBody = new \ezcMailMultipartMixed($info, $body);
 
         // build new message
@@ -388,7 +367,7 @@ class Email
         $newBody = new \ezcMailMultipartMixed($info, $body);
 
         // build new message
-        $fromName = $data['profile']->getFirst('fullName');
+        $fromName = $data['profile']['full_name'];
 
         $newMail = new \ezcMail();
         $newMail->from = new \ezcMailAddress('noreply@access2.me', $fromName);

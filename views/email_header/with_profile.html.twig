@@ -1,0 +1,101 @@
+{% extends 'email_header/base.html.twig' %}
+
+{% block header %}
+{% if profile %}
+{% for sid,url in profile.profile_urls %}
+<a href="{{ url }} ?>" style="border-radius:50%; display:inline-block; margin-right:3px; border:1px solid #d1d1d1; overflow:hidden; width:20px; height:20px; font-size:0; line-height:0;vertical-align:middle;">
+    <img style="width:20px; height:20px;" src="{{ service_icon(sid) }}" width="20" height="20" alt="" />
+</a>
+{% endfor %}
+{% endif %}
+{% endblock %}
+
+{% block content %}
+{% if profile %}
+<div style="background:#3f3240 repeat 0 0; color:#e5e5e5; padding: 10px 0px">
+    <table width="100%" border="0" cellspacing="0" cellpadding="0" style="border-collapse:collapse;">
+        <tr>
+            <td style="width:100px; vertical-align:top">
+                {% if profile.picture_url %}
+                <span style="border:3px solid #e1e0e0; float:left; position:relative;">
+                    <img style="width:75px;" src="{{ profile.picture_url }}" alt="" />
+                </span>
+                {% endif %}
+            </td>
+            <td style="vertical-align:top;">
+                <p style="font-size:14px; font-weight:700; margin:0 0 4px;">{{ profile.full_name }}</p>
+                <p style="margin:0">
+                    {% if profile.headline %}
+                    {{ profile.headline }}<br/>
+                    {% endif %}
+
+                    {% if profile.location %}
+                    {{ profile.location }}<br/>
+                    {% endif %}
+
+                    <a style="color:#4fba81;" href="mailto:{{ profile.email}}">
+                        {{ profile.email }}
+                    </a>
+                </p>
+            </td>
+        </tr>
+    </table>
+
+    <table width="100%" border="0" cellspacing="0" cellpadding="0"  style="border-collapse:collapse; margin-top:10px;">
+        {% if profile.linkedin.primaryTwitterAccount or profile.crunch_base %}
+        <tr>
+            <td style="padding:6px 0;border-top:1px solid #554a56; line-height:20px;">
+                {% if profile.linkedin.primaryTwitterAccount %}
+                {% set account = profile.linkedin.primaryTwitterAccount %}
+                <span style="float:left; width:35%; margin-right:10px;">
+                    <strong>Twitter account:</strong> 
+                    <a style="color:#4fba81;" href="{{ twitter_profile_url(account.id) }}">
+                        {{ account.name }}
+                    </a>
+                </span>
+                {% endif %}
+
+                {% if profile.crunch_base %}
+                <span style="display:table-cell">
+                    <strong>CrunchBase:</strong>
+                    <a style="color:#4fba81;" href="{{ profile.crunch_base.homepageUrl }}">
+                        {{ profile.crunch_base.name }}
+                    </a>
+                    <span style="background:#655b67 none; display:inline-block; padding:1px 5px; color:#b7b7b7;">
+                        (total fundings: <strong style="color:#ee2c33; font-size:14px;">${{ format_money(profile.crunchBase.totalFunding) }}</strong>)
+                    </span>
+                </span>
+                {% endif %}
+            </td>
+        </tr>
+        {% endif %}
+
+        {% if profile.full_contact %}
+        {% set fullContact = profile.fullContact %}
+        <tr>
+            <td style="padding:6px 0; border-top:1px solid #554a56;color:#b7b7b7; line-height:20px;">
+                {% if fullContact.gender %}
+                <span style="float:left; width:35%; margin-right:10px;">
+                    <strong>Gender:</strong>
+                    <span style="vertical-align:middle;font-size:0; line-height:0; display:inline-block;">
+                        <img src="{{ gender_icon(fullContact.gender) }}" />
+                    </span>
+                </span>
+                {% endif %}
+
+                {% if fullContact.socialProfiles %}
+                <span style="display:table-cell;">
+                    <strong>Social Profiles:</strong> 
+                    {% for soc in fullContact.socialProfiles %}
+                    <a href="{{ soc.url }}" style="border-radius:50%; display:inline-block; margin-right:3px; border:1px solid #d1d1d1; overflow:hidden; width:20px; height:20px; font-size:0; line-height:0; vertical-align:middle;">
+                        <img style="width:20px; height:20px;" src="{{ social_icon(soc.typeId) }}" width="20" height="20" alt="{{ soc.typeName }}" />
+                    </a> 
+                    {% endfor %}
+                {% endif %}
+            </td>
+        </tr>
+        {% endif %}
+    </table>
+</div>
+{% endif %}
+{% endblock %}
