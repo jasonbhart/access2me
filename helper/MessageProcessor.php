@@ -72,7 +72,8 @@ class MessageProcessor
 
         $folders = [
             $this->storage->getFolderName(StorageFolder::UNVERIFIED),
-            $this->storage->getFolderName($this->getFailuresFolder())
+            $this->storage->getFolderName($this->getFailuresFolder()),
+        	$this->storage->getFolderName(StorageFolder::JUNK)
         ];
 
         $folders = array_unique($folders);
@@ -219,25 +220,23 @@ class MessageProcessor
             return false;
         }
 
-        // whitelisted ?
-        if ($result['access'] == Model\UserSenderRepository::ACCESS_ALLOWED) {
-            $profile = $this->getSenderProfile($message['from_email']);
-            $data = [];
-            if ($profile) {
-                $data['profile'] = $this->getProfileViewData($profile);
-            }
-            $mail = Email::buildWhitelistedMessage($this->user, $message, $data);
-            return new ProcessingResult(Model\MessageRepository::STATUS_SENDER_WHITELISTED, $mail);
+        $profile = $this->getSenderProfile($message['from_email']);
+        $data = [];
+        if ($profile) {
+        	$data['profile'] = $this->getProfileViewData($profile);
         }
 
-        // blacklisted
-        $msg = sprintf(
-            'Do not sending message %d because sender %s is blacklisted',
-            $message['id'], $sender
-        );
-        \Logging::getLogger()->debug($msg);
+        // whitelisted ?
+        if ($result['access'] == Model\UserSenderRepository::ACCESS_ALLOWED) {
+        	$data['reason'] = 'This sender was whitelisted.';
+        	$status = Model\MessageRepository::STATUS_SENDER_WHITELISTED;
+        } else {
+        	$data['reason'] = 'This sender was blacklisted.';
+        	$status = Model\MessageRepository::STATUS_SENDER_BLACKLISTED;
+        }
 
-        return new ProcessingResult(Model\MessageRepository::STATUS_SENDER_BLACKLISTED, null);
+		$mail = Email::buildUserListProcessedMessage($this->user, $message, $data);
+		return new ProcessingResult($status, $mail);
     }
 
     /**
@@ -329,6 +328,7 @@ class MessageProcessor
         $dstFolders = [
             Model\MessageRepository::STATUS_NOT_VERIFIED => StorageFolder::UNVERIFIED,
             Model\MessageRepository::STATUS_SENDER_WHITELISTED => StorageFolder::INBOX,
+        	Model\MessageRepository::STATUS_SENDER_BLACKLISTED => StorageFolder::JUNK,
             Model\MessageRepository::STATUS_FILTER_PASSED => StorageFolder::INBOX,
             Model\MessageRepository::STATUS_FILTER_FAILED => $this->getFailuresFolder()
         ];
