@@ -11,7 +11,8 @@ class StorageFolder
     const SENT = 2;
     const TRASH = 3;
     const UNVERIFIED = 4;    
-    const UNIMPORTANT = 5;    
+    const UNIMPORTANT = 5;
+    const JUNK = 6;
 }
 
 interface StorageFolderInterface
@@ -32,7 +33,8 @@ class GmailImapStorage extends Storage\Imap implements StorageFolderInterface
         StorageFolder::SENT => '[Gmail]/Sent Mail',
         StorageFolder::TRASH => '[Gmail]/Trash',
         StorageFolder::UNVERIFIED => 'Unverified',
-        StorageFolder::UNIMPORTANT => 'Unimportant'
+        StorageFolder::UNIMPORTANT => 'Unimportant',
+    	StorageFolder::JUNK => 'Junk',
     ];
 
     public function getFolderName($folderId)

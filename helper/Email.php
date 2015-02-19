@@ -221,10 +221,10 @@ class Email
         return $header;
     }
 
-    protected static function getWhitelistedHeader($data)
+    protected static function getUserListedHeader($data)
     {
         // generate header
-        $text = Template::render('email_header/whitelisted.html.twig', $data);
+        $text = Template::render('email_header/userlisted.html.twig', $data);
 
         // build our info header
         $altBody = new \ezcMailText('This is the body in plain text for non-HTML mail clients');
@@ -264,12 +264,17 @@ class Email
      * @param array $message message entity
      * @return \ezcMail
      */
-    public static function buildMessage($to, $message)
+    public static function buildMessage($to, $message, $header = null)
     {
         // get message body of the original message
         $body = self::getMessageBody(
             $message['header'] . "\r\n\r\n" . $message['body']
         );
+
+        // prepend header
+        if ($header !== null) {
+        	$body = new \ezcMailMultipartMixed($header, $body);
+        }
 
         // build new message
         $fromName = $message['from_name'];
@@ -317,32 +322,11 @@ class Email
     }
 
     
-    public static function buildWhitelistedMessage($to, $message, $data)
+    public static function buildUserListProcessedMessage($to, $message, $data)
     {
-        // get message body of the original message
-        $body = self::getMessageBody(
-            $message['header'] . "\r\n\r\n" . $message['body']
-        );
-
         // join our header and content of the original message
-        $info = self::getWhitelistedHeader($data);
-        $newBody = new \ezcMailMultipartMixed($info, $body);
-
-        // build new message
-        $fromName = $message['from_name'];
-
-        $newMail = new \ezcMail();
-        $newMail->from = new \ezcMailAddress('noreply@access2.me', $fromName);
-        $newMail->to = array(new \ezcMailAddress($to['mailbox']));
-        $newMail->setHeader('Reply-To', $message['reply_email']);
-        $newMail->setHeader('X-Mailer', '');
-        $newMail->subject = $message['subject'];
-        $newMail->body = $newBody;
-
-        // do not include User-Agent header in the mail
-        $newMail->appendExcludeHeaders(array('User-Agent'));
-        
-        return $newMail;
+        $header = self::getUserListedHeader($data);
+        return self::buildMessage($to, $message, $header);
     }
 
     /**
