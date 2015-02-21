@@ -59,8 +59,18 @@ $primary_nav = array(
         'icon'  => 'fa fa-rocket'
     ),
     array(
+        'name'  => 'Verified senders',
+        'url'   => 'verified_senders.php?type=verified',
+        'icon'  => 'fa fa-user'
+    ),
+    array(
         'name'  => 'Whitelist senders',
         'url'   => 'user_senders.php?type=1',
+        'icon'  => 'fa fa-user'
+    ),
+    array(
+        'name'  => 'Unverified senders',
+        'url'   => 'verified_senders.php?type=unverified',
         'icon'  => 'fa fa-user'
     ),
     array(
