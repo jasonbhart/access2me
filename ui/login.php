@@ -8,6 +8,12 @@ use Access2Me\Helper\AuthException;
 $db = new Database;
 $auth = new Auth($db);
 
+if (isset($_GET['action']) && $_GET['action'] == 'logout' && $auth->isAuthenticated()) {
+    $auth->logout();
+    header('Location: login.php');
+    exit;
+}
+
 if ($auth->isAuthenticated()) {
     header('Location: index.php');
     exit;
@@ -39,12 +45,6 @@ if ($_POST) {
             $errorMessage = $ex->getMessage();
         }
     }
-}
-
-if (isset($_GET['action']) && $_GET['action'] == 'logout') {
-    $auth->logout();
-    header('Location: login.php');
-    exit;
 }
 
 ?>
@@ -93,7 +93,7 @@ if (isset($_GET['action']) && $_GET['action'] == 'logout') {
                         <input type="checkbox" id="login-remember-me" name="login-remember-me">
                         <span></span>
                     </label>
-                    Remember Me?
+                    <label for="login-remember-me">Remember Me?</label>
                 </div>
                 <div class="col-xs-4 text-right">
                     <button type="submit" class="btn btn-effect-ripple btn-sm btn-primary"><i class="fa fa-check"></i> Login</button>

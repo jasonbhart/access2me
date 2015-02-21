@@ -28,13 +28,6 @@ class Auth
         return $user;
     }
 
-    public function getUserByMailbox($mailbox)
-    {
-        $repo = new \Access2Me\Model\UserRepository($this->db);
-        $user = $repo->getByMailbox($mailbox);
-        return $user;
-    }
-    
     protected function checkPassword($user, $passwordHash)
     {
         return $user != null && $user['password'] == $passwordHash;
