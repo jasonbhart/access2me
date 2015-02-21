@@ -151,6 +151,48 @@ class SenderRepository
         return $res !== false ? (int)$res[0]['cnt'] : 0;
     }
 
+    /**
+     * Returns senders that did not verify themselves
+     *
+     * @param int $userId
+     * @return string[]
+     */
+    public function findUnverifiedByUser($userId)
+    {
+        $query = 'SELECT DISTINCT m.from_email email'
+            . ' FROM `' . UserRepository::TABLE_NAME . '` u'
+            . ' JOIN `' . MessageRepository::TABLE_NAME . '` m'
+            . ' ON u.`id` = m.`user_id`'
+            . ' LEFT JOIN `' . self::TABLE_NAME . '` s'
+            . ' ON m.`from_email` = s.`sender`'
+            . ' WHERE u.`id` = :user_id AND s.id IS NULL';
+        $params = ['user_id' => $userId];
+
+        $res = $this->db->getArray($query, $params);
+        return $res !== false ? $res : [];
+    }
+
+    /**
+     * Returns list of senders that verified themselves
+     *
+     * @param int $userId
+     * @return string[]
+     */
+    public function findVerifiedByUser($userId)
+    {
+        $query = 'SELECT DISTINCT m.from_email email'
+            . ' FROM `' . UserRepository::TABLE_NAME . '` u'
+            . ' JOIN `' . MessageRepository::TABLE_NAME . '` m'
+            . ' ON u.`id` = m.`user_id`'
+            . ' JOIN `' . self::TABLE_NAME . '` s'
+            . ' ON m.`from_email` = s.`sender`'
+            . ' WHERE u.`id` = :user_id';
+        $params = ['user_id' => $userId];
+
+        $res = $this->db->getArray($query, $params);
+        return $res !== false ? $res : [];
+    }
+
     public function findAll()
     {
         $query = 'SELECT * FROM `' . self::TABLE_NAME. '`';
