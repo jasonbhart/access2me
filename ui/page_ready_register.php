@@ -1,9 +1,10 @@
 <?php 
 require_once __DIR__ . "/../boot.php";
-use Access2Me\Helper\Auth;
+use Access2Me\Helper;
+use Access2Me\Model;
 
 $db = new Database;
-$auth = new Auth($db);
+$auth = new Helper\Auth($db);
 
 if ($auth->isAuthenticated()) {
     header('Location: index.php');
@@ -22,6 +23,7 @@ if ($_POST) {
     $fullName = isset($_POST['register-fullname']) ? $_POST['register-fullname'] : null;
     $email = isset($_POST['register-email']) ? $_POST['register-email'] : null;
     $mailbox = isset($_POST['register-mailbox']) ? $_POST['register-mailbox'] : null;
+    $whitelistDomain = isset($_POST['whitelist-domain']) && $_POST['whitelist-domain'] == 'on';
     $password = isset($_POST['register-password']) ? $_POST['register-password'] : null;
     $password2 = isset($_POST['register-password-verify']) ? $_POST['register-password-verify'] : null;
     $terms = isset($_POST['register-terms']) ? (bool)$_POST['register-terms'] : false;
@@ -36,13 +38,11 @@ if ($_POST) {
         $errors['name'] = 'Please enter your full name';
     }
 
-    // took from jquery.validation
-    $emailPattern = '/^[a-zA-Z0-9.!#$%&\'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/';
-    if (!preg_match($emailPattern, $email)) {
+    if (!Helper\Utils::isValidEmail($email)) {
         $errors['email'] = 'Please enter a valid email address';
     }
 
-    if (!preg_match($emailPattern, $mailbox)) {
+    if (!Helper\Utils::isValidEmail($mailbox)) {
         $errors['mailbox'] = 'Please enter a valid Gmail address';
     }
 
@@ -64,35 +64,37 @@ if ($_POST) {
     
     // create user
     if (count($errors) == 0) {
-        $db = new Database();
-        $auth = new \Access2Me\Helper\Auth($db);
-
-        $passwordHash = $auth->encodePassword($password);
+        $userRepo = new Model\UserRepository($db);
 
         // create user
-        $db->insert(
-            'users',
-            array(
-                'mailbox',
-                'email',
-                'name',
-                'username',
-                'password',
-            ),
-            array(
-                $mailbox,
-                $email,
-                $fullName,
-                $username,
-                $passwordHash
-            ),
-            true
-        );
+        $user = [
+            'mailbox' => $mailbox,
+            'email' => $email,
+            'name' => $fullName,
+            'username' => $username,
+            'password' => $auth->encodePassword($password),
+            'gmail_access_token' => null
+        ];
+        $userId = $userRepo->save($user);
+
+        // whitelist domain address
+        if ($whitelistDomain) {
+            $splitted = Helper\Email::splitEmail($email);
+            $entry = [
+                'user_id' => $userId,
+                'sender' => $splitted['domain'],
+                'type' => Model\UserSenderRepository::TYPE_DOMAIN,
+                'access' => Model\UserSenderRepository::ACCESS_ALLOWED
+            ];
+
+            $userListRepo = new Model\UserSenderRepository($db);
+            $userListRepo->save($entry);
+        }
 
         try {
             // login user and authenticate him with gmail
             $auth->login($username, $password);
-            header('Location: gmailoauth.php');
+            header('Location: ' . $appConfig['siteUrl'] . '/ui/gmailoauth.php');
             exit;
         } catch (\Access2Me\Helper\AuthException $ex) {
             Logging::getLogger()->debug('Can\' register user', array('exception' => $ex));
@@ -148,6 +150,15 @@ if ($_POST) {
             <div class="form-group">
                 <div class="col-xs-12">
                     <input type="text" id="register-mailbox" name="register-mailbox" class="form-control" placeholder="Gmail address">
+                </div>
+            </div>
+            <div class="form-group form-actions">
+                <div class="col-xs-12">
+                    <label class="csscheckbox csscheckbox-primary" data-toggle="tooltip" title="Add email domain to the whitelist">
+                        <input type="checkbox" id="whitelist-domain" name="whitelist-domain">
+                        <span></span>
+                    </label>
+                    <label for="whitelist-domain">Add email domain to the whitelist</label>
                 </div>
             </div>
             <div class="form-group">
