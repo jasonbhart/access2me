@@ -1,5 +1,5 @@
 <?php 
-require_once __DIR__ . "/../boot.php";
+require_once __DIR__ . '/../boot.php';
 use Access2Me\Helper;
 use Access2Me\Model;
 
@@ -10,14 +10,10 @@ if ($auth->isAuthenticated()) {
     header('Location: index.php');
     exit;
 }
-?>
-<?php include 'inc/config.php'; ?>
-<?php include 'inc/template_start.php'; ?>
-
-<?php
 
 if ($_POST) {
-    require_once __DIR__ . "/../boot.php";
+
+    $userRepo = new Model\UserRepository($db);
 
     $username = isset($_POST['register-username']) ? $_POST['register-username'] : null;
     $fullName = isset($_POST['register-fullname']) ? $_POST['register-fullname'] : null;
@@ -40,10 +36,14 @@ if ($_POST) {
 
     if (!Helper\Utils::isValidEmail($email)) {
         $errors['email'] = 'Please enter a valid email address';
+    } else if ($userRepo->getByUsername($username) !== null) {
+        $errors['username'] = 'Username <strong>"' . htmlentities($username) . '"</strong> already used.';
     }
 
     if (!Helper\Utils::isValidEmail($mailbox)) {
         $errors['mailbox'] = 'Please enter a valid Gmail address';
+    } else if ($userRepo->getByMailbox($mailbox) !== null) {
+        $errors['mailbox'] = 'Mailbox <strong>"' . htmlentities($mailbox) . '"</strong> already used.';
     }
 
     if (mb_strlen($password) < 5 || $password != $password2) {
@@ -54,19 +54,8 @@ if ($_POST) {
         $errors['terms'] = 'Please accept the terms!';
     }
 
-    // check if username or mailbox is existing
-    if (!empty($username) && !is_null($auth->getUser($username))) {
-        $errors['username'] = 'Username <strong>"'.$username.'"</strong> is existing.';
-    }
-    if (!empty($mailbox) && !is_null($auth->getUserByMailbox($mailbox))) {
-        $errors['mailbox']  = 'Mailbox <strong>"'.$mailbox.'"</strong> is existing.';
-    }
-    
     // create user
     if (count($errors) == 0) {
-        $userRepo = new Model\UserRepository($db);
-
-        // create user
         $user = [
             'mailbox' => $mailbox,
             'email' => $email,
@@ -97,11 +86,15 @@ if ($_POST) {
             header('Location: ' . $appConfig['siteUrl'] . '/ui/gmailoauth.php');
             exit;
         } catch (\Access2Me\Helper\AuthException $ex) {
+            $errors[] = 'Application error';
             Logging::getLogger()->debug('Can\' register user', array('exception' => $ex));
         }
     }
 }
 ?>
+
+<?php include 'inc/config.php'; ?>
+<?php include 'inc/template_start.php'; ?>
 
 <!-- Login Container -->
 <div id="login-container">
@@ -124,10 +117,10 @@ if ($_POST) {
 
         <!-- Register Form -->
         <form id="form-register" action="page_ready_register.php" method="post" class="form-horizontal">
-            <div class="form-group" id="register-errors" style="color: red;">
+            <div class="form-group">
                 <?php if (isset($errors)) {
                     foreach ($errors as $error) { ?>
-                    <div>
+                    <div class="alert alert-danger">
                         <?php echo $error; ?>
                     </div>
                 <?php }}; ?>
