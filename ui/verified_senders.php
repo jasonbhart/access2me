@@ -42,7 +42,9 @@ echo $htmlHeader;
         <div class="block-title clearfix">
             <h1><?php echo $title; ?></h1>
         </div>
-
+        <div class="alert alert-success" id="alert-div" style="display:none">
+            <span class="fa fa-check" id="alert-content"></span>
+        </div>
         <div class="table-responsive">
             <table id="general-table" class="table table-striped table-bordered table-vcenter table-hover">
                 <thead>

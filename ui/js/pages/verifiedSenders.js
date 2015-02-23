@@ -36,8 +36,9 @@ var VerifiedSenders = function() {
                 _.remove(data.entries, function(e) {
                     return e == email;
                 });
-
-                $container.fadeOut().remove();
+                
+                $('#alert-content').html(' <strong>'+ email +'</strong> is added to ' + '<strong>' + access + '</strong>');
+                $('#alert-div').show().delay(5000).fadeOut();
             });
         }
 
