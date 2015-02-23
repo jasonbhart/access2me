@@ -53,7 +53,8 @@ class UserSenderRepository
         $query = 'SELECT * FROM `' . self::TABLE_NAME . '`'
             . ' WHERE `user_id` = :user_id AND `access` = :access';
         $entries = $this->db->getArray($query, ['user_id' => $userId, 'access' => $access]);
-        return $entries;
+
+        return $entries !== false ? $entries : [];
     }
 
     /**

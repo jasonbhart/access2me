@@ -26,10 +26,12 @@ $sendersRepo = new Model\SenderRepository($db);
 if ($type == 'unverified') {
     $senders = $sendersRepo->findUnverifiedByUser($userId);
     $title = 'Unverified senders';
-} else {
+} else {    // verified
     $senders = $sendersRepo->findVerifiedByUser($userId);
     $title = 'Verified senders';
 }
+
+$viewData['entries'] = $senders;
 
 echo $htmlHeader;
 ?>
@@ -45,20 +47,37 @@ echo $htmlHeader;
             <table id="general-table" class="table table-striped table-bordered table-vcenter table-hover">
                 <thead>
                     <tr>
-                        <th>Sender</th>
+                        <th>Email</th>
+                        <th style="width: 120px;" class="text-center">
+                            <i class="fa fa-flash"></i>
+                        </th>
                     </tr>
                 </thead>
-                <tbody id="entries-holder">
-                <?php foreach ($senders as $sender): ?>
-                    <tr>
-                        <td><?php echo htmlentities($sender['email']); ?></td>
-                    </tr>
-                <?php endforeach; ?>
-                </tbody>
+                <tbody id="entries-holder"></tbody>
             </table>
         </div>
     </div>
 </div>
+
+<script id="entry-content-template" type="text/x-jsrender">
+    <td>{{:email}}</td>
+</script>
+
+    <script id="entry-template" type="text/x-jsrender">
+<tr data-email="{{:email}}">
+    {{include tmpl="#entry-content-template" /}}
+    <td class="text-center">
+        <a href="javascript:void(0)" data-toggle="tooltip" title="Whitelist"
+           class="btn btn-effect-ripple btn-sm btn-success entry-whitelist">
+            <i class="gi gi-star"></i>
+        </a>
+        <a href="javascript:void(0)" data-toggle="tooltip" title="Blacklist"
+           class="btn btn-effect-ripple btn-sm btn-danger entry-blacklist">
+            <i class="gi gi-dislikes"></i>
+        </a>
+    </td>
+</tr>
+</script>
 
 <?php include 'inc/page_footer.php'; ?>
 <?php include 'inc/template_scripts.php'; ?>
@@ -67,6 +86,13 @@ echo $htmlHeader;
 <script src="js/vendor/jsrender.min.js"></script>
 <script src="js/vendor/lodash.min.js"></script>
 <script src="js/pages/formsWizard.js"></script>
+<script src="js/pages/verifiedSenders.js"></script>
 <script>$(function(){ FormsWizard.init(); });</script>
+<script>
+    $(function() {
+        var data = <?php echo json_encode($viewData); ?>;
+        VerifiedSenders.init(data);
+    });
+</script>
 
 <?php include 'inc/template_end.php'; ?>

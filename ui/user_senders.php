@@ -11,16 +11,27 @@ $db = new Database;
 $auth = new Helper\Auth($db);
 $userId = $auth->getLoggedUser()['id'];
 
-// prepare view data
-$userSenderRepo = new Model\UserSenderRepository($db);
-$senders = [];
+$type = isset($_GET['type']) ? $_GET['type'] : null;
 
-if (!empty($_GET['type']) && (intval($_GET['type']) === Model\UserSenderRepository::ACCESS_DENIED)) {
-    $access = Model\UserSenderRepository::ACCESS_DENIED;
-} else {
-    $access = Model\UserSenderRepository::ACCESS_ALLOWED;
+// redirect to the home page if invalid type requested
+if ($type != 'whitelisted' && $type != 'blacklisted') {
+    header('Location: ' . $appConfig['siteUrl'] . '/ui');
+    exit;
 }
 
+// process request
+$userSenderRepo = new Model\UserSenderRepository($db);
+
+if ($type == 'whitelisted') {
+    $access = Model\UserSenderRepository::ACCESS_ALLOWED;
+    $title = 'Whitelisted senders';
+} else {    // blacklisted
+    $access = Model\UserSenderRepository::ACCESS_DENIED;
+    $title = 'Blacklisted senders';
+}
+
+// prepare view data
+$senders = [];
 foreach ($userSenderRepo->findByUserAndAccess($userId, $access) as $sender) {
     $senders[] = [
         'id' => $sender['id'],
@@ -30,23 +41,31 @@ foreach ($userSenderRepo->findByUserAndAccess($userId, $access) as $sender) {
     ];
 }
 
+// allow only opposite access
+$accessTypes = [];
+if ($type == 'whitelisted') {
+    $accessTypes[Model\UserSenderRepository::ACCESS_DENIED] = 'denied';
+} else {
+    $accessTypes[Model\UserSenderRepository::ACCESS_ALLOWED] = 'allowed';
+}
+
 $types = [
     Model\UserSenderRepository::TYPE_DOMAIN => 'domain',
     Model\UserSenderRepository::TYPE_EMAIL => 'email'
 ];
 
-$accessTypes = [
-    Model\UserSenderRepository::ACCESS_ALLOWED => 'allowed',
-    Model\UserSenderRepository::ACCESS_DENIED => 'denied'
+$viewData = [
+    'entries' => $senders,
+    'types' => $types,
+    'accessTypes' => $accessTypes
 ];
-
 ?>
 
 <div id="page-content">
     <div class="block">
         <!-- Table Styles Title -->
         <div class="block-title clearfix">
-            <h1>Sender list</h1>
+            <h1><?php echo $title; ?></h1>
         </div>
 
         <div>
@@ -141,11 +160,7 @@ $accessTypes = [
 <script>$(function(){ FormsWizard.init(); });</script>
 <script>
     $(function() {
-        var data = {
-            'entries': <?php echo json_encode($senders); ?>,
-            'types': <?php echo json_encode($types); ?>,
-            'accessTypes': <?php echo json_encode($accessTypes); ?>
-        };
+        var data = <?php echo json_encode($viewData); ?>;
         UserSenders.init(data);
     });
 </script>
