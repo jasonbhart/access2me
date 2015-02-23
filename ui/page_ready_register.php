@@ -68,7 +68,7 @@ if ($_POST) {
 
         // whitelist domain address
         if ($whitelistDomain) {
-            $splitted = Helper\Email::splitEmail($email);
+            $splitted = Helper\Email::splitEmail($mailbox);
             $entry = [
                 'user_id' => $userId,
                 'sender' => $splitted['domain'],
@@ -145,15 +145,6 @@ if ($_POST) {
                     <input type="text" id="register-mailbox" name="register-mailbox" class="form-control" placeholder="Gmail address">
                 </div>
             </div>
-            <div class="form-group form-actions">
-                <div class="col-xs-12">
-                    <label class="csscheckbox csscheckbox-primary" data-toggle="tooltip" title="Add email domain to the whitelist">
-                        <input type="checkbox" id="whitelist-domain" name="whitelist-domain">
-                        <span></span>
-                    </label>
-                    <label for="whitelist-domain">Add email domain to the whitelist</label>
-                </div>
-            </div>
             <div class="form-group">
                 <div class="col-xs-12">
                     <input type="password" id="register-password" name="register-password" class="form-control" placeholder="Password">
@@ -162,6 +153,15 @@ if ($_POST) {
             <div class="form-group">
                 <div class="col-xs-12">
                     <input type="password" id="register-password-verify" name="register-password-verify" class="form-control" placeholder="Verify Password">
+                </div>
+            </div>
+            <div class="form-group form-actions">
+                <div class="col-xs-12">
+                    <label class="csscheckbox csscheckbox-primary" data-toggle="tooltip" title="Add email domain to the whitelist">
+                        <input type="checkbox" id="whitelist-domain" name="whitelist-domain">
+                        <span></span>
+                    </label>
+                    <label for="whitelist-domain">Add mailbox's domain to the whitelist</label>
                 </div>
             </div>
             <div class="form-group form-actions">
