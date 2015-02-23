@@ -201,7 +201,7 @@ var UserSenders = function() {
                         }
 
                         // copy values back to entries
-                        entry.sender = formData.sender;
+                        entry.sender = response.sender;
                         entry.type = formData.type;
                         entry.access = formData.access;
                     });
@@ -274,9 +274,18 @@ var UserSenders = function() {
                             return;
                         }
 
-                        formData.id = response.id;
+                        var entry = service.getEntryById(response.id);
+                        // entry will be found if user creates record for already existing sender
+                        if (entry) {
+                            entry.sender = response.sender;
+                            entry.type = formData.type;
+                            entry.access = formData.access;
+                        } else {
+                            formData.id = response.id;
+                            formData.sender = response.sender;
+                            data.entries.unshift(formData);
+                        }
 
-                        data.entries.unshift(formData);
                         controller.render(data);
                     });
                 },
@@ -287,22 +296,7 @@ var UserSenders = function() {
             
             editForm.show();
         });
-        
-        // remove access-type based on whitelist/blacklist page
-        function getParameterByName(name) {
-            name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
-            var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
-                results = regex.exec(location.search);
-            return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
-        }
-        if (getParameterByName('type') == 2) {
-            // blacklist - remove 'allowed' access option
-            $(".entry-access option[value='1']").remove();
-        } else {
-            // whitelist - remove 'denied' access option
-            $(".entry-access option[value='2']").remove();
-        }
-        
+
         return controller;
     }();
 

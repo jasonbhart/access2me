@@ -85,6 +85,7 @@
                             // Get 2nd level link's vital info
                             $url        = (isset($sub_link['url']) && $sub_link['url']) ? $sub_link['url'] : '#';
                             $active     = (isset($sub_link['url']) && ($template['active_page'] == $sub_link['url'])) ? ' active' : '';
+                            $icon       = (isset($sub_link['icon']) && $sub_link['icon']) ? '<i class="' . $sub_link['icon'] . ' sidebar-nav-icon"></i>' : '';
 
                             // Check if the link has a submenu
                             if (isset($sub_link['sub']) && $sub_link['sub']) {
@@ -105,7 +106,7 @@
                             }
                         ?>
                         <li<?php echo $li_active; ?>>
-                            <a href="<?php echo $url; ?>"<?php echo $link_class; ?>><?php if (isset($sub_link['sub']) && $sub_link['sub']) { ?><i class="fa fa-chevron-left sidebar-nav-indicator"></i><?php } echo  $sub_link['name']; ?></a>
+                            <a href="<?php echo $url; ?>"<?php echo $link_class; ?>><?php if (isset($sub_link['sub']) && $sub_link['sub']) { ?><i class="fa fa-chevron-left sidebar-nav-indicator"></i><?php } echo $icon; echo  $sub_link['name']; ?></a>
                             <?php if (isset($sub_link['sub']) && $sub_link['sub']) { ?>
                                 <ul>
                                     <?php foreach ($sub_link['sub'] as $sub2_link) {

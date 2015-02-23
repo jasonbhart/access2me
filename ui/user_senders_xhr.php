@@ -42,10 +42,16 @@ if ($action == 'save') {
         exit;
     }
 
+    // store only domain part if type is domain
+    if ($type == Model\UserSenderRepository::TYPE_DOMAIN && Helper\Utils::isValidEmail($sender)) {
+        $sender = Helper\Email::splitEmail($sender)['domain'];
+    }
+
     $user = $auth->getLoggedUser();
     $repo = new Model\UserSenderRepository($db);
+    $entry = null;
 
-    // load existing entry
+    // load the requested entry
     if ($id > 0) {
         $entry = $repo->get($id);
         if ($entry === null) {
@@ -56,17 +62,27 @@ if ($action == 'save') {
         if ($entry['user_id'] != $user['id']) {
             Helper\Http::generate403();
         }
-    } else {
-        // search for existing user/sender pair
-        $entry = $repo->getByUserAndSender($user['id'], $sender);
-        if ($entry) {
-            echo json_encode([
-                'status' => 'error',
-                'message' => 'Record for such sender already exists'
-            ]);
-            exit;
-        }
+    }
 
+    // search for the existing user/sender pair
+    $existing = $repo->getByUserAndSender($user['id'], $sender);
+    if ($existing != null) {
+        if ($entry != null) {
+            // is user trying to add sender that is already exists in another record ?
+            if ($existing['id'] != $entry['id']) {
+                Helper\Http::jsonResponse([
+                    'status' => 'error',
+                    'message' => 'Record for such sender already exists'
+                ]);
+            }
+        } else {
+            // entry is null
+            $entry = $existing;
+        }
+    }
+
+    // no record exists ?
+    if ($entry == null) {
         $entry = [
             'user_id' => $user['id']
         ];
@@ -79,6 +95,7 @@ if ($action == 'save') {
     
     echo json_encode([
         'status' => 'success',
+        'sender' => $sender,
         'id' => $id 
     ]);
     exit;

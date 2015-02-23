@@ -58,26 +58,32 @@ $primary_nav = array(
         'url'   => 'gmail-config.php',
         'icon'  => 'fa fa-rocket'
     ),
-    array(
-        'name'  => 'Verified senders',
-        'url'   => 'verified_senders.php?type=verified',
-        'icon'  => 'fa fa-user'
-    ),
-    array(
-        'name'  => 'Whitelist senders',
-        'url'   => 'user_senders.php?type=1',
-        'icon'  => 'fa fa-user'
-    ),
-    array(
-        'name'  => 'Unverified senders',
-        'url'   => 'verified_senders.php?type=unverified',
-        'icon'  => 'fa fa-user'
-    ),
-    array(
-        'name'  => 'Blacklist senders',
-        'url'   => 'user_senders.php?type=2',
-        'icon'  => 'fa fa-user'
-    )
+    [
+        'name' => 'Senders',
+        'icon' => 'gi gi-group',
+        'sub' => [
+            [
+                'name'  => 'Verified senders',
+                'url'   => 'verified_senders.php?type=verified',
+                'icon'  => 'fa fa-check'
+            ],
+            [
+                'name'  => 'Whitelist senders',
+                'url'   => 'user_senders.php?type=whitelisted',
+                'icon'  => 'gi gi-star'
+            ],
+            [
+                'name'  => 'Unverified senders',
+                'url'   => 'verified_senders.php?type=unverified',
+                'icon'  => 'fa fa-question'
+            ],
+            [
+                'name'  => 'Blacklist senders',
+                'url'   => 'user_senders.php?type=blacklisted',
+                'icon'  => 'gi gi-dislikes'
+            ],
+        ]
+    ]
 );
 
 /*
