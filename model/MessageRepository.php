@@ -8,7 +8,12 @@ class MessageRepository
     // actually we need only processed or not
     // todo: refactor
     const STATUS_NOT_VERIFIED = 0;
+
+    /**
+     * @deprecated
+     */
     const STATUS_VERIFY_REQUESTED = 1;
+
     const STATUS_VERIFIED = 2;
 
     const STATUS_FILTER_PASSED = 3;

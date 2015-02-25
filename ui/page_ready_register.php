@@ -81,10 +81,10 @@ if ($_POST) {
         }
 
         try {
-            // login user and authenticate him with gmail
+            // login user and redirect him to the welcome page
             $auth->login($username, $password);
-            header('Location: ' . $appConfig['siteUrl'] . '/ui/gmailoauth.php');
-            exit;
+            $url = Helper\Registry::getRouter()->getUrl('registration_success');
+            Helper\Http::redirect($url);
         } catch (\Access2Me\Helper\AuthException $ex) {
             $errors[] = 'Application error';
             Logging::getLogger()->debug('Can\' register user', array('exception' => $ex));

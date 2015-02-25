@@ -32,4 +32,10 @@ class Http
         echo json_encode($data);
         exit;
     }
+
+    public static function redirect($url, $permanent = false)
+    {
+        header('Location: ' . $url, null, $permanent ? 301 : 302);
+        exit;
+    }
 }

@@ -1,9 +1,5 @@
 <?php require_once __DIR__ . "/login-check.php"; ?>
 <?php include 'inc/config.php'; $template['header_link'] = 'THE END OF SPAM AS WE KNOW IT'; ?>
-<?php ob_start(); ?>
-<?php include 'inc/template_start.php'; ?>
-<?php include 'inc/page_head.php'; ?>
-<?php $htmlHeader = ob_get_clean(); ?>
 
 <?php
 use Access2Me\Helper;
@@ -150,9 +146,10 @@ try {
     exit;
 }
 
-echo $htmlHeader;
-
 ?>
+
+<?php include 'inc/template_start.php'; ?>
+<?php include 'inc/page_head.php'; ?>
 
 <!-- Page content -->
 <div id="page-content">

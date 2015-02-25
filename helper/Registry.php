@@ -111,4 +111,45 @@ class Registry
         
         return self::$twig;
     }
+
+    /**
+     * @var Router
+     */
+    private static $router = null;
+
+    /**
+     * @return Router
+     */
+    public static function getRouter()
+    {
+        if (!self::$router) {
+           self::$router = new Router(self::$appConfig);
+        }
+
+        return self::$router;
+    }
+
+    public static function getDefaultMailer()
+    {
+        $mailer = new \PHPMailer();
+        $mailer->isSMTP();
+        $mailer->Host = self::$appConfig['smtp']['host'];
+        $mailer->SMTPAuth = self::$appConfig['smtp']['auth'];
+
+        if ($mailer->SMTPAuth) {
+            $mailer->Username = self::$appConfig['smtp']['username'];
+            $mailer->Password = self::$appConfig['smtp']['password'];
+        }
+
+        $mailer->SMTPSecure = self::$appConfig['smtp']['encryption'];
+        $mailer->Port = self::$appConfig['smtp']['port'];
+        $mailer->Hostname = 'access2.me';
+
+        $mailer->isHTML(true);
+
+        $mailer->From = self::$appConfig['email']['no_reply'];
+        $mailer->FromName = 'Access2.ME';
+
+        return $mailer;
+    }
 }

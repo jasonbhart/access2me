@@ -23,33 +23,17 @@ class AuthRequest
 
     protected function send($message)
     {
-        $append  = htmlspecialchars($message['to_email']) . ' has requested that you verify your identity before communicating with them.';
-        $append .= "<br /><br />";
-        $append .= 'Please click <a href="' . $this->appConfig['siteUrl'] . '/verify.php?message_id=' . $message['id'] . '">here</a>'
-                . ' to verify your identity by logging into your LinkedIn, Facebook, or Twitter account.';
+        $data = [
+            'recipient_email' => $message['to_email'],
+            'sender_email' => $message['reply_email'],
+            'sender_verification_url' => Helper\Registry::getRouter()->getUrl('sender_verification', ['message_id' => $message['id']])
+        ];
 
-        $mail = new PHPMailer;
-        $mail->isSMTP();
-        $mail->Host = $this->appConfig['smtp']['host'];
-        $mail->SMTPAuth = $this->appConfig['smtp']['auth'];
-        if ($mail->SMTPAuth) {
-            $mail->Username = $this->appConfig['smtp']['username'];
-            $mail->Password = $this->appConfig['smtp']['password'];
-        }
-        $mail->SMTPSecure = $this->appConfig['smtp']['encryption'];
-        $mail->Port = $this->appConfig['smtp']['port'];
-
-        $mail->From = $this->appConfig['email']['no_reply'];
-        $mail->FromName = 'Access2.ME';
+        $mail = Helper\Registry::getDefaultMailer();
         $mail->addAddress($message['reply_email']);
-        //$mail->XMailer = '';
-        $mail->Hostname = 'access2.me';
         $mail->addCustomHeader('Auto-Submitted', 'auto-replied');
-
-        $mail->isHTML(true);
-
         $mail->Subject = 'Access2.ME Verification';
-        $mail->Body    = $append;
+        $mail->Body = Helper\Registry::getTwig()->render('email/sender_verification.html.twig', $data);
 
         if (!$mail->send()) {
             throw new \Exception($mail->ErrorInfo);
@@ -94,10 +78,7 @@ foreach ($notVerified AS $message) {
 
     if (!$senders) {
         $authRequest = new AuthRequest($appConfig, $db);
-        if ($authRequest->request($message)) {
-            $message['status'] = Model\MessageRepository::STATUS_VERIFY_REQUESTED;
-            $mesgRepo->save($message);
-        }
+        $authRequest->request($message);
     } else {
         $message['status'] = Model\MessageRepository::STATUS_VERIFIED;
         $mesgRepo->save($message);
