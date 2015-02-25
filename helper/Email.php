@@ -209,7 +209,7 @@ class Email
 
     protected static function getUnverifiedHeader($data)
     {
-        $text = Template::render('email_header/unverified.html.twig', $data);
+        $text = Registry::getTwig()->render('email/header/unverified.html.twig', $data);
         
         // build our info header
         $altBody = new \ezcMailText('This is the body in plain text for non-HTML mail clients');
@@ -224,7 +224,7 @@ class Email
     protected static function getUserListedHeader($data)
     {
         // generate header
-        $text = Template::render('email_header/userlisted.html.twig', $data);
+        $text = Registry::getTwig()->render('email/header/userlisted.html.twig', $data);
 
         // build our info header
         $altBody = new \ezcMailText('This is the body in plain text for non-HTML mail clients');
@@ -244,7 +244,7 @@ class Email
      */
     public static function getInfoHeader($data)
     {
-        $infoText = Template::render('email_header/verified.html.twig', $data);
+        $infoText = Registry::getTwig()->render('email/header/verified.html.twig', $data);
 
         // build our info header
         $altInfoBody = new \ezcMailText('This is the body in plain text for non-HTML mail clients');

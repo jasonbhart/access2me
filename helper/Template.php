@@ -159,7 +159,7 @@ class Template
 
     /**
      * 
-     * @deprecated please use `render` method
+     * @deprecated please use `Registry::getTwig()->render()`
      * @param type $template
      * @param type $data
      * @return type
@@ -177,7 +177,8 @@ class Template
 
     /**
      * Renders template using Twig
-     * 
+     *
+     * @deprecated please use `Registry::getTwig()->render()`
      * @param string $template
      * @param array $data
      * @return string

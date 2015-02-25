@@ -1,0 +1,17 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Access2Me: Registration successful</title>
+</head>
+<body>
+<div>
+    <h1>Hello {{ user.name }}.</h1>
+    <p>
+        You have successfully registered on access2.me.<br />
+        Now we need you to grant access2.me permission to access your mailbox.
+    </p>
+    <p><a href="{{ gmail_settings_url }}">Grant</a></p>
+</div>
+</body>
+</html>

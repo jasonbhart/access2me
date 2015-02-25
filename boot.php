@@ -32,6 +32,7 @@ require_once __DIR__ . "/helper/MessageProcessor.php";
 require_once __DIR__ . "/helper/Twitter.php";
 require_once __DIR__ . "/helper/ProfileCombiner.php";
 require_once __DIR__ . "/helper/Registry.php";
+require_once __DIR__ . "/helper/Router.php";
 require_once __DIR__ . "/helper/SenderAuthentication.php";
 require_once __DIR__ . "/helper/SenderProfileProvider.php";
 require_once __DIR__ . "/helper/Template.php";
