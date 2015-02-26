@@ -204,6 +204,15 @@ class MessageProcessor
             $data['full_contact'] = $profile->fullContact;
         }
 
+        // remove full_contact social profile that user authenticated
+        if (!empty($data['full_contact']->socialProfiles) && !empty($data['profile_urls'])) {
+            foreach ($data['full_contact']->socialProfiles as $index => $socialProfile) {
+                if (in_array($socialProfile['url'], $data['profile_urls'])) {
+                    unset($data['full_contact']->socialProfiles[$index]);
+                }
+            }
+        }
+
         return $data;
     }
 
@@ -235,8 +244,8 @@ class MessageProcessor
         	$status = Model\MessageRepository::STATUS_SENDER_BLACKLISTED;
         }
 
-		$mail = Email::buildUserListProcessedMessage($this->user, $message, $data);
-		return new ProcessingResult($status, $mail);
+        $mail = Email::buildUserListProcessedMessage($this->user, $message, $data);
+        return new ProcessingResult($status, $mail);
     }
 
     /**

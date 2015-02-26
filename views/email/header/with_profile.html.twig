@@ -3,11 +3,23 @@
 {% block header %}
 {% if profile %}
 {% for sid,url in profile.profile_urls %}
-<a href="{{ url }} ?>" style="border-radius:50%; display:inline-block; margin-right:3px; border:1px solid #d1d1d1; overflow:hidden; width:20px; height:20px; font-size:0; line-height:0;vertical-align:middle;">
+<a href="{{ url }}" style="border-radius:50%; display:inline-block; margin-right:3px; border:1px solid #d1d1d1; overflow:hidden; width:20px; height:20px; font-size:0; line-height:0;vertical-align:middle;">
     <img style="width:20px; height:20px;" src="{{ service_icon(sid) }}" width="20" height="20" alt="" />
 </a>
 {% endfor %}
 {% endif %}
+
+{% if profile.full_contact %}
+{% set fullContact = profile.full_contact %}
+    {% if fullContact.socialProfiles %}
+        {% for soc in fullContact.socialProfiles %}
+        <a href="{{ soc.url }}" style="border-radius:50%; display:inline-block; margin-right:3px; border:1px solid #d1d1d1; overflow:hidden; width:20px; height:20px; font-size:0; line-height:0; vertical-align:middle;">
+            <img style="width:20px; height:20px;" src="{{ social_icon(soc.typeId) }}" width="20" height="20" alt="{{ soc.typeName }}" />
+        </a> 
+        {% endfor %}
+    {% endif %}
+{% endif %}
+
 {% endblock %}
 
 {% block content %}
@@ -54,46 +66,39 @@
                     </a>
                 </span>
                 {% endif %}
-
-                {% if profile.crunch_base %}
-                <span style="display:table-cell">
-                    <strong>CrunchBase:</strong>
-                    <a style="color:#4fba81;" href="{{ profile.crunch_base.homepageUrl }}">
-                        {{ profile.crunch_base.name }}
-                    </a>
-                    <span style="background:#655b67 none; display:inline-block; padding:1px 5px; color:#b7b7b7;">
-                        (total fundings: <strong style="color:#ee2c33; font-size:14px;">${{ format_money(profile.crunchBase.totalFunding) }}</strong>)
-                    </span>
-                </span>
-                {% endif %}
+                <!-- Klout score will be shown here -->
             </td>
         </tr>
         {% endif %}
 
-        {% if profile.full_contact %}
-        {% set fullContact = profile.full_contact %}
-        <tr>
-            <td style="padding:6px 0; border-top:1px solid #554a56;color:#b7b7b7; line-height:20px;">
-                {% if fullContact.gender %}
-                <span style="float:left; width:35%; margin-right:10px;">
-                    <strong>Gender:</strong>
-                    <span style="vertical-align:middle;font-size:0; line-height:0; display:inline-block;">
-                        <img src="{{ gender_icon(fullContact.gender) }}" />
-                    </span>
-                </span>
-                {% endif %}
+        {% if (profile.full_contact or profile.crunch_base) %}
+            <tr>
+                <td style="padding:6px 0; border-top:1px solid #554a56;color:#b7b7b7; line-height:20px;">
+                    {% if profile.full_contact %}
+                    {% set fullContact = profile.full_contact %}
+                        {% if fullContact.gender %}
+                        <span style="float:left; width:35%; margin-right:10px;">
+                            <strong>Gender:</strong>
+                            <span style="vertical-align:middle;font-size:0; line-height:0; display:inline-block;">
+                                <img src="{{ gender_icon(fullContact.gender) }}" />
+                            </span>
+                        </span>
+                        {% endif %}
+                    {% endif %}
 
-                {% if fullContact.socialProfiles %}
-                <span style="display:table-cell;">
-                    <strong>Social Profiles:</strong> 
-                    {% for soc in fullContact.socialProfiles %}
-                    <a href="{{ soc.url }}" style="border-radius:50%; display:inline-block; margin-right:3px; border:1px solid #d1d1d1; overflow:hidden; width:20px; height:20px; font-size:0; line-height:0; vertical-align:middle;">
-                        <img style="width:20px; height:20px;" src="{{ social_icon(soc.typeId) }}" width="20" height="20" alt="{{ soc.typeName }}" />
-                    </a> 
-                    {% endfor %}
-                {% endif %}
-            </td>
-        </tr>
+                    {% if profile.crunch_base %}
+                    <span style="display:table-cell">
+                        <strong>CrunchBase:</strong>
+                        <a style="color:#4fba81;" href="{{ profile.crunch_base.homepageUrl }}">
+                            {{ profile.crunch_base.name }}
+                        </a>
+                        <span style="background:#655b67 none; display:inline-block; padding:1px 5px; color:#b7b7b7;">
+                            (total fundings: <strong style="color:#ee2c33; font-size:14px;">${{ format_money(profile.crunchBase.totalFunding) }}</strong>)
+                        </span>
+                    </span>
+                    {% endif %}
+                </td>
+            </tr>
         {% endif %}
     </table>
 </div>
