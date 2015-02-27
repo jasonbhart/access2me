@@ -21,7 +21,7 @@ $data = [
 ];
 
 $mail = Helper\Registry::getDefaultMailer();
-$mail->addAddress($user['email']);
+$mail->addAddress($user['mailbox']);
 $mail->addCustomHeader('Auto-Submitted', 'auto-generated');
 $mail->Subject = 'Access2.ME Registration';
 $mail->Body = Helper\Registry::getTwig()->render('email/registration_success.html.twig', $data);
