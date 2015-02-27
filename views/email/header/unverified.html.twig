@@ -1,14 +1,14 @@
 {% extends 'email/header/base.html.twig' %}
 
 {% block footer %}
-<table width="100%" border="0" cellspacing="0" cellpadding="0"  style="border-collapse:collapse;">
-    <tr>
-        <td style="width:35%; padding-right:10px;font-family:'Trebuchet MS', Arial, Helvetica, sans-serif;">
-            <a style="color:#4fba81;">
-            This sender hasn't verified
-            </a>
-        </td>
-        {% include 'email/header/_whitelist_and_blacklist_sender.html.twig' %}
-    </tr>
-</table>
+    <table width="100%" border="0" cellspacing="0" cellpadding="0"  style="border-collapse:collapse;">
+        <tr>
+            <td style="width:35%; padding-right:10px;font-family:'Trebuchet MS', Arial, Helvetica, sans-serif;">
+                <span>
+                    This sender hasn't verified
+                </span>
+            </td>
+            {% include 'email/header/_whitelist_and_blacklist_sender.html.twig' %}
+        </tr>
+    </table>
 {% endblock %}

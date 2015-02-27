@@ -1,108 +1,108 @@
 {% extends 'email/header/base.html.twig' %}
 
 {% block header %}
-{% if profile %}
-{% for sid,url in profile.profile_urls %}
-<a href="{{ url }}" style="border-radius:50%; display:inline-block; border:1px solid #d1d1d1; overflow:hidden; width:20px; height:20px; font-size:0; line-height:0;vertical-align:middle;">
-    <img style="width:20px; height:20px;" src="{{ service_icon(sid) }}" width="20" height="20" alt="" />
-</a>&nbsp;&nbsp;
-{% endfor %}
-{% endif %}
-
-{% if profile.full_contact %}
-{% set fullContact = profile.full_contact %}
-    {% if fullContact.socialProfiles %}
-        {% for soc in fullContact.socialProfiles %}
-        <a href="{{ soc.url }}" style="border-radius:50%; display:inline-block; border:1px solid #d1d1d1; overflow:hidden; width:20px; height:20px; font-size:0; line-height:0;vertical-align:middle;">
-            <img style="width:20px; height:20px;" src="{{ social_icon(soc.typeId) }}" width="20" height="20" alt="{{ soc.typeName }}" />
-        </a>&nbsp;&nbsp; 
+    {% if profile %}
+        {% for sid,url in profile.profile_urls %}
+            <a href="{{ url }}" style="border-radius:50%; display:inline-block; border:1px solid #d1d1d1; overflow:hidden; width:20px; height:20px; font-size:0; line-height:0;vertical-align:middle;">
+                <img style="width:20px; height:20px;" src="{{ service_icon(sid) }}" width="20" height="20" alt="" />
+            </a>&nbsp;&nbsp;
         {% endfor %}
     {% endif %}
-{% endif %}
+
+    {% if profile.full_contact %}
+        {% set fullContact = profile.full_contact %}
+        {% if fullContact.socialProfiles %}
+            {% for soc in fullContact.socialProfiles %}
+                <a href="{{ soc.url }}" style="border-radius:50%; display:inline-block; border:1px solid #d1d1d1; overflow:hidden; width:20px; height:20px; font-size:0; line-height:0;vertical-align:middle;">
+                    <img style="width:20px; height:20px;" src="{{ social_icon(soc.typeId) }}" width="20" height="20" alt="{{ soc.typeName }}" />
+                </a>&nbsp;&nbsp; 
+            {% endfor %}
+        {% endif %}
+    {% endif %}
 
 {% endblock %}
 
 {% block content %}
-{% if profile %}
-<table width="100%" border="0" cellspacing="0" cellpadding="0" style="border-collapse:collapse;">
-	<tr>
-		<td style="width:100px; vertical-align:top; font-family:'Trebuchet MS', Arial, Helvetica, sans-serif; font-size:13px; line-height:18px;color:#e5e5e5; padding-bottom: 10px;">
-			{% if profile.picture_url %}
-			<span style="border:3px solid #e1e0e0; float:left; position:relative;">
-				<img style="width:75px;" src="{{ profile.picture_url }}" alt="" />
-			</span>
-			{% endif %}
-		</td>
-		<td style="vertical-align:top;font-family:'Trebuchet MS', Arial, Helvetica, sans-serif; font-size:13px; line-height:18px;color:#e5e5e5;">
-			<p style="font-size:14px; font-weight:700; margin:0 0 4px;">{{ profile.full_name }}</p>
-			<p style="margin:0">
-				{% if profile.headline %}
-				{{ profile.headline }}<br/>
-				{% endif %}
+    {% if profile %}
+        <table width="100%" border="0" cellspacing="0" cellpadding="0" style="border-collapse:collapse;">
+            <tr>
+                <td style="width:100px; vertical-align:top; font-family:'Trebuchet MS', Arial, Helvetica, sans-serif; font-size:13px; line-height:18px;color:#e5e5e5; padding-bottom: 10px;">
+                    {% if profile.picture_url %}
+                        <span style="border:3px solid #e1e0e0; float:left; position:relative; font-size:0; line-height:0">
+                            <img style="width:75px;" src="{{ profile.picture_url }}" alt="" />
+                        </span>
+                    {% endif %}
+                </td>
+                <td style="vertical-align:top;font-family:'Trebuchet MS', Arial, Helvetica, sans-serif; font-size:13px; line-height:18px;color:#e5e5e5;">
+                    <p style="font-size:14px; font-weight:700; margin:0 0 4px;">{{ profile.full_name }}</p>
+                    <p style="margin:0">
+                        {% if profile.headline %}
+                            {{ profile.headline }}<br/>
+                        {% endif %}
 
-				{% if profile.location %}
-				{{ profile.location }}<br/>
-				{% endif %}
+                        {% if profile.location %}
+                            {{ profile.location }}<br/>
+                        {% endif %}
 
-				<a style="color:#4fba81;" href="mailto:{{ profile.email}}">
-					{{ profile.email }}
-				</a>
-			</p>
-		</td>
-	</tr>
-</table>
+                        <a style="color:#4fba81;" href="mailto:{{ profile.email}}">
+                            {{ profile.email }}
+                        </a>
+                    </p>
+                </td>
+            </tr>
+        </table>
 
-<table width="100%" border="0" cellspacing="0" cellpadding="0"  style="border-collapse:collapse;">
-	{% if profile.linkedin.primaryTwitterAccount or profile.crunch_base %}
-	<tr>
-		<td style="padding:6px 0;border-top:1px solid #554a56; line-height:20px;font-family:'Trebuchet MS', Arial, Helvetica, sans-serif; font-size:13px;color:#e5e5e5;">
-			{% if profile.linkedin.primaryTwitterAccount %}
-			{% set account = profile.linkedin.primaryTwitterAccount %}
-			<span style="float:left; width:35%; margin-right:10px;">
-				<strong>Twitter account:</strong> 
-				<a style="color:#4fba81;" href="{{ twitter_profile_url(account.id) }}">
-					{{ account.name }}
-				</a>
-			</span>
-			{% endif %}
-			<!-- Klout score will be shown here -->
-		</td>
-	</tr>
-	{% endif %}
+        <table width="100%" border="0" cellspacing="0" cellpadding="0"  style="border-collapse:collapse;">
+            {% if profile.linkedin.primaryTwitterAccount or profile.crunch_base %}
+                <tr>
+                    <td style="padding:6px 0;border-top:1px solid #554a56; line-height:20px;font-family:'Trebuchet MS', Arial, Helvetica, sans-serif; font-size:13px;color:#e5e5e5;">
+                        {% if profile.linkedin.primaryTwitterAccount %}
+                            {% set account = profile.linkedin.primaryTwitterAccount %}
+                            <span style="float:left; width:35%; margin-right:10px;">
+                                <strong>Twitter account:</strong> 
+                                <a style="color:#4fba81;" href="{{ twitter_profile_url(account.id) }}">
+                                    {{ account.name }}
+                                </a>
+                            </span>
+                        {% endif %}
+                        <!-- Klout score will be shown here -->
+                    </td>
+                </tr>
+            {% endif %}
 
-	{% if (profile.full_contact or profile.crunch_base) %}
-		<tr>
-			<td style="padding:6px 0; border-top:1px solid #554a56;color:#b7b7b7; line-height:20px;">
-				<table width="100%" border="0" cellspacing="0" cellpadding="0"  style="border-collapse:collapse;">
-					<tr>
-						{% if profile.full_contact %}
-						{% set fullContact = profile.full_contact %}
-							{% if fullContact.gender %}
-							<td style="width:35%; padding-right:10px;font-family:'Trebuchet MS', Arial, Helvetica, sans-serif;">
-								<strong>Gender:</strong>
-								<span style="vertical-align:middle;font-size:0; line-height:0; display:inline-block;">
-									<img src="{{ gender_icon(fullContact.gender) }}" />
-								</span>
-							</td>
-							{% endif %}
-						{% endif %}
-                                                
-						{% if profile.crunch_base %}
-						<td style="padding:0;font-family:'Trebuchet MS', Arial, Helvetica, sans-serif;">
-							<strong>CrunchBase:</strong>
-							<a style="color:#4fba81;" href="{{ profile.crunch_base.homepageUrl }}">
-								{{ profile.crunch_base.name }}
-							</a>
-							<span style="background:#655b67 none; display:inline-block; padding:1px 5px; color:#b7b7b7;">
-								(total fundings: <strong style="color:#ee2c33; font-size:14px;">${{ format_money(profile.crunchBase.totalFunding) }}</strong>)
-							</span>
-						</td>
-						{% endif %}
-					</tr>
-				</table>
-			</td>
-		</tr>
-	{% endif %}
-</table>
-{% endif %}
+            {% if (profile.full_contact or profile.crunch_base) %}
+                <tr>
+                    <td style="padding:6px 0; border-top:1px solid #554a56;color:#b7b7b7; line-height:20px;">
+                        <table width="100%" border="0" cellspacing="0" cellpadding="0"  style="border-collapse:collapse;">
+                            <tr>
+                                {% if profile.full_contact %}
+                                    {% set fullContact = profile.full_contact %}
+                                    {% if fullContact.gender %}
+                                        <td style="width:35%; padding-right:10px;font-family:'Trebuchet MS', Arial, Helvetica, sans-serif;">
+                                            <strong>Gender:</strong>
+                                            <span style="vertical-align:middle;font-size:0; line-height:0; display:inline-block;">
+                                                <img src="{{ gender_icon(fullContact.gender) }}" />
+                                            </span>
+                                        </td>
+                                    {% endif %}
+                                {% endif %}
+
+                                {% if profile.crunch_base %}
+                                    <td style="padding:0;font-family:'Trebuchet MS', Arial, Helvetica, sans-serif;">
+                                        <strong>CrunchBase:</strong>
+                                        <a style="color:#4fba81;" href="{{ profile.crunch_base.homepageUrl }}">
+                                            {{ profile.crunch_base.name }}
+                                        </a>
+                                        <span style="background:#655b67 none; display:inline-block; padding:1px 5px; color:#b7b7b7;">
+                                            (total fundings: <strong style="color:#ee2c33; font-size:14px;">${{ format_money(profile.crunchBase.totalFunding) }}</strong>)
+                                        </span>
+                                    </td>
+                                {% endif %}
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            {% endif %}
+        </table>
+    {% endif %}
 {% endblock %}

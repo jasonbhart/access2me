@@ -1,15 +1,15 @@
 {% extends 'email/header/with_profile.html.twig' %}
 
 {% block footer %}
-<table width="100%" border="0" cellspacing="0" cellpadding="0"  style="border-collapse:collapse;">
-    <tr>
-        <td style="width:35%; padding-right:10px;font-family:'Trebuchet MS', Arial, Helvetica, sans-serif;">
-            <a style="color:#4fba81;">{{ reason }}</a>
-        </td>
-        <td style="padding: 0; font-family:'Trebuchet MS', Arial, Helvetica, sans-serif;">
-            To manage your whitelist, click
-            <a style="color:#4fba81;" href="http://app.access2.me/ui/login.php?redirect_to={{ '/ui/user_senders.php'|url_encode }}">here</a>.
-        </td>
-    </tr>
-</table>
+    <table width="100%" border="0" cellspacing="0" cellpadding="0"  style="border-collapse:collapse;">
+        <tr>
+            <td style="width:35%; padding-right:10px;font-family:'Trebuchet MS', Arial, Helvetica, sans-serif;">
+                <span>{{ reason }}</span>
+            </td>
+            <td style="padding: 0; font-family:'Trebuchet MS', Arial, Helvetica, sans-serif;">
+                To manage your whitelist, click
+                <a style="color:#4fba81;" href="http://app.access2.me/ui/login.php?redirect_to={{ '/ui/user_senders.php'|url_encode }}">here</a>.
+            </td>
+        </tr>
+    </table>
 {% endblock %}

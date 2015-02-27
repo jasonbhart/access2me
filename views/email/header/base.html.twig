@@ -7,38 +7,38 @@
 
     <body>
         <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color:#4fba81; border: 0px; border-collapse:collapse;">
-			<tr>
-				<td style="background-color:#4fba81; padding:0 10px;">
-					<table style="border: 0px; border-collapse:collapse; width: 100%" width="100%">
-						<tr>
-							<td style="vertical-align: middle; font-family:'Trebuchet MS', Arial, Helvetica, sans-serif; font-size:13px; line-height:18px;">
-								{% block header %}{% endblock %}
-							</td>
-							<td style="text-align:right; font-family:'Trebuchet MS', Arial, Helvetica, sans-serif; font-size:13px; line-height:18px;">
-								<a href="http://access2.me" style="font-size:0; line-height:0;">
-									<img src="http://app.access2.me/images/logo.jpg" width="150" height="40" alt="Access2.me" />
-								</a>
-							</td>
-						</tr>
-					</table>
-				</td>
-			</tr>
-			<tr>
-				<td style="background-color:#3f3240; padding:10px;">
-					<table style="border: 0px; border-collapse:collapse; width: 100%" width="100%">
-						<tr>
-							<td>
-								{% block content %}{% endblock %}
-							</td>
-						</tr>
-						<tr>
-							<td style="border-top:1px solid #554a56; color:#e5e5e5; vertical-align: middle; padding-top:10px">
-								{% block footer %}{% endblock %}
-							</td>
-						</tr>
-					</table>
-				</td>
-			</tr>
+            <tr>
+                <td style="background-color:#4fba81; padding:0 10px;">
+                    <table style="border: 0px; border-collapse:collapse; width: 100%" width="100%">
+                        <tr>
+                            <td style="vertical-align: middle; font-family:'Trebuchet MS', Arial, Helvetica, sans-serif; font-size:13px; line-height:18px;">
+                            {% block header %}{% endblock %}
+                        </td>
+                        <td style="text-align:right; font-family:'Trebuchet MS', Arial, Helvetica, sans-serif; font-size:13px; line-height:18px;">
+                            <a href="http://access2.me" style="font-size:0; line-height:0;">
+                                <img src="http://app.access2.me/images/logo.jpg" width="150" height="40" alt="Access2.me" />
+                            </a>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td style="background-color:#3f3240; padding:10px;">
+                <table style="border: 0px; border-collapse:collapse; width: 100%" width="100%">
+                    <tr>
+                        <td>
+                        {% block content %}{% endblock %}
+                    </td>
+                </tr>
+                <tr>
+                    <td style="border-top:1px solid #554a56; color:#e5e5e5; vertical-align: middle; padding-top:10px">
+                    {% block footer %}{% endblock %}
+                </td>
+            </tr>
         </table>
-    </body>
+    </td>
+</tr>
+</table>
+</body>
 </html>
