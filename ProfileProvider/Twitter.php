@@ -27,6 +27,7 @@ class Twitter implements ProfileProviderInterface
             $twitter = new Helper\Twitter($this->serviceConfig);
             $data = $twitter->getUserRepresentation($sender->getOAuthKey());
             $profile = $this->convertToProfile($data);
+            
             return $profile;
         } catch (Helper\TwitterException $ex) {
             throw new ProfileProviderException('Can\'t fetch profile', 0, $ex);
@@ -41,7 +42,7 @@ class Twitter implements ProfileProviderInterface
         $profile->summary = $data['description'];
         $profile->location = $data['location'];
         $profile->pictureUrl = $data['profile_image_url'];
-        $profile->profileUrl = Helper\Twitter::getProfileUrl(intval($data['id']));
+        $profile->profileUrl = Helper\Twitter::getProfileUrl(strval($data['id']));
         
         return $profile;
     }
