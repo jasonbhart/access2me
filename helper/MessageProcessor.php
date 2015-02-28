@@ -198,6 +198,7 @@ class MessageProcessor
         $data['linkedin'] = $profile->linkedin;
         $data['angel_list'] = $profile->angelList;
         $data['crunch_base'] = $profile->crunchBase;
+        $data['github'] = $profile->gitHub;
         $data['klout'] = $profile->klout;
 
         // use only if realness of profile is above 80%
@@ -217,9 +218,6 @@ class MessageProcessor
         return $data;
     }
 
-    /**
-     * @todo Do we need to add info header to such messages ? 
-     */
     private function processUserLists($message)
     {
         $sender = $message['from_email'];

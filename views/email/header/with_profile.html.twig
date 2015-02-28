@@ -105,12 +105,38 @@
                                             {{ profile.crunch_base.name }}
                                         </a>
                                         <span style="background:#655b67 none; display:inline-block; padding:1px 5px; color:#b7b7b7;">
-                                            (total fundings: <strong style="color:#ee2c33; font-size:14px;">${{ format_money(profile.crunchBase.totalFunding) }}</strong>)
+                                            (total fundings: <strong style="color:#ee2c33; font-size:14px;">${{ format_money(profile.crunch_base.totalFunding) }}</strong>)
                                         </span>
                                     </td>
                                 {% endif %}
                             </tr>
                         </table>
+                    </td>
+                </tr>
+            {% endif %}
+
+            {%  if profile.github %}
+                {% set github = profile.github %}
+                {% set name = github.name|default(github.login) %}
+                <tr>
+                    <td style="padding:6px 0; border-top:1px solid #554a56;color:#b7b7b7; line-height:20px;">
+                        <table width="100%" border="0" cellspacing="0" cellpadding="0"  style="border-collapse:collapse;">
+                            <tr>
+                                <td style="vertical-align: middle">
+                                    <strong>Github ({{ name }}): </strong>
+                                    <div style="vertical-align:middle; display:inline-block; margin-left: 1em;">
+                                        <a href="{{ github.htmlUrl }}" style="border: 0px" title="{{ name }}">
+                                            <img src="{{ github.avatarUrl }}" alt="{{ name }}" style="height: 32px; width: 32px;"/>
+                                        </a>
+                                    </div>
+                                    <div style="vertical-align:middle; display: inline-block; margin-left: 1em">
+                                        repositories: {{ github.publicReposCount }},
+                                        followers: {{ github.followersCount }},
+                                        following: {{ github.followingCount }}
+                                    </div>
+                                </td>
+                            </tr>
+                        </td>
                     </td>
                 </tr>
             {% endif %}

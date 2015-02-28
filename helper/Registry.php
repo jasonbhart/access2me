@@ -54,6 +54,10 @@ class Registry
                 Service::KLOUT => [
                     'authRequired' => false,
                     'provider' => new ProfileProvider\Klout($services['klout'])
+                ],
+                Service::GITHUB => [
+                    'authRequired' => false,
+                    'provider' => new ProfileProvider\GitHub(null)
                 ]
             ];
 

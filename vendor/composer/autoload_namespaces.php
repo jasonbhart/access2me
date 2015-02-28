@@ -24,4 +24,5 @@ return array(
     'Psr\\Log\\' => array($vendorDir . '/psr/log'),
     'Guzzle\\Tests' => array($vendorDir . '/guzzle/guzzle/tests'),
     'Guzzle' => array($vendorDir . '/guzzle/guzzle/src'),
+    'Github\\' => array($vendorDir . '/scribe/github-api-library/lib'),
 );
