@@ -31,9 +31,6 @@ class Klout implements ProfileProviderInterface
                 $twitterData = $twitter->getUserRepresentation($sender->getOAuthKey());
                 $twitterId = $twitterData['id'];
                 
-//                // for test
-//                $twitterId = '31307317';
-                
                 $klout = new Service\Klout($this->serviceConfig);
                 $profile = $klout->getScore($twitterId);
 

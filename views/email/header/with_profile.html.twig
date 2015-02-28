@@ -53,20 +53,31 @@
         </table>
 
         <table width="100%" border="0" cellspacing="0" cellpadding="0"  style="border-collapse:collapse;">
-            {% if profile.linkedin.primaryTwitterAccount or profile.crunch_base %}
+            {% if profile.linkedin.primaryTwitterAccount or profile.klout %}
                 <tr>
+                    {% if profile.linkedin.primaryTwitterAccount %}
+                    {% set account = profile.linkedin.primaryTwitterAccount %}
+                        <td style="padding:6px 0;border-top:1px solid #554a56; line-height:20px;font-family:'Trebuchet MS', Arial, Helvetica, sans-serif; font-size:13px;color:#e5e5e5;">
+
+                                <span style="float:left; width:35%; margin-right:10px;">
+                                    <strong>Twitter account:</strong> 
+                                    <a style="color:#4fba81;" href="{{ twitter_profile_url(account.id) }}">
+                                        {{ account.name }}
+                                    </a>
+                                </span>
+                        </td>
+                    {% endif %}
+                    
+                    {% if profile.klout %}
                     <td style="padding:6px 0;border-top:1px solid #554a56; line-height:20px;font-family:'Trebuchet MS', Arial, Helvetica, sans-serif; font-size:13px;color:#e5e5e5;">
-                        {% if profile.linkedin.primaryTwitterAccount %}
-                            {% set account = profile.linkedin.primaryTwitterAccount %}
                             <span style="float:left; width:35%; margin-right:10px;">
-                                <strong>Twitter account:</strong> 
-                                <a style="color:#4fba81;" href="{{ twitter_profile_url(account.id) }}">
-                                    {{ account.name }}
-                                </a>
+                                <strong>Klout score:</strong> 
+                                <span style="color:#4fba81;">
+                                    {{ profile.klout.score|round(2, 'floor')}}
+                                </span>
                             </span>
-                        {% endif %}
-                        <!-- Klout score will be shown here -->
                     </td>
+                    {% endif %}
                 </tr>
             {% endif %}
 
