@@ -198,9 +198,10 @@ class MessageProcessor
         $data['linkedin'] = $profile->linkedin;
         $data['angel_list'] = $profile->angelList;
         $data['crunch_base'] = $profile->crunchBase;
+        $data['klout'] = $profile->klout;
 
         // use only if realness of profile is above 80%
-        if (isset($profile->fullContact) && $profile->fullContact->likelihood > 0.8) {
+        if (isset($profile->fullContact) && isset($profile->fullContact->likelihood) && $profile->fullContact->likelihood > 0.8) {
             $data['full_contact'] = $profile->fullContact;
         }
 

@@ -39,10 +39,11 @@ class FullContact implements ProfileProviderInterface
     protected function parsePersonData($profileData)
     {
         $profile = new Profile\FullContact();
-        $profile->likelihood = $profileData['likelihood'];
-
+        if (!empty($profileData['likelihood'])) {
+            $profile->likelihood = $profileData['likelihood'];
+        }
         // parse photos
-        if (is_array($profileData['photos'])) {
+        if (!empty($profileData['photos']) && is_array($profileData['photos'])) {
             $profile->photos = $profileData['photos'];
         }
 

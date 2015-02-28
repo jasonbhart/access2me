@@ -10,7 +10,7 @@ use Access2Me\Data;
 
 class Registry
 {
-    private static $appConfig;
+    public static $appConfig;
 
     public static function setUp($appConfig)
     {
@@ -50,6 +50,10 @@ class Registry
                 Service::FULLCONTACT => [
                     'authRequired' => false,
                     'provider' => new ProfileProvider\FullContact($services['fullcontact'])
+                ],
+                Service::KLOUT => [
+                    'authRequired' => false,
+                    'provider' => new ProfileProvider\Klout($services['klout'])
                 ]
             ];
 

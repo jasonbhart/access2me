@@ -9,4 +9,5 @@ class Service {
     const CRUNCHBASE = 4;
     const ANGELLIST = 5;
     const FULLCONTACT = 6;
+    const KLOUT = 7;
 }

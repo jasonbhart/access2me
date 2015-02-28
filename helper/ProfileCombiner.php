@@ -20,6 +20,7 @@ class ProfileCombiner
     public $crunchBase;
     public $angelList;
     public $fullContact;
+    public $klout;
 
     /**
      * 
@@ -33,6 +34,7 @@ class ProfileCombiner
             Service\Service::CRUNCHBASE => 'crunchBase',
             Service\Service::ANGELLIST => 'angelList',
             Service\Service::FULLCONTACT => 'fullContact',
+            Service\Service::KLOUT => 'klout'
         ];
 
         foreach ($map as $sid => $name) {
@@ -44,6 +46,7 @@ class ProfileCombiner
         unset($profiles[Service\Service::CRUNCHBASE]);
         unset($profiles[Service\Service::ANGELLIST]);
         unset($profiles[Service\Service::FULLCONTACT]);
+        unset($profiles[Service\Service::KLOUT]);
 
         // this profiles we use for combined properties
         $this->profiles = $profiles;
