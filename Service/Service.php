@@ -10,4 +10,5 @@ class Service {
     const ANGELLIST = 5;
     const FULLCONTACT = 6;
     const KLOUT = 7;
+    const GITHUB = 8;
 }

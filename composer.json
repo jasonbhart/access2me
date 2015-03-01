@@ -10,6 +10,7 @@
         "zetacomponents/mail": "~1.8",
         "zendframework/zend-mail": "~2.3",
         "guzzlehttp/guzzle": "~5.0",
-        "twig/twig": "~1.18"
+        "twig/twig": "~1.18",
+        "scribe/github-api-library": "~1.3"
     }
 }

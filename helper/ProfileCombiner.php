@@ -2,6 +2,7 @@
 
 namespace Access2Me\Helper;
 
+use Access2Me\Model\Profile\Profile;
 use Access2Me\Service;
 
 /**
@@ -20,6 +21,7 @@ class ProfileCombiner
     public $crunchBase;
     public $angelList;
     public $fullContact;
+    public $gitHub;
     public $klout;
 
     /**
@@ -34,6 +36,7 @@ class ProfileCombiner
             Service\Service::CRUNCHBASE => 'crunchBase',
             Service\Service::ANGELLIST => 'angelList',
             Service\Service::FULLCONTACT => 'fullContact',
+            Service\Service::GITHUB => 'gitHub',
             Service\Service::KLOUT => 'klout'
         ];
 
@@ -73,7 +76,7 @@ class ProfileCombiner
     {
         $result = array();
         foreach ($this->profiles as $serviceId => $profile) {
-            if (!$profile) {
+            if (!$profile || !$profile instanceof Profile) {
                 continue;
             }
 
