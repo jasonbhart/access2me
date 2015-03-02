@@ -31,6 +31,7 @@ require_once __DIR__ . "/helper/Http.php";
 require_once __DIR__ . "/helper/Linkedin.php";
 require_once __DIR__ . "/helper/MessageProcessor.php";
 require_once __DIR__ . "/helper/Twitter.php";
+require_once __DIR__ . "/helper/Pager.php";
 require_once __DIR__ . "/helper/ProfileCombiner.php";
 require_once __DIR__ . "/helper/Registry.php";
 require_once __DIR__ . "/helper/Router.php";
@@ -153,7 +154,10 @@ $appConfig = array(
     ],
     'secret' => 'rO2RL7H0mWeFs5.zRF1yOx9ITgFo9rwkTbx3Q6YuyA/7BjjH6t5AoSfsd32kL9h1UKs',
     'dateTimeFormat' => 'Y-m-d H:i:s',
-    'twigCache' => true
+    'twigCache' => true,
+    'paging' => [
+        'items_per_page' => 10
+    ]
 );
 
 

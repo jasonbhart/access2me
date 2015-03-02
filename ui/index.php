@@ -94,7 +94,12 @@ $mesgRepo = new Model\MessageRepository($db);
 $ctrl = new IndexController();
 $ctrl->process();
 
-$messages = $mesgRepo->findByUser($user['id'], 10);
+// prepare pages
+$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+$count = $mesgRepo->getCountByUser($user['id']);
+$pager = new Helper\Pager($count, $appConfig['paging']['items_per_page'], $page);
+
+$messages = $mesgRepo->findByUser($user['id'], $pager->limit, $pager->offset);
 
 $senderRepo = new Model\SenderRepository($db);
 foreach ($messages AS &$message) {
@@ -192,8 +197,8 @@ try {
                 <tbody>
 <?php
 
-if (!empty($messages) && is_array($messages)) {
-    foreach ($messages as &$message) {
+if ($messages) {
+    foreach ($messages as $message) {
         $createdAt = Helper\DateTime::fromUTCtoDefault($message['created_at']);
         $profileUrl = $appConfig['siteUrl'] . '/ui/sender_profile.php?'
                 . 'email=' . urlencode($message['from_email']);
@@ -237,6 +242,56 @@ if (!empty($messages) && is_array($messages)) {
             </table>
         </div>
         <!-- END Table Styles Content -->
+
+        <?php if ($pager->count > 1): ?>
+        <div>
+            <ul class="pagination">
+                <?php if (!$pager->isAtStart): ?>
+                    <li><a href="?page=1">
+                            <i class="fa fa-angle-double-left"></i>
+                        </a>
+                    </li>
+                <?php endif; ?>
+                <?php if ($pager->hasPrev): ?>
+                    <li>
+                        <a href="?page=<?php echo $pager->page-1; ?>">
+                            <i class="fa fa-angle-left"></i>
+                        </a>
+                    </li>
+                <?php endif; ?>
+                <?php foreach ($pager->pages as $page): ?>
+                    <?php if ($page == $pager->page): ?>
+                        <li class="active">
+                            <a href="javascript:void(0)">
+                                <?php echo $page; ?>
+                            </a>
+                        </li>
+                    <?php else: ?>
+                        <li>
+                            <a href="?page=<?php echo $page; ?>">
+                                <?php echo $page; ?>
+                            </a>
+                        </li>
+                    <?php endif; ?>
+                <?php endforeach; ?>
+                <?php if ($pager->hasNext): ?>
+                    <li>
+                        <a href="?page=<?php echo $pager->page+1; ?>">
+                            <i class="fa fa-angle-right"></i>
+                        </a>
+                    </li>
+                <?php endif; ?>
+                <?php if (!$pager->isAtEnd): ?>
+                    <li>
+                        <a href="?page=<?php echo $pager->count; ?>">
+                            <i class="fa fa-angle-double-right"></i>
+                        </a>
+                    </li>
+                <?php endif; ?>
+            </ul>
+        </div>
+        <?php endif; ?>
+
     </div>
     <!-- END Table Styles Block -->
 
