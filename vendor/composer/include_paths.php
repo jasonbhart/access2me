@@ -7,4 +7,7 @@ $baseDir = dirname($vendorDir);
 
 return array(
     $vendorDir . '/google/apiclient/src',
+    $vendorDir . '/phpunit/php-text-template',
+    $vendorDir . '/phpunit/php-timer',
+    $vendorDir . '/phpunit/php-file-iterator',
 );

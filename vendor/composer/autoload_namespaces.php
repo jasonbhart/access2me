@@ -7,6 +7,7 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'tmhOAuth' => array($vendorDir . '/themattharris/tmhoauth'),
+    'phpDocumentor' => array($vendorDir . '/phpdocumentor/reflection-docblock/src'),
     'fkooman\\OAuth\\Common\\' => array($vendorDir . '/fkooman/oauth-common/src'),
     'fkooman\\OAuth\\Client' => array($vendorDir . '/fkooman/php-oauth-client/src'),
     'fkooman\\Guzzle\\Plugin\\BearerAuth' => array($vendorDir . '/fkooman/guzzle-bearer-auth-plugin/src'),
@@ -20,9 +21,12 @@ return array(
     'Zend\\EventManager\\' => array($vendorDir . '/zendframework/zend-eventmanager'),
     'Zend\\Crypt\\' => array($vendorDir . '/zendframework/zend-crypt'),
     'Twig_' => array($vendorDir . '/twig/twig/lib'),
+    'Symfony\\Component\\Yaml\\' => array($vendorDir . '/symfony/yaml'),
     'Symfony\\Component\\EventDispatcher\\' => array($vendorDir . '/symfony/event-dispatcher'),
     'Psr\\Log\\' => array($vendorDir . '/psr/log'),
+    'Prophecy\\' => array($vendorDir . '/phpspec/prophecy/src'),
     'Guzzle\\Tests' => array($vendorDir . '/guzzle/guzzle/tests'),
     'Guzzle' => array($vendorDir . '/guzzle/guzzle/src'),
     'Github\\' => array($vendorDir . '/scribe/github-api-library/lib'),
+    'Doctrine\\Instantiator\\' => array($vendorDir . '/doctrine/instantiator/src'),
 );
