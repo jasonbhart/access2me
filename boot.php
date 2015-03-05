@@ -41,10 +41,12 @@ require_once __DIR__ . "/helper/Template.php";
 require_once __DIR__ . "/helper/UserListProvider.php";
 require_once __DIR__ . "/helper/UserListTokenManager.php";
 require_once __DIR__ . "/helper/Utils.php";
+require_once __DIR__ . "/model/AbstractRepository.php";
 require_once __DIR__ . "/model/AuthTokenRepository.php";
 require_once __DIR__ . "/model/CacheRepository.php";
 require_once __DIR__ . "/model/MessageRepository.php";
 require_once __DIR__ . "/model/SenderRepository.php";
+require_once __DIR__ . "/model/User/LinkedinToken.php";
 require_once __DIR__ . "/model/UserRepository.php";
 require_once __DIR__ . "/model/UserSenderRepository.php";
 require_once __DIR__ . "/model/Cache.php";
@@ -67,15 +69,22 @@ require_once __DIR__ . "/ProfileProvider/Profile/CrunchBase.php";
 require_once __DIR__ . "/ProfileProvider/Profile/Facebook.php";
 require_once __DIR__ . "/ProfileProvider/Profile/FullContact.php";
 require_once __DIR__ . "/ProfileProvider/Profile/GitHub.php";
+require_once __DIR__ . "/Service/Auth/Linkedin.php";
+require_once __DIR__ . "/Service/Auth/AbstractHandler.php";
+require_once __DIR__ . "/Service/Auth/Linkedin/AuthException.php";
+require_once __DIR__ . "/Service/Auth/Linkedin/SenderAuthHandler.php";
+require_once __DIR__ . "/Service/Auth/Linkedin/SenderAuthRequest.php";
+require_once __DIR__ . "/Service/Auth/Linkedin/UserAuthHandler.php";
+require_once __DIR__ . "/Service/Auth/Linkedin/UserAuthRequest.php";
+require_once __DIR__ . "/Service/GitHub/Search.php";
+require_once __DIR__ . "/Service/Google/Contacts.php";
 require_once __DIR__ . "/Service/AngelList.php";
 require_once __DIR__ . "/Service/CrunchBase.php";
 require_once __DIR__ . "/Service/FullContact.php";
-require_once __DIR__ . "/Service/GitHub/Search.php";
 require_once __DIR__ . "/Service/Klout.php";
 require_once __DIR__ . "/Service/Gmail.php";
 require_once __DIR__ . "/Service/Service.php";
 require_once __DIR__ . "/Service/TokenRefresher.php";
-require_once __DIR__ . "/Service/Google/Contacts.php";
 
 
 if (getenv('DOM_DEV_MACHINE')) {
@@ -105,7 +114,8 @@ $linkedinAuth = [
     'permissions' => [
         'r_basicprofile',
         'r_contactinfo',
-    ]
+    ],
+    'callback_url' => $localUrl . '/linkedin.php'
 ];
 
 $twitterAuth = array(
@@ -116,8 +126,8 @@ $twitterAuth = array(
 );
 
 $appConfig = array(
-    'projectPath' => __DIR__,
-    'siteUrl' => $localUrl,
+    'projectRoot' => __DIR__,
+    'projectUrl' => $localUrl,
     'imap' => [
         'host'     => 'mail.access2.me',
         'user'     => 'catchall@access2.me',

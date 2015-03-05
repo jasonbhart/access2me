@@ -1,88 +1,21 @@
 <?php
 /**
- * TODO: seems we don't exchange auth code to auth token
+ * Linkedin auth response handler
  */
 
 require_once __DIR__ . "/boot.php";
 
-use Access2Me\Model;
 use Access2Me\Helper;
-use Access2Me\Service\Service;
+use Access2Me\Service\Auth\Linkedin;
 
 $db = new Database;
 
-if (!isset($_GET['code'])) {
-    $params = [
-        'response_type' => 'code',
-        'client_id' => $linkedinAuth['clientId'],
-        'state' => 'ECEEFWF45453sdffef424',
-        'redirect_uri' => $localUrl . '/linkedin.php?message_id=' . $_GET['message_id'],
-        'scope' => implode(' ', $linkedinAuth['permissions'])
-    ];
-
-    $query = http_build_query($params);
-    header('Location: https://www.linkedin.com/uas/oauth2/authorization?' . $query);
-} else {
-    $params = array(
-        'grant_type' => 'authorization_code',
-        'code' => $_GET['code'],
-        'redirect_uri' => $localUrl . '/linkedin.php?message_id=' . $_GET['message_id'],
-        'client_id' => $linkedinAuth['clientId'],
-        'client_secret' => $linkedinAuth['clientSecret']
-    );
-    
-    $query = http_build_query($params);
-    $url = "https://www.linkedin.com/uas/oauth2/accessToken?" . $query;
-
-    $cURL = curl_init();
-
-    curl_setopt($cURL, CURLOPT_VERBOSE, true);
-    curl_setopt($cURL, CURLOPT_URL, $url);
-    curl_setopt($cURL, CURLOPT_SSL_VERIFYPEER, false);
-    curl_setopt($cURL, CURLOPT_HTTPGET, true);
-    curl_setopt($cURL, CURLOPT_RETURNTRANSFER, 1);
-    curl_setopt($cURL, CURLOPT_HTTPHEADER, array(
-        'Content-Type: application/json',
-        'Accept: application/json'
-    ));
-
-    $result = curl_exec($cURL);
-    curl_close($cURL);
-    $json = json_decode($result, true);
-
-    $accessToken = (string) $json['access_token'];
-    
-    $mesgRepo = new Model\MessageRepository($db);
-    $message = $mesgRepo->getById($_GET['message_id']);
-
-    // store auth token for the later use
-    // create new or update existing sender
-    $email = $message['from_email'];
-    $senderRepo = new Model\SenderRepository($db);
-    $sender = $senderRepo->getByEmailAndService($email, Service::LINKEDIN);
-
-    if ($sender == null) {
-        $sender = new Model\Sender();
-        $sender->setSender($email);
-        $sender->setService(Service::LINKEDIN);
-    }
-
-    // we always have new token here whether user was authenticated before or not
-    $sender->setOAuthKey($accessToken);
-    $tokenRefresher = new \Access2Me\Service\TokenRefresher($appConfig);
-    $tokenRefresher->extendExpireTime($sender, $accessToken);
-
-    // fetch user's profile
-    $senders = array($sender);
-    $defaultProfileProvider = Helper\Registry::getProfileProvider();
-    $profile = $defaultProfileProvider->getProfile($senders, Service::LINKEDIN);
-
-    // commit changes
-    $senderRepo->save($sender);
-
-    // sender is verified, mark message as allowed to be processed (filtering, sending to recipient)
-    $db->updateOne('messages', 'status', '2', 'from_email', $email);
-    
-    require_once 'views/auth_completed.html';
+try {
+    $manager = new Linkedin($appConfig['services']['linkedin']);
+    $manager->addHandler(new Linkedin\SenderAuthHandler($appConfig));
+    $manager->addHandler(new Linkedin\UserAuthHandler($appConfig));
+    $manager->processResponse($_GET, $appConfig);
+} catch (\Exception $ex) {
+    Logging::getLogger()->error($ex->getMessage(), ['exception' => $ex]);
+    Helper\Http::generate500();
 }
-

@@ -15,7 +15,7 @@ $type = isset($_GET['type']) ? $_GET['type'] : null;
 
 // redirect to the home page if invalid type requested
 if ($type != 'whitelisted' && $type != 'blacklisted') {
-    header('Location: ' . $appConfig['siteUrl'] . '/ui');
+    header('Location: ' . $appConfig['projectUrl'] . '/ui');
     exit;
 }
 

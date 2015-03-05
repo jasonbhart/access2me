@@ -11,7 +11,6 @@ use Facebook\FacebookSession;
 use Facebook\FacebookRequestException;
 
 use Access2Me\Helper;
-use Access2Me\Model;
 
 
 class TokenRefresher
@@ -23,75 +22,87 @@ class TokenRefresher
         $this->appConfig = $appConfig;
     }
 
-    public function isDueToExpire(Model\Sender $sender)
+    public function isDueToExpire($createdAt, $expiresAt)
     {
         // assume token is valid if it is not expired
-        if ($sender->getExpiresAt() == null) {
+        if ($expiresAt == null) {
             return false;
         }
 
-        $createdAt = $sender->getCreatedAt()->getTimestamp();
-        $expiresAt = $sender->getExpiresAt()->getTimestamp();
+        $createdAt = $createdAt->getTimestamp();
+        $expiresAt = $expiresAt->getTimestamp();
 
         $lifetime = intval(($expiresAt - $createdAt) * 0.8); // 80% of lifetime passed
 
         return ($createdAt + $lifetime) < (new \DateTime)->getTimestamp();
     }
 
-    public function extendExpireTime(Model\Sender $sender, $token)
+    /**
+     * Extends lifetime without call external service
+     * Suitable for newly created tokens
+     *
+     * @param $serviceId
+     * @param $token
+     * @return array
+     */
+    public function extendExpireTime($serviceId, $token)
     {
         $now = new \DateTimeImmutable();
-        if ($sender->getService() == Service::LINKEDIN) {
+        if ($serviceId == Service::LINKEDIN) {
             $expiresAt = $now->add(new \DateInterval('P60D'));      // from the doc
-        } elseif ($sender->getService() == Service::FACEBOOK) {
+        } elseif ($serviceId == Service::FACEBOOK) {
             $expiresAt = $token->getExpiresAt();
-        } elseif ($sender->getService() == Service::TWITTER) {
+        } elseif ($serviceId == Service::TWITTER) {
             $expiresAt = $now->add(new \DateInterval('P30D'));      // twitter token doesn't have expiration time, assume 30 days
         }
 
-        $sender->setCreatedAt($now);
-        $sender->setExpiresAt($expiresAt);
+        return [
+            'created_at' => $now,
+            'expires_at' => $expiresAt
+        ];
     }
 
     /**
+     * Extends lifetime by calling external service
+     * Suitable for refreshing already obtained tokens
+     *
      * @param \Access2Me\Model\Sender $sender
      * @return bool
      * @todo Currently we just check if token is valid
      *       If token is invalid we can try to refresh it (get another access token)
      * @todo update access token
      */
-    public function extendLifetime(\Access2Me\Model\Sender $sender)
+    public function extendLifetime($serviceId, $token)
     {
-        $service = $sender->getService();
-        if ($service == Service::LINKEDIN) {
+        if ($serviceId == Service::LINKEDIN) {
             try {
                 $linkedin = new Helper\Linkedin($this->appConfig['services']['linkedin']);
-                $linkedin->getProfile($sender->getOAuthKey());
-                $this->extendExpireTime($sender, null);
+                $linkedin->getProfile($token);
+                $time = $this->extendExpireTime($serviceId, null);
             } catch (Helper\LinkedinException $ex) {
                 return false;
             }
         }
-        elseif ($service == Service::FACEBOOK) {
+        elseif ($serviceId == Service::FACEBOOK) {
             try {
                 FacebookSession::setDefaultApplication(
                     $this->appConfig['services']['facebook']['appId'],
                     $this->appConfig['services']['facebook']['appSecret']
                 );
-                $facebook = new Helper\Facebook($sender->getOAuthKey());
+                $facebook = new Helper\Facebook($token);
                 $facebook->validate();
                 $token = $facebook->getSession()->getAccessToken();
-                $this->extendExpireTime($sender, $token);
+                $time = $this->extendExpireTime($serviceId, $token);
             } catch (FacebookRequestException $ex) {
                 return false;
             }
         }
-        elseif ($service == Service::TWITTER) {
+        elseif ($serviceId == Service::TWITTER) {
             try {
                 // to validate we simply request user profile
                 $twitter = new Helper\Twitter($this->appConfig['services']['twitter']);
-                $twitter->getUserRepresentation($sender->getOAuthKey());
-                $this->extendExpireTime($sender, null);
+                $twitter->getUserRepresentation($token);
+                $time = $this->extendExpireTime($serviceId, null);
             } catch (Helper\TwitterException $ex) {
                 // can't fetch profile
                 return false;
@@ -100,6 +111,9 @@ class TokenRefresher
             throw new \InvalidArgumentException('Unsupported service');
         }
         
-        return true;
+        return [
+            'token' => $token,
+            'time' => $time
+        ];
     }
 }

@@ -45,7 +45,7 @@ class Router
             $url .= '?' . $query;
         }
 
-        $url = $this->appConfig['siteUrl'] . $url;
+        $url = $this->appConfig['projectUrl'] . $url;
 
         return $url;
     }
