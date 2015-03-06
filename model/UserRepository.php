@@ -84,6 +84,14 @@ class UserRepository extends AbstractRepository
         return $users ? $users[0] : null;
     }
 
+    public function getByEmail($email)
+    {
+        $query = 'SELECT * FROM `' . self::TABLE_NAME . '` WHERE `email` = :email';
+        $users = $this->db->getArray($query, array('email' => $email));
+        $this->decodeUsers($users);
+        return $users ? $users[0] : null;
+    }
+
     public function getByMailbox($mailbox)
     {
         $query = 'SELECT * FROM `' . self::TABLE_NAME . '` WHERE `mailbox` = :mailbox';

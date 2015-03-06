@@ -16,7 +16,7 @@ if ($_POST) {
     $userRepo = new Model\UserRepository($db);
 
     $username = isset($_POST['register-username']) ? $_POST['register-username'] : null;
-    $fullName = isset($_POST['register-fullname']) ? $_POST['register-fullname'] : null;
+    $fullname = isset($_POST['register-fullname']) ? $_POST['register-fullname'] : null;
     $email = isset($_POST['register-email']) ? $_POST['register-email'] : null;
     $mailbox = isset($_POST['register-mailbox']) ? $_POST['register-mailbox'] : null;
     $whitelistDomain = isset($_POST['whitelist-domain']) && $_POST['whitelist-domain'] == 'on';
@@ -26,27 +26,27 @@ if ($_POST) {
 
     // very basic verification
     $errors = array();
-    if (!preg_match('/^\w{3,}$/', $username)) {
+    if (!Helper\Validator::isValidUsername($username)) {
         $errors['username'] = 'Please enter a username';
     }
 
-    if (!preg_match('/^[\w ]{5,}$/', $fullName)) {
+    if (!Helper\Validator::isValidFullname($fullname)) {
         $errors['name'] = 'Please enter your full name';
     }
 
-    if (!Helper\Utils::isValidEmail($email)) {
+    if (!Helper\Validator::isValidEmail($email)) {
         $errors['email'] = 'Please enter a valid email address';
     } else if ($userRepo->getByUsername($username) !== null) {
         $errors['username'] = 'Username <strong>"' . htmlentities($username) . '"</strong> already used.';
     }
 
-    if (!Helper\Utils::isValidEmail($mailbox)) {
+    if (!Helper\Validator::isValidEmail($mailbox)) {
         $errors['mailbox'] = 'Please enter a valid Gmail address';
     } else if ($userRepo->getByMailbox($mailbox) !== null) {
         $errors['mailbox'] = 'Mailbox <strong>"' . htmlentities($mailbox) . '"</strong> already used.';
     }
 
-    if (mb_strlen($password) < 5 || $password != $password2) {
+    if (!Helper\Validator::isValidPassword($password) || $password != $password2) {
         $errors['password'] = 'Your password must be at least 5 characters long';
     }
 
@@ -59,7 +59,7 @@ if ($_POST) {
         $user = [
             'mailbox' => $mailbox,
             'email' => $email,
-            'name' => $fullName,
+            'name' => $fullname,
             'username' => $username,
             'password' => $auth->encodePassword($password),
             'gmail_access_token' => null

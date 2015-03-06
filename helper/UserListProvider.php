@@ -21,9 +21,9 @@ class UserListProvider
 
     public static function isAddressValid($address, $type) {
         if ($type == Model\UserSenderRepository::TYPE_EMAIL) {
-            return Utils::isValidEmail($address);
+            return Validator::isValidEmail($address);
         } else if ($type == Model\UserSenderRepository::TYPE_DOMAIN) {
-            return Utils::isValidDomain($address);
+            return Validator::isValidDomain($address);
         }
         
         // unknown type

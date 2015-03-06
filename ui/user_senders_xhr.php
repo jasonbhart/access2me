@@ -43,7 +43,7 @@ if ($action == 'save') {
     }
 
     // store only domain part if type is domain
-    if ($type == Model\UserSenderRepository::TYPE_DOMAIN && Helper\Utils::isValidEmail($sender)) {
+    if ($type == Model\UserSenderRepository::TYPE_DOMAIN && Helper\Validator::isValidEmail($sender)) {
         $sender = Helper\Email::splitEmail($sender)['domain'];
     }
 

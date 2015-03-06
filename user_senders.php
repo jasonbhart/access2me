@@ -16,7 +16,7 @@ $accessType = (isset($_REQUEST['access_type']) && intval($_REQUEST['access_type'
                 ? Model\UserSenderRepository::ACCESS_DENIED : Model\UserSenderRepository::ACCESS_ALLOWED;
 
 // check input params
-if (!$token || !Helper\Utils::isValidEmail($email)) {
+if (!$token || !Helper\Validator::isValidEmail($email)) {
     echo 'Invalid request';
     exit;
 }

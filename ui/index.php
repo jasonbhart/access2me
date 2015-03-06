@@ -8,14 +8,31 @@ use Access2Me\Service;
 
 class IndexController
 {
+    /**
+     * @var array
+     */
     protected $appConfig;
-    protected $user;
 
-    public function __construct($appConfig, $db, $user)
+    /**
+     * @var \Database
+     */
+    protected $db;
+
+    /**
+     * @var Helper\Auth
+     */
+    protected $auth;
+
+    /**
+     * @param $appConfig array
+     * @param $db \Database
+     * @param $auth Helper\Auth
+     */
+    public function __construct($appConfig, $db, $auth)
     {
         $this->appConfig = $appConfig;
         $this->db = $db;
-        $this->user = $user;
+        $this->auth = $auth;
     }
 
     public function process()
@@ -28,6 +45,9 @@ class IndexController
              return true;
          } elseif (isset($_GET['unlink'])) {
              $this->unlinkFrom($_GET['unlink']);
+             return true;
+         } elseif (isset($_POST['side-profile'])) {
+             $this->saveSidebarProfile();
              return true;
          }
 
@@ -52,12 +72,11 @@ class IndexController
         }
 
         // get authenticated user
-        $auth = new Helper\Auth($db);
-        $user = $auth->getLoggedUser();
+        $user = $this->auth->getLoggedUser();
 
         // validate email
         $email = $message['from_email'];
-        if (!Helper\Utils::isValidEmail($email)) {
+        if (!Helper\Validator::isValidEmail($email)) {
             $msg = sprintf(
                 'Can\'t %s invalid email: %s',
                 $action == 'allow' ? 'whitelist' : 'blacklist',
@@ -107,7 +126,8 @@ class IndexController
     {
         if ($type == 'linkedin') {
             $router = new Helper\Router($this->appConfig);
-            $request = new Service\Auth\Linkedin\UserAuthRequest($this->user['id'], $router->getUrl('home'));
+            $user = $this->auth->getLoggedUser();
+            $request = new Service\Auth\Linkedin\UserAuthRequest($user['id'], $router->getUrl('home'));
             $manager = new Service\Auth\Linkedin($this->appConfig['services']['linkedin']);
             // send request
             $manager->requestAuth($request);
@@ -122,13 +142,87 @@ class IndexController
     public function unlinkFrom($type)
     {
         if ($type == 'linkedin') {
-            $this->user['linkedin_access_token'] = null;
+            $user = $this->auth->getLoggedUser();
+            $user['linkedin_access_token'] = null;
             $userRepo = new Model\UserRepository($this->db);
-            $userRepo->save($this->user);
+            $userRepo->save($user);
             Helper\FlashMessage::add('You have successfully unlinked LinkedIn account', Helper\FlashMessage::SUCCESS);
             // redirect back to this page
             Helper\Http::redirect(Helper\Registry::getRouter()->getUrl('home'));
         }
+    }
+
+    /**
+     * Saves profile data from sidebar
+     */
+    public function saveSidebarProfile()
+    {
+        $fullName = isset($_POST['side-profile-fullname']) ? $_POST['side-profile-fullname'] : null;
+        $email = isset($_POST['side-profile-email']) ? $_POST['side-profile-email'] : null;
+        $password = isset($_POST['side-profile-password']) ? $_POST['side-profile-password'] : null;
+        $password2 = isset($_POST['side-profile-password-confirm']) ? $_POST['side-profile-password-confirm'] : null;
+        $whitelistDomain = isset($_POST['whitelist-domain']);
+
+        $userRepo = new Model\UserRepository($this->db);
+        $user = $this->auth->getLoggedUser();
+
+        // validate profile data
+        $errors = [];
+        if (!Helper\Validator::isValidFullname($fullName)) {
+            $errors['name'] = 'Please enter your full name';
+        }
+
+        if (!Helper\Validator::isValidEmail($email)) {
+            $errors['email'] = 'Please enter a valid email address';
+        } else {
+            $anotherUser = $userRepo->getByEmail($email);
+            if ($anotherUser !== null && $anotherUser['id'] != $user['id']) {
+                $errors['username'] = 'Email <strong>"' . htmlentities($email) . '"</strong> already used.';
+            }
+        }
+
+        // did user enter password ?
+        if (!empty($password) && (!Helper\Validator::isValidPassword($password) || $password != $password2)) {
+            $errors['password'] = 'Your password must be at least 5 characters long';
+        }
+
+        // update user
+        if (!$errors) {
+            $user['name'] = $fullName;
+            $user['email'] = $email;
+            if (!empty($password)) {
+                $user['password'] = $this->auth->encodePassword($password);
+            }
+
+            $userRepo->save($user);
+
+            // whitelist domain
+            if ($whitelistDomain) {
+                $splitted = Helper\Email::splitEmail($email);
+                $userListRepo = new Model\UserSenderRepository($this->db);
+                $entry = $userListRepo->getByUserAndSender($user['id'], $splitted['domain']);
+                if (!$entry) {
+                    $entry = [
+                        'user_id' => $user['id'],
+                        'sender' => $splitted['domain'],
+                        'type' => Model\UserSenderRepository::TYPE_DOMAIN
+                    ];
+                }
+
+                $entry['access'] = Model\UserSenderRepository::ACCESS_ALLOWED;
+
+                $userListRepo->save($entry);
+            }
+
+            Helper\FlashMessage::add('Profile updated!', Helper\FlashMessage::SUCCESS);
+        } else {
+            // show errors on next page load
+            foreach ($errors as $error) {
+                Helper\FlashMessage::add($error, Helper\FlashMessage::ERROR);
+            }
+        }
+
+        Helper\Http::redirect(Helper\Registry::getRouter()->getUrl('home'));
     }
 }
 
@@ -137,11 +231,11 @@ $db = new Database;
 $auth = new Helper\Auth($db);
 $user = $auth->getLoggedUser();
 
-$mesgRepo = new Model\MessageRepository($db);
-
 // process userlist actions
-$ctrl = new IndexController($appConfig, $db, $user);
+$ctrl = new IndexController($appConfig, $db, $auth);
 $ctrl->process();
+
+$mesgRepo = new Model\MessageRepository($db);
 
 // prepare pages
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
@@ -195,10 +289,10 @@ try {
     $userRepo->save($u);
 
     // request new permissions
-    $url = $appConfig['projectUrl'] . '/ui/gmailoauth.php';
-    header('Location: ' . $url);
-    exit;
+    Helper\Http::redirect(Helper\Registry::getRouter('gmail_oauth'));
 }
+
+//var_dump($user);
 
 ?>
 

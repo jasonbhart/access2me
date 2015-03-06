@@ -257,12 +257,69 @@ var App = function() {
         });
     };
 
+    var sidebarProfileValidation = function() {
+        return;
+        // initialize profile form validation
+        $('#form-side-profile').validate({
+            errorClass: 'help-block animation-slideUp',
+            errorElement: 'div',
+            errorPlacement1: function(error, e) {
+                e.parents('.form-group > div').append(error);
+            },
+            highlight: function(e) {
+                $(e).closest('.form-group').removeClass('has-success has-error').addClass('has-error');
+                $(e).closest('.help-block').remove();
+            },
+            success: function(e) {
+                if (e.closest('.form-group').find('.help-block').length === 2) {
+                    e.closest('.help-block').remove();
+                } else {
+                    e.closest('.form-group').removeClass('has-success has-error');
+                    e.closest('.help-block').remove();
+                }
+            },
+            rules: {
+                'side-profile-fullname': {
+                    required: true,
+                    minlength: 5
+                },
+                'side-profile-email': {
+                    required: true,
+                    email: true
+                },
+                'side-profile-password': {
+                    minlength: 5
+                },
+                'side-profile-password-confirm': {
+                    equalTo: '#side-profile-password'
+                }
+            },
+            messages: {
+                'side-profile-fullname': {
+                    required: 'Please enter your full name',
+                    minlength: 'Please enter your full name'
+                },
+                'side-profile-email': 'Please enter a valid email address',
+                'side-profile-password': {
+                    minlength: 'Your password must be at least 5 characters long'
+                },
+                'side-profile-password-confirm': {
+                    minlength: 'Your password must be at least 5 characters long',
+                    equalTo: 'Please enter the same password as above'
+                }
+            }
+        });
+    }
+
     /* Sidebars Functionality */
     var handleSidebar = function(mode){
         if (mode === 'init') {
             // Init sidebars scrolling functionality
             handleSidebar('sidebar-scroll');
             handleSidebar('sidebar-alt-scroll');
+
+            // init sidebar profile validation
+            sidebarProfileValidation();
 
             // Handle main sidebar's scrolling functionality on resize or orientation change
             var sScrollTimeout;
