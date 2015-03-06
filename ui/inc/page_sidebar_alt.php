@@ -52,6 +52,14 @@ $userData = $db->getArray($sql);
             </div>
             <!-- END Profile -->
 
+            <div class="sidebar-section">
+                <?php if ($user['linkedin_access_token']): ?>
+                <a href="?unlink=linkedin" class="btn btn-effect-ripple btn-danger">Unlink LinkedIn</a>
+                <?php else: ?>
+                <a href="?linkto=linkedin" class="btn btn-effect-ripple btn-primary">Link to LinkedIn</a>
+                <?php endif; ?>
+            </div>
+
             <!-- Settings -->
             <div class="sidebar-section">
                 <h2 class="text-light">Settings</h2>

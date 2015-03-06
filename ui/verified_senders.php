@@ -17,7 +17,7 @@ $type = isset($_GET['type']) ? $_GET['type'] : null;
 
 // redirect to the home page if invalid type requested
 if ($type != 'unverified' && $type != 'verified') {
-    header('Location: ' . $appConfig['siteUrl'] . '/ui');
+    header('Location: ' . $appConfig['projectUrl'] . '/ui');
     exit;
 }
 

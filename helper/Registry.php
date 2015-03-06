@@ -105,9 +105,9 @@ class Registry
     public static function getTwig()
     {
         if (!self::$twig) {
-            $loader = new \Twig_Loader_Filesystem(self::$appConfig['projectPath'] . '/views');
+            $loader = new \Twig_Loader_Filesystem(self::$appConfig['projectRoot'] . '/views');
             
-            $env['cache'] = self::$appConfig['twigCache'] ? self::$appConfig['projectPath'] . '/tmp/cache/twig' : false;
+            $env['cache'] = self::$appConfig['twigCache'] ? self::$appConfig['projectRoot'] . '/tmp/cache/twig' : false;
             self::$twig = new \Twig_Environment($loader, $env);
             self::$twig->addFunction(new \Twig_SimpleFunction('gender_icon', ['\Access2Me\Helper\Template', 'getGenderIcon']));
             self::$twig->addFunction(new \Twig_SimpleFunction('messenger_icon', ['\Access2Me\Helper\Template', 'getMessengerIcon']));

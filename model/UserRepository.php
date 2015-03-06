@@ -2,7 +2,7 @@
 
 namespace Access2Me\Model;
 
-class UserRepository
+class UserRepository extends AbstractRepository
 {
     const TABLE_NAME = 'users';
 
@@ -16,22 +16,39 @@ class UserRepository
         $this->db = $db;
     }
 
-    protected function encodeAccessToken($accessToken)
+    /**
+     * @param $accessToken User\LinkedinToken
+     * @return null|string
+     */
+    protected function encodeLinkedinToken($accessToken)
     {
-        return $accessToken;
-
         // store null values as NULL in databases instead of json "null"
         if ($accessToken === null) {
             return null;
         }
 
-        return json_encode($accessToken);
+        return json_encode([
+            'token' => $accessToken->getToken(),
+            'created_at' => $this->encodeDateTime($accessToken->getCreatedAt()),
+            'expires_at' => $this->encodeDateTime($accessToken->getExpiresAt())
+        ]);
     }
 
-    protected function decodeAccessToken($encodedAccessToken)
+    /**
+     * @param $encodedAccessToken
+     * @return User\LinkedinToken|null
+     */
+    protected function decodeLinkedinToken($encodedAccessToken)
     {
-        return $encodedAccessToken;
-        return json_decode($encodedAccessToken, true);
+        $data = json_decode($encodedAccessToken, true);
+        if (!$data)
+            return null;
+
+        $token = new User\LinkedinToken();
+        $token->setToken($data['token']);
+        $token->setCreatedAt($this->decodeDateTime($data['created_at']));
+        $token->setExpiresAt($this->decodeDateTime($data['expires_at']));
+        return $token;
     }
 
     protected function decodeUsers(&$users)
@@ -42,11 +59,11 @@ class UserRepository
 
         // check if this is an entity array
         if (isset($users['username'])) {
-            // google client encodes token itself
-            //$users['gmail_access_token'] = $this->decodeAccessToken($users['gmail_access_token']);
+            // gmail acess token needs not to be encoded because google client encodes token itself
+            $users['linkedin_access_token'] = $this->decodeLinkedinToken($users['linkedin_access_token']);
         } else {
             foreach ($users as &$user) {
-                //$user['gmail_access_token'] = $this->decodeAccessToken($user['gmail_access_token']);
+                $user['linkedin_access_token'] = $this->decodeLinkedinToken($user['linkedin_access_token']);
             }
         }
     }
@@ -120,7 +137,8 @@ class UserRepository
                 $entry['name'],
                 $entry['username'],
                 $entry['password'],
-                $this->encodeAccessToken($entry['gmail_access_token'])
+                $entry['gmail_access_token'],
+                $this->encodeLinkedinToken($entry['linkedin_access_token'])
             ),
             true
         );
@@ -138,7 +156,8 @@ class UserRepository
             . ' `name` = :name,'
             . ' `username` = :username,'
             . ' `password` = :password,'
-            . ' `gmail_access_token` = :gmail_access_token'
+            . ' `gmail_access_token` = :gmail_access_token,'
+            . ' `linkedin_access_token` = :linkedin_access_token'
             . ' WHERE id = :id';
 
         $conn = $this->db->getConnection();
@@ -148,7 +167,8 @@ class UserRepository
         $st->bindValue(':name', $entry['name']);
         $st->bindValue(':username', $entry['username']);
         $st->bindValue(':password', $entry['password']);
-        $st->bindValue(':gmail_access_token', $this->encodeAccessToken($entry['gmail_access_token']));
+        $st->bindValue(':gmail_access_token', $entry['gmail_access_token']);
+        $st->bindValue(':linkedin_access_token', $this->encodeLinkedinToken($entry['linkedin_access_token']));
         $st->bindValue(':id', $entry['id'], \PDO::PARAM_INT);
         $st->execute();
     }

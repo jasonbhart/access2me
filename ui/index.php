@@ -8,12 +8,28 @@ use Access2Me\Service;
 
 class IndexController
 {
+    protected $appConfig;
+    protected $user;
+
+    public function __construct($appConfig, $db, $user)
+    {
+        $this->appConfig = $appConfig;
+        $this->db = $db;
+        $this->user = $user;
+    }
+
     public function process()
     {
          if (isset($_GET['sender']) && isset($_GET['messageId'])) {
             $this->addSenderAction($_GET['sender'], $_GET['messageId']);
             return true;
-        }
+         } elseif (isset($_GET['linkto'])) {
+             $this->linkTo($_GET['linkto']);
+             return true;
+         } elseif (isset($_GET['unlink'])) {
+             $this->unlinkFrom($_GET['unlink']);
+             return true;
+         }
 
         return false;
     }
@@ -81,6 +97,39 @@ class IndexController
 
         return true;
     }
+
+    /**
+     *  Link user to external service (linkedin, twitter, etc.)
+     *
+     * @param string $type
+     */
+    public function linkTo($type)
+    {
+        if ($type == 'linkedin') {
+            $router = new Helper\Router($this->appConfig);
+            $request = new Service\Auth\Linkedin\UserAuthRequest($this->user['id'], $router->getUrl('home'));
+            $manager = new Service\Auth\Linkedin($this->appConfig['services']['linkedin']);
+            // send request
+            $manager->requestAuth($request);
+            exit;
+        }
+    }
+
+    /**
+     * Unlink user from certain service
+     * @param string $type
+     */
+    public function unlinkFrom($type)
+    {
+        if ($type == 'linkedin') {
+            $this->user['linkedin_access_token'] = null;
+            $userRepo = new Model\UserRepository($this->db);
+            $userRepo->save($this->user);
+            Helper\FlashMessage::add('You have successfully unlinked LinkedIn account', Helper\FlashMessage::SUCCESS);
+            // redirect back to this page
+            Helper\Http::redirect(Helper\Registry::getRouter()->getUrl('home'));
+        }
+    }
 }
 
 
@@ -91,7 +140,7 @@ $user = $auth->getLoggedUser();
 $mesgRepo = new Model\MessageRepository($db);
 
 // process userlist actions
-$ctrl = new IndexController();
+$ctrl = new IndexController($appConfig, $db, $user);
 $ctrl->process();
 
 // prepare pages
@@ -146,7 +195,7 @@ try {
     $userRepo->save($u);
 
     // request new permissions
-    $url = $appConfig['siteUrl'] . '/ui/gmailoauth.php';
+    $url = $appConfig['projectUrl'] . '/ui/gmailoauth.php';
     header('Location: ' . $url);
     exit;
 }
@@ -200,7 +249,7 @@ try {
 if ($messages) {
     foreach ($messages as $message) {
         $createdAt = Helper\DateTime::fromUTCtoDefault($message['created_at']);
-        $profileUrl = $appConfig['siteUrl'] . '/ui/sender_profile.php?'
+        $profileUrl = $appConfig['projectUrl'] . '/ui/sender_profile.php?'
                 . 'email=' . urlencode($message['from_email']);
         ?>
         <tr>

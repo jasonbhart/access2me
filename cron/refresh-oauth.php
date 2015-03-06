@@ -8,67 +8,152 @@ use Access2Me\Helper;
 use Access2Me\Model;
 use Access2Me\Service;
 
+class UserTokensRefresher
+{
+    /**
+     * @var user entity
+     */
+    protected $user;
+
+    /**
+     * @var \Access2Me\Helper\GoogleAuthProvider
+     */
+    protected $googleAuthProvider;
+
+    /**
+     * @var \Access2Me\Service\TokenRefresher
+     */
+    protected $tokenRefresher;
+
+    public function __construct($user, $googleAuthProvider, $tokenRefresher)
+    {
+        $this->user = $user;
+        $this->googleAuthProvider = $googleAuthProvider;
+        $this->tokenRefresher = $tokenRefresher;
+    }
+
+    public function getUser()
+    {
+        return $this->user;
+    }
+
+    /**
+     * Refreshes Gmail token
+     */
+    public function refreshGmail()
+    {
+        try {
+            if (!$this->user['gmail_access_token']) {
+                return;
+            }
+
+            $client = $this->googleAuthProvider->getClient();
+            $client->setAccessToken($this->user['gmail_access_token']);
+
+            $token = json_decode($client->getAccessToken(), true);
+
+            // check expiration
+            if (isset($token['created']) && isset($token['expires_in'])) {
+                // assume token is expired when more then 80% of lifetime past
+                $expires_at = $token['created'] + $token['expires_in'] * 0.8;
+
+                // not need to refresh if didn't expire
+                if ($expires_at > time()) {
+                    return;
+                }
+            }
+
+            $client->refreshToken($client->getRefreshToken());
+            $this->user['gmail_access_token'] = $client->getAccessToken();
+        } catch (\Exception $ex) {
+            // can't refresh token anymore, unset access token
+            if ($ex instanceof Google_Auth_Exception) {
+                $this->user['gmail_access_token'] = null;
+                Logging::getLogger()->error(
+                    sprintf('Can\'t refresh user\'s gmail token anymore, not valid refresh token (userId: %d)', $this->user['id'])
+                );
+            } else {
+                Logging::getLogger()->error(
+                    sprintf('Can\'t refresh gmail token for user: %d', $this->user['id']),
+                    ['exception' => $ex]
+                );
+            }
+        }
+    }
+
+    /**
+     * Refreshes LinkedIn token
+     */
+    public function refreshLinkedIn()
+    {
+        try {
+            if (!$this->user['linkedin_access_token']) {
+                return;
+            }
+
+            $token = $this->user['linkedin_access_token'];
+
+            // process only expiring tokens
+            if ($this->tokenRefresher->isDueToExpire($token->getCreatedAt(), $token->getExpiresAt())) {
+
+                // try extend lifetime of expiring token and save it to the storage
+                $res = $this->tokenRefresher->extendLifetime(Service\Service::LINKEDIN, $token->getToken());
+                if ($res) {
+                    $token->setToken($res['token']);
+                    $token->setCreatedAt($res['time']['created_at']);
+                    $token->setExpiresAt($res['time']['expires_at']);
+                } else {
+                    // can't extend
+                    $token = null;
+                }
+
+                $this->user['linkedin_access_token'] = $token;
+            }
+        } catch (\Exception $ex) {
+            Logging::getLogger()->error(
+                sprintf('Can\'t extend lifetime of users\'s linkedin access token: %d', $this->user['id']),
+                ['exception' => $ex]
+            );
+        }
+    }
+
+    public function refresh()
+    {
+        $this->refreshGmail();
+        $this->refreshLinkedIn();
+    }
+}
 
 $db = new Database();
 $userRepo = new Model\UserRepository($db);
 
 $authProvider = new Helper\GoogleAuthProvider($appConfig['services']['gmail'], $userRepo);
+$tokenRefresher = new Service\TokenRefresher($appConfig);
 
 // refresh gmail access token for every user
 foreach ($userRepo->findAll() as $user) {
-    if (!$user['gmail_access_token']) {
+    if ($user['id'] != 4)
         continue;
-    }
 
-    try {
-
-        $client = $authProvider->getClient();
-        $client->setAccessToken($user['gmail_access_token']);
-
-        $token = json_decode($client->getAccessToken(), true);
-
-        // check expiration
-        if (isset($token['created']) && isset($token['expires_in'])) {
-            // assume token is expired when more then 80% of lifetime past
-            $expires_at = $token['created'] + $token['expires_in'] * 0.8;
-
-            if ($expires_at > time()) {
-                continue;
-            }
-        }
-
-        $client->refreshToken($client->getRefreshToken());
-        $user['gmail_access_token'] = $client->getAccessToken();
-        $userRepo->save($user);
-
-    } catch (\Exception $ex) {
-        // can't refresh token anymore, unset access token
-        if ($ex instanceof Google_Auth_Exception) {
-            $user['gmail_access_token'] = null;
-            $userRepo->save($user);
-            Logging::getLogger()->error(
-                sprintf('Can\'t refresh token anymore, not valid refresh token (userId: %d)', $user['id'])
-            );
-        } else {
-            Logging::getLogger()->error(
-                sprintf('Can\'t refresh token for user: %d', $user['id']),
-                ['exception' => $ex]
-            );
-        }
-    }
+    $refresher = new UserTokensRefresher($user, $authProvider, $tokenRefresher);
+    $refresher->refresh();
+    $userRepo->save($refresher->getUser());
 }
 
-// refresh service tokens (Twitter etc.)
+// refresh sender's services tokens (Twitter etc.)
 $senderRepo = new Model\SenderRepository($db);
-$tokenRefresher = new Service\TokenRefresher($appConfig);
 
 foreach ($senderRepo->findAll() as $sender) {
     try {
         // process only expiring tokens
-        if ($tokenRefresher->isDueToExpire($sender)) {
+        if ($tokenRefresher->isDueToExpire($sender->getCreatedAt(), $sender->getExpiresAt())) {
 
             // try extend lifetime of expiring token and save it to the storage
-            if ($tokenRefresher->extendLifetime($sender)) {
+            $res = $tokenRefresher->extendLifetime($sender->getService(), $sender->getOAuthKey());
+            if ($res) {
+                $sender->setOAuthKey($res['token']);
+                $sender->setCreatedAt($res['time']['created_at']);
+                $sender->setExpiresAt($res['time']['expires_at']);
                 $senderRepo->save($sender);
             } else {
                 $senderRepo->delete($sender->getId());

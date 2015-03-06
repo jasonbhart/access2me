@@ -2,6 +2,19 @@
 
 require_once __DIR__ . "/boot.php";
 
+use Access2Me\Service\Auth;
+
+$verifyType = isset($_GET['vtype']) ? $_GET['vtype'] : null;
+$messageId = isset($_GET['message_id']) ? $_GET['message_id'] : null;
+
+// authenticate sender with linkedin
+if ($verifyType == 'linkedin' && $messageId) {
+    $request = new Auth\Linkedin\SenderAuthRequest($messageId);
+    $manager = new Auth\Linkedin($appConfig['services']['linkedin']);
+    $manager->requestAuth($request);
+    exit;
+}
+
 ?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -49,7 +62,11 @@ require_once __DIR__ . "/boot.php";
                             below.</h6>
 
 						<ul>
-							<li><a href="<?php echo $localUrl; ?>/linkedin.php?message_id=<?php echo $_GET['message_id']; ?>"><img src="images/linkedin.png"></a></li>
+							<li>
+                                <a href="<?php echo $localUrl; ?>/verify.php?vtype=linkedin&message_id=<?php echo htmlentities($messageId); ?>">
+                                    <img src="images/linkedin.png">
+                                </a>
+                            </li>
 							<li><a href="<?php echo $localUrl; ?>/facebook.php?message_id=<?php echo $_GET['message_id']; ?>"><img src="images/facebook.png"></a></li>
                                                         <li><a href="<?php echo $localUrl; ?>/twitter.php?message_id=<?php echo $_GET['message_id']; ?>"><img src="images/twitter.png"></a></li>
 						</ul>

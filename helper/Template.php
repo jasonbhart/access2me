@@ -158,25 +158,7 @@ class Template
     }
 
     /**
-     * 
-     * @deprecated please use `Registry::getTwig()->render()`
-     * @param type $template
-     * @param type $data
-     * @return type
-     */
-    public static function generate($template, $data = null)
-    {
-        if ($data !== null) {
-            extract($data);
-        }
-
-        ob_start();
-        include __DIR__ . '/../views/' . $template;
-        return ob_get_clean();
-    }
-
-    /**
-     * Renders template using Twig
+     * Renders template. Please use Twig instead.
      *
      * @deprecated please use `Registry::getTwig()->render()`
      * @param string $template
@@ -185,6 +167,9 @@ class Template
      */
     public static function render($template, $data = null)
     {
-        return Registry::getTwig()->render($template, $data);
+        extract($data);
+        ob_start();
+        require_once($template);
+        return ob_get_clean();
     }
 }
