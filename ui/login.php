@@ -2,11 +2,11 @@
 
 require_once __DIR__ . "/../boot.php";
 
-use Access2Me\Helper\Auth;
+use Access2Me\Helper;
 use Access2Me\Helper\AuthException;
 
 $db = new Database;
-$auth = new Auth($db);
+$auth = Helper\Registry::getAuth();
 
 if (isset($_GET['action']) && $_GET['action'] == 'logout' && $auth->isAuthenticated()) {
     $auth->logout();

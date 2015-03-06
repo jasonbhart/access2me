@@ -24,9 +24,9 @@ class IndexController
     protected $auth;
 
     /**
-     * @param $appConfig array
-     * @param $db \Database
-     * @param $auth Helper\Auth
+     * @param array $appConfig
+     * @param \Database $db
+     * @param Helper\Auth $auth
      */
     public function __construct($appConfig, $db, $auth)
     {
@@ -228,7 +228,7 @@ class IndexController
 
 
 $db = new Database;
-$auth = new Helper\Auth($db);
+$auth = Helper\Registry::getAuth();
 $user = $auth->getLoggedUser();
 
 // process userlist actions
@@ -291,8 +291,6 @@ try {
     // request new permissions
     Helper\Http::redirect(Helper\Registry::getRouter('gmail_oauth'));
 }
-
-//var_dump($user);
 
 ?>
 

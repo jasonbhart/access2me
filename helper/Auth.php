@@ -2,23 +2,31 @@
 
 namespace Access2Me\Helper;
 
+use Access2Me\Model\UserRepository;
+
 class AuthException extends \Exception {}
 
 class Auth
 {
     /**
-     * @var \Database
+     * @var string
      */
-    private $db;
+    private $secret;
+
+    /**
+     * @var UserRepository
+     */
+    private $userRepo;
     
-    public function __construct($db)
+    public function __construct($secret, $userRepo)
     {
-        $this->db = $db;
+        $this->secret = $secret;
+        $this->userRepo = $userRepo;
     }
 
-    public static function encodePassword($password)
+    public function encodePassword($password)
     {
-        return md5('bacon' . $password);
+        return md5($this->secret . $password);
     }
 
     /**
@@ -28,8 +36,7 @@ class Auth
      */
     protected function getUser($username)
     {
-        $repo = new \Access2Me\Model\UserRepository($this->db);
-        $user = $repo->getByUsername($username);
+        $user = $this->userRepo->getByUsername($username);
         return $user;
     }
 
@@ -49,7 +56,7 @@ class Auth
     public function login($username, $password, $remember = false)
     {
         $user = $this->getUser($username);
-        $hash = self::encodePassword($password);
+        $hash = $this->encodePassword($password);
 
         // check user and passowrd
         if (!$this->checkPassword($user, $hash)) {

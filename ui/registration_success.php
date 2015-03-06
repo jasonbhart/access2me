@@ -6,7 +6,7 @@ use Access2Me\Model;
 use Access2Me\Service;
 
 $db = new Database;
-$auth = new Helper\Auth($db);
+$auth = Helper\Registry::getAuth();
 $user = $auth->getLoggedUser();
 
 // user already granted access

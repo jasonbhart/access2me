@@ -8,7 +8,7 @@ use Access2Me\Model;
 $db = new Database;
 
 // Check for a Gmail OAuth Token for the current user
-$auth = new Helper\Auth($db);
+$auth = Helper\Registry::getAuth();
 
 if (!$auth->isAuthenticated()) {
     header('Location: login.php');

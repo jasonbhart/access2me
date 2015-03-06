@@ -16,7 +16,7 @@ function showSendersProfile()
     $db = new Database;
 
     // check if current user has messages from the sender
-    $user = (new Helper\Auth($db))->getLoggedUser();
+    $user = Helper\Registry::getAuth()->getLoggedUser();
     $mesgRepo = new Model\MessageRepository($db);
     $messages = $mesgRepo->findByUserAndSender($user['id'], $email);
    
