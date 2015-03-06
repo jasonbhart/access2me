@@ -1,10 +1,5 @@
 <?php
 require_once __DIR__ . "/../../boot.php";
-$db = new Database;
-
-$sql = "SELECT * FROM `users` WHERE `username` = '" . $_COOKIE['a2muser'] . "' LIMIT 1;";
-$userData = $db->getArray($sql);
-
 ?>
 <?php
 /**
@@ -28,14 +23,18 @@ $userData = $db->getArray($sql);
             <!-- Profile -->
             <div class="sidebar-section">
                 <h2 class="text-light">Profile</h2>
-                <form action="index.php" method="post" class="form-control-borderless" onsubmit="return false;">
+                <form action="index.php" method="post" id="form-side-profile" class="form-control-borderless">
                     <div class="form-group">
                         <label for="side-profile-name">Name</label>
-                        <input type="text" id="side-profile-name" name="side-profile-name" class="form-control" value="<?php echo $userData[0]['name']; ?>">
+                        <input type="text" id="side-profile-fullname" name="side-profile-fullname" class="form-control" value="<?php echo htmlentities($user['name']); ?>">
                     </div>
                     <div class="form-group">
                         <label for="side-profile-email">Email</label>
-                        <input type="email" id="side-profile-email" name="side-profile-email" class="form-control" value="<?php echo $userData[0]['email']; ?>">
+                        <input type="email" id="side-profile-email" name="side-profile-email" class="form-control" value="<?php echo htmlentities($user['email']); ?>">
+                    </div>
+                    <div class="form-group">
+                        <label for="side-profile-email">Mailbox</label>
+                        <input type="email" id="side-profile-mailbox" class="form-control" value="<?php echo htmlentities($user['mailbox']); ?>" disabled="disabled">
                     </div>
                     <div class="form-group">
                         <label for="side-profile-password">New Password</label>
@@ -45,8 +44,17 @@ $userData = $db->getArray($sql);
                         <label for="side-profile-password-confirm">Confirm New Password</label>
                         <input type="password" id="side-profile-password-confirm" name="side-profile-password-confirm" class="form-control">
                     </div>
+                    <div class="form-group">
+                        <label class="csscheckbox csscheckbox-primary" style="white-space: nowrap">
+                            <input type="checkbox" name="whitelist-domain">
+                            <span></span>
+                            <div style="display: inline-block; margin-left: 0.5em; white-space: normal">
+                                Add email domain to the whitelist
+                            </div>
+                        </label>
+                    </div>
                     <div class="form-group remove-margin">
-                        <button type="submit" class="btn btn-effect-ripple btn-primary" onclick="App.sidebar('close-sidebar-alt');">Save</button>
+                        <button type="submit" name="side-profile" class="btn btn-effect-ripple btn-primary">Save</button>
                     </div>
                 </form>
             </div>

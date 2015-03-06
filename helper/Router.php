@@ -8,6 +8,7 @@ class Router
     protected $routes = [
         'home' => '/ui/index.php',
         'gmail_settings' => '/ui/gmail-config.php',
+        'gmail_oauth' => '/ui/gmailoauth.php',
         'registration_success' => '/ui/registration_success.php',
         'sender_verification' => '/verify.php'
     ];

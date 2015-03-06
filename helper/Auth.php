@@ -21,7 +21,12 @@ class Auth
         return md5('bacon' . $password);
     }
 
-    public function getUser($username)
+    /**
+     * @todo Pass UserRepository via constructor
+     * @param $username
+     * @return null
+     */
+    protected function getUser($username)
     {
         $repo = new \Access2Me\Model\UserRepository($this->db);
         $user = $repo->getByUsername($username);
