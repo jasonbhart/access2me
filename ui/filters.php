@@ -7,7 +7,7 @@
 use Access2Me\Helper;
 
 $db = new Database;
-$auth = new Helper\Auth($db);
+$auth = Helper\Registry::getAuth();
 $userId = $auth->getLoggedUser()['id'];
 
 // prepare filters for render

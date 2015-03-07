@@ -9,6 +9,13 @@ class Router
         'home' => '/ui/index.php',
         'gmail_settings' => '/ui/gmail-config.php',
         'gmail_oauth' => '/ui/gmailoauth.php',
+        'login' => '/ui/login.php',
+        'logout' => [
+            'url' => '/ui/login.php',
+            'params' => [
+                'action' => 'logout'
+            ]
+        ],
         'registration_success' => '/ui/registration_success.php',
         'sender_verification' => '/verify.php'
     ];

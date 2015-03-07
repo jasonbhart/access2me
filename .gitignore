@@ -3,3 +3,4 @@
 /nbproject/
 *.log
 *.DS_*
+/vendor/

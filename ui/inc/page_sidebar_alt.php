@@ -1,5 +1,10 @@
 <?php
 require_once __DIR__ . "/../../boot.php";
+
+use Access2Me\Helper\Template;
+
+$user = Template::getCurrentUser();
+
 ?>
 <?php
 /**
@@ -23,7 +28,7 @@ require_once __DIR__ . "/../../boot.php";
             <!-- Profile -->
             <div class="sidebar-section">
                 <h2 class="text-light">Profile</h2>
-                <form action="index.php" method="post" id="form-side-profile" class="form-control-borderless">
+                <form action="<?php echo htmlentities(Template::getRoute('home')); ?>" method="post" id="form-side-profile" class="form-control-borderless">
                     <div class="form-group">
                         <label for="side-profile-name">Name</label>
                         <input type="text" id="side-profile-fullname" name="side-profile-fullname" class="form-control" value="<?php echo htmlentities($user['name']); ?>">
@@ -62,9 +67,9 @@ require_once __DIR__ . "/../../boot.php";
 
             <div class="sidebar-section">
                 <?php if ($user['linkedin_access_token']): ?>
-                <a href="?unlink=linkedin" class="btn btn-effect-ripple btn-danger">Unlink LinkedIn</a>
+                <a href="<?php echo htmlentities(Template::getRoute('home', ['unlink' => 'linkedin'])); ?>" class="btn btn-effect-ripple btn-danger">Unlink LinkedIn</a>
                 <?php else: ?>
-                <a href="?linkto=linkedin" class="btn btn-effect-ripple btn-primary">Link to LinkedIn</a>
+                <a href="<?php echo htmlentities(Template::getRoute('home', ['linkto' => 'linkedin'])); ?>" class="btn btn-effect-ripple btn-primary">Link to LinkedIn</a>
                 <?php endif; ?>
             </div>
 
@@ -91,7 +96,7 @@ require_once __DIR__ . "/../../boot.php";
                         </div>
                     </div>
                     <div class="form-group remove-margin">
-                        <button type="submit" class="btn btn-effect-ripple btn-primary" onclick="window.location.href='login.php?action=logout';">Logout</button>
+                        <button type="submit" class="btn btn-effect-ripple btn-primary" onclick="window.location.href='<?php echo htmlentities(Template::getRoute('logout')); ?>';">Logout</button>
                     </div>
                 </form>
             </div>
@@ -102,4 +107,3 @@ require_once __DIR__ . "/../../boot.php";
     <!-- END Wrapper for scrolling functionality -->
 </div>
 <!-- END Alternative Sidebar -->
-

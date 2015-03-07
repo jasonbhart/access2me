@@ -8,6 +8,7 @@ use Access2Me\ProfileProvider;
 use Access2Me\Service\Service;
 use Access2Me\Data;
 
+
 class Registry
 {
     public static $appConfig;
@@ -17,6 +18,26 @@ class Registry
         self::$appConfig = $appConfig;
     }
 
+    /**
+     * @var \Database
+     */
+    private static $db;
+
+    /**
+     * @return \Database
+     */
+    public static function getDatabase()
+    {
+        if (!self::$db) {
+            self::$db = new \Database();
+        }
+
+        return self::$db;
+    }
+
+    /**
+     * @var SenderProfileProviderInterface
+     */
     private static $profileProvider;
 
     /**
@@ -61,10 +82,9 @@ class Registry
                 ]
             ];
 
-            $db = new \Database();
             $profileProvider = new SenderProfileProvider($profileProviders);
 
-            $cacheRepo = new Model\CacheRepository($db);
+            $cacheRepo = new Model\CacheRepository(self::getDatabase());
             $cache = new Helper\Cache($cacheRepo);
             $cached = new CachedSenderProfileProvider($cache, $profileProvider);
 
@@ -76,7 +96,7 @@ class Registry
 
     public static function getUserStats($user)
     {
-        $db = new \Database();
+        $db = self::getDatabase();
         $cache = new Helper\Cache(new Model\CacheRepository($db), 'PT2H');
 
         $userRepo = new Model\UserRepository($db);
@@ -159,5 +179,24 @@ class Registry
         $mailer->FromName = 'Access2.ME';
 
         return $mailer;
+    }
+
+    /**
+     * @var Auth
+     */
+    private static $auth;
+
+    /**
+     * @todo need to replace 'bacon' with real secret from appConfig
+     * @return Auth
+     */
+    public static function getAuth()
+    {
+        if (!self::$auth) {
+            $userRepo = new Model\UserRepository(self::getDatabase());
+            self::$auth = new Auth('bacon', $userRepo);
+        }
+
+        return self::$auth;
     }
 }

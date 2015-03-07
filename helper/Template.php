@@ -172,4 +172,36 @@ class Template
         require_once($template);
         return ob_get_clean();
     }
+
+    /**
+     * Current user entity
+     * @var array
+     */
+    private static $user = false;
+
+    /**
+     * Returns current authenticated user
+     * Since this should be used only inside templates we can cache result
+     *
+     * @return array|null
+     * @throws AuthException
+     */
+    public static function getCurrentUser()
+    {
+        if (self::$user === false) {
+            $auth = Registry::getAuth();
+            if ($auth->isAuthenticated()) {
+                self::$user = $auth->getLoggedUser();
+            } else {
+                self::$user = null;
+            }
+        }
+
+        return self::$user;
+    }
+
+    public static function getRoute($routeName, $params=[])
+    {
+        return Registry::getRouter()->getUrl($routeName, $params);
+    }
 }

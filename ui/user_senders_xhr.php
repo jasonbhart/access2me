@@ -7,7 +7,7 @@ use Access2Me\Model;
 
 
 $db = new Database();
-$auth = new Helper\Auth($db);
+$auth = Helper\Registry::getAuth();
 
 if (!$auth->isAuthenticated()) {
     Helper\Http::generate403();

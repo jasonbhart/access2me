@@ -2,10 +2,10 @@
 
 require_once __DIR__ . "/../boot.php";
 
-use Access2Me\Helper\Auth;
+use Access2Me\Helper;
 
 $db = new Database;
-$auth = new Auth($db);
+$auth = Helper\Registry::getAuth();
 
 if (!$auth->isAuthenticated()) {
     header('Location: login.php');
