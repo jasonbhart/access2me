@@ -29,7 +29,7 @@ class Aboutme implements ProfileProviderInterface
             $profile = $aboutme->getAboutMeProfile($email);
             
             return $profile;
-        } catch (Service\FullContactException $ex) {
+        } catch (Service\AboutmeException $ex) {
             throw new ProfileProviderException('Can\'t fetch profile', 0, $ex);
         }
     }
