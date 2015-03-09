@@ -19,6 +19,12 @@
             {% endfor %}
         {% endif %}
     {% endif %}
+        
+    {% if profile.aboutme.result.0.profile %}
+        <a href="{{ profile.aboutme.result.0.profile }}" style="border-radius:50%; display:inline-block; border:1px solid #d1d1d1; overflow:hidden; width:20px; height:20px; font-size:0; line-height:0;vertical-align:middle;">
+            <img style="width:20px; height:20px;" src="{{ social_icon('aboutme') }}" width="20" height="20" alt="{{ soc.typeName }}" />
+        </a>&nbsp;&nbsp; 
+    {% endif %}
 
 {% endblock %}
 

@@ -63,6 +63,7 @@ require_once __DIR__ . "/ProfileProvider/Facebook.php";
 require_once __DIR__ . "/ProfileProvider/FullContact.php";
 require_once __DIR__ . "/ProfileProvider/GitHub.php";
 require_once __DIR__ . "/ProfileProvider/Klout.php";
+require_once __DIR__ . "/ProfileProvider/Aboutme.php";
 require_once __DIR__ . "/ProfileProvider/Linkedin.php";
 require_once __DIR__ . "/ProfileProvider/Twitter.php";
 require_once __DIR__ . "/ProfileProvider/Profile/CrunchBase.php";
@@ -82,6 +83,7 @@ require_once __DIR__ . "/Service/AngelList.php";
 require_once __DIR__ . "/Service/CrunchBase.php";
 require_once __DIR__ . "/Service/FullContact.php";
 require_once __DIR__ . "/Service/Klout.php";
+require_once __DIR__ . "/Service/Aboutme.php";
 require_once __DIR__ . "/Service/Gmail.php";
 require_once __DIR__ . "/Service/Service.php";
 require_once __DIR__ . "/Service/TokenRefresher.php";
@@ -160,6 +162,9 @@ $appConfig = array(
         ],
         'klout' => [
             'key'   => 'w96zwz37wd9x6h2n8wfcpcam'
+        ],
+        'aboutme' => [
+            'client_id' => '718b5491196ddd8a0fbb9aa3f759665ce9753b04'
         ]
     ],
     'secret' => 'rO2RL7H0mWeFs5.zRF1yOx9ITgFo9rwkTbx3Q6YuyA/7BjjH6t5AoSfsd32kL9h1UKs',

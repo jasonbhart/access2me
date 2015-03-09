@@ -11,4 +11,5 @@ class Service {
     const FULLCONTACT = 6;
     const KLOUT = 7;
     const GITHUB = 8;
+    const ABOUTME = 9;
 }

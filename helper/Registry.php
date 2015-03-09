@@ -79,6 +79,10 @@ class Registry
                 Service::GITHUB => [
                     'authRequired' => false,
                     'provider' => new ProfileProvider\GitHub(null)
+                ],
+                Service::ABOUTME => [
+                    'authRequired' => false,
+                    'provider' => new ProfileProvider\Aboutme($services['aboutme'])
                 ]
             ];
 

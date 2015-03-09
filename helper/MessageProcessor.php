@@ -200,6 +200,7 @@ class MessageProcessor
         $data['crunch_base'] = $profile->crunchBase;
         $data['github'] = $profile->gitHub;
         $data['klout'] = $profile->klout;
+        $data['aboutme'] = $profile->aboutme;
 
         // use only if realness of profile is above 80%
         if (isset($profile->fullContact) && isset($profile->fullContact->likelihood) && $profile->fullContact->likelihood > 0.8) {
