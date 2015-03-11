@@ -257,60 +257,6 @@ var App = function() {
         });
     };
 
-    var sidebarProfileValidation = function() {
-        return;
-        // initialize profile form validation
-        $('#form-side-profile').validate({
-            errorClass: 'help-block animation-slideUp',
-            errorElement: 'div',
-            errorPlacement1: function(error, e) {
-                e.parents('.form-group > div').append(error);
-            },
-            highlight: function(e) {
-                $(e).closest('.form-group').removeClass('has-success has-error').addClass('has-error');
-                $(e).closest('.help-block').remove();
-            },
-            success: function(e) {
-                if (e.closest('.form-group').find('.help-block').length === 2) {
-                    e.closest('.help-block').remove();
-                } else {
-                    e.closest('.form-group').removeClass('has-success has-error');
-                    e.closest('.help-block').remove();
-                }
-            },
-            rules: {
-                'side-profile-fullname': {
-                    required: true,
-                    minlength: 5
-                },
-                'side-profile-email': {
-                    required: true,
-                    email: true
-                },
-                'side-profile-password': {
-                    minlength: 5
-                },
-                'side-profile-password-confirm': {
-                    equalTo: '#side-profile-password'
-                }
-            },
-            messages: {
-                'side-profile-fullname': {
-                    required: 'Please enter your full name',
-                    minlength: 'Please enter your full name'
-                },
-                'side-profile-email': 'Please enter a valid email address',
-                'side-profile-password': {
-                    minlength: 'Your password must be at least 5 characters long'
-                },
-                'side-profile-password-confirm': {
-                    minlength: 'Your password must be at least 5 characters long',
-                    equalTo: 'Please enter the same password as above'
-                }
-            }
-        });
-    }
-
     /* Sidebars Functionality */
     var handleSidebar = function(mode){
         if (mode === 'init') {
@@ -319,8 +265,61 @@ var App = function() {
             handleSidebar('sidebar-alt-scroll');
 
             // init sidebar profile validation
-            sidebarProfileValidation();
+            handleSidebar('init-profile-validation');
 
+            handleSidebar('init-events');
+        } else if (mode == 'init-profile-validation') {
+            // initialize profile form validation
+            $('#form-side-profile').validate({
+                errorClass: 'help-block animation-slideUp',
+                errorElement: 'div',
+                errorPlacement1: function(error, e) {
+                    e.parents('.form-group > div').append(error);
+                },
+                highlight: function(e) {
+                    $(e).closest('.form-group').removeClass('has-success has-error').addClass('has-error');
+                    $(e).closest('.help-block').remove();
+                },
+                success: function(e) {
+                    if (e.closest('.form-group').find('.help-block').length === 2) {
+                        e.closest('.help-block').remove();
+                    } else {
+                        e.closest('.form-group').removeClass('has-success has-error');
+                        e.closest('.help-block').remove();
+                    }
+                },
+                rules: {
+                    'side-profile-fullname': {
+                        required: true,
+                        minlength: 5
+                    },
+                    'side-profile-email': {
+                        required: true,
+                        email: true
+                    },
+                    'side-profile-password': {
+                        minlength: 5
+                    },
+                    'side-profile-password-confirm': {
+                        equalTo: '#side-profile-password'
+                    }
+                },
+                messages: {
+                    'side-profile-fullname': {
+                        required: 'Please enter your full name',
+                        minlength: 'Please enter your full name'
+                    },
+                    'side-profile-email': 'Please enter a valid email address',
+                    'side-profile-password': {
+                        minlength: 'Your password must be at least 5 characters long'
+                    },
+                    'side-profile-password-confirm': {
+                        minlength: 'Your password must be at least 5 characters long',
+                        equalTo: 'Please enter the same password as above'
+                    }
+                }
+            });
+        } else if (mode == 'init-events') {
             // Handle main sidebar's scrolling functionality on resize or orientation change
             var sScrollTimeout;
 
@@ -330,6 +329,27 @@ var App = function() {
                 sScrollTimeout = setTimeout(function(){
                     handleSidebar('sidebar-scroll');
                 }, 150);
+            });
+
+            // handle toggling Attach email header
+            $('#sidebar-alt-email-header-toggler').change(function(e) {
+                var url = $(this).parents('form')[0].action;
+                var value = this.checked;
+                $.post(url,
+                    {
+                        name: 'email-header',
+                        value: value
+                    },
+                    function(result) {
+                        if (result.status) {
+                            var message = 'Info header will ' + (value ? '' : 'not') + ' be attached';
+                            App.flashMessages.add(message, 'success');
+                        } else {
+                            App.flashMessages.add('Error happened', 'error');
+                        }
+                    },
+                    'json'
+                );
             });
         } else {
             var windowW = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
@@ -553,6 +573,29 @@ var App = function() {
         },
         datatables: function() {
             dtIntegration(); // Datatables Bootstrap integration
+        },
+        flashMessages: {
+            add: function(message, type) {
+                var types = {
+                    'success': 'alert-success',
+                    'info': 'alert-info',
+                    'error': 'alert-danger'
+                };
+
+                if (types[type] === undefined)
+                    type = 'error';
+
+                var html = '<div class="alert alert-dismissable ' + types[type] + '">'
+                    + '<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>'
+                    + '<div>' + message + '</div>'
+                    + '</div>';
+
+                html = jQuery(html);
+                $('#flash-messages').append(html);
+
+                // remove message after N ms
+                setTimeout(function() { html.fadeOut('slow', function() { html.remove(); } ); }, 10000);
+            }
         }
     };
 }();

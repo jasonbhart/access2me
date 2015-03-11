@@ -126,6 +126,20 @@ class MessageProcessor
         return $url;
     }
 
+    private function buildMessageHeader($user, $template, $data)
+    {
+        // do not generate header
+        if (!$user['attach_email_header']) {
+            return null;
+        }
+
+        // generate header
+        $text = Registry::getTwig()->render($template, $data);
+
+        // build our info header
+        return Email::buildAlternativeMessage($text, 'This is the body in plain text for non-HTML mail clients');
+    }
+
     /**
      * Appends unverified message to the Unverified folder on Gmail
      * 
@@ -138,7 +152,9 @@ class MessageProcessor
         if (!$message['appended_to_unverified']) {
             $data['whitelist_url'] = $this->buildWhitelistUrl($message['from_email']);
             $data['blacklist_url'] = $this->buildBlacklistUrl($message['from_email']);
-            $mail = Email::buildUnverifiedMessage($this->user, $message, $data);
+            $header = $this->buildMessageHeader($this->user, 'email/header/unverified.html.twig', $data);
+            $mail = Email::buildMessage($this->user, $message, $header);
+
             return new ProcessingResult(Model\MessageRepository::STATUS_NOT_VERIFIED, $mail);
         }
 
@@ -243,7 +259,9 @@ class MessageProcessor
         	$status = Model\MessageRepository::STATUS_SENDER_BLACKLISTED;
         }
 
-        $mail = Email::buildUserListProcessedMessage($this->user, $message, $data);
+        $header = $this->buildMessageHeader($this->user, 'email/header/userlisted.html.twig', $data);
+        $mail = Email::buildMessage($this->user, $message, $header);
+
         return new ProcessingResult($status, $mail);
     }
 
@@ -284,13 +302,13 @@ class MessageProcessor
         $data['whitelist_url']  = $this->buildWhitelistUrl($message['from_email']);
         $data['blacklist_url']  = $this->buildBlacklistUrl($message['from_email']);
         $data['profile'] = $this->getProfileViewData($profile);
-        
-        // build email
-        $result->message = Email::buildVerifiedMessage(
-            $this->user,
-            $message,
-            $data
-        );
+
+        $header = $this->buildMessageHeader($this->user, 'email/header/verified.html.twig', $data);
+        $options = [
+            'from_name' => $data['profile']['full_name']
+        ];
+
+        $result->message = Email::buildMessage($this->user, $message, $header, $options);
 
         return $result;
     }

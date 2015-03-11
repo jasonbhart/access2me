@@ -2,7 +2,7 @@
 
 namespace Access2Me\Helper;
 
-class FlashMessage {
+class FlashMessages {
     private static $storageKey = 'flash_messages';
 
     const SUCCESS = 1;
@@ -32,29 +32,5 @@ class FlashMessage {
         }
         
         return [];
-    }
-
-    public static function toHTML() {
-        $cssClasses = [
-            self::SUCCESS => 'alert-success',
-            self::INFO => 'alert-info',
-            self::ERROR => 'alert-danger'        
-        ];
-
-        $result = [];
-
-        if (self::hasMessages()) {
-            foreach (self::getAll() as $msg) {
-                $cssClass = $cssClasses[$msg['type']];
-                $result[] = <<<"EOT"
-<div class="alert alert-dismissable {$cssClass}">
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-    <div>{$msg['message']}</div>
-</div>
-EOT;
-            }
-        }
-        
-        return implode('', $result);
     }
 }

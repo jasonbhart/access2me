@@ -204,4 +204,23 @@ class Template
     {
         return Registry::getRouter()->getUrl($routeName, $params);
     }
+
+    public static function getFlashMessages()
+    {
+        $types = [
+            FlashMessages::SUCCESS => 'success',
+            FlashMessages::INFO => 'info',
+            FlashMessages::ERROR => 'danger'
+        ];
+
+        $messages = [];
+        foreach (FlashMessages::getAll() as $msg) {
+            $messages[] = [
+                'message' => $msg['message'],
+                'type' => $types[$msg['type']]
+            ];
+        }
+
+        return $messages;
+    }
 }

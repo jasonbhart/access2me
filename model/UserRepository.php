@@ -61,9 +61,11 @@ class UserRepository extends AbstractRepository
         if (isset($users['username'])) {
             // gmail acess token needs not to be encoded because google client encodes token itself
             $users['linkedin_access_token'] = $this->decodeLinkedinToken($users['linkedin_access_token']);
+            $users['attach_email_header'] = $this->encodeBoolean($users['attach_email_header']);
         } else {
             foreach ($users as &$user) {
                 $user['linkedin_access_token'] = $this->decodeLinkedinToken($user['linkedin_access_token']);
+                $user['attach_email_header'] = $this->encodeBoolean($user['attach_email_header']);
             }
         }
     }
@@ -137,7 +139,9 @@ class UserRepository extends AbstractRepository
                 'name',
                 'username',
                 'password',
-                'gmail_access_token'
+                'gmail_access_token',
+                'linkedin_access_token',
+                'attach_email_header'
             ),
             array(
                 $entry['mailbox'],
@@ -146,7 +150,8 @@ class UserRepository extends AbstractRepository
                 $entry['username'],
                 $entry['password'],
                 $entry['gmail_access_token'],
-                $this->encodeLinkedinToken($entry['linkedin_access_token'])
+                $this->encodeLinkedinToken($entry['linkedin_access_token']),
+                $this->encodeBoolean($entry['attach_email_header'])
             ),
             true
         );
@@ -165,7 +170,8 @@ class UserRepository extends AbstractRepository
             . ' `username` = :username,'
             . ' `password` = :password,'
             . ' `gmail_access_token` = :gmail_access_token,'
-            . ' `linkedin_access_token` = :linkedin_access_token'
+            . ' `linkedin_access_token` = :linkedin_access_token,'
+            . ' `attach_email_header` = :attach_email_header'
             . ' WHERE id = :id';
 
         $conn = $this->db->getConnection();
@@ -177,6 +183,7 @@ class UserRepository extends AbstractRepository
         $st->bindValue(':password', $entry['password']);
         $st->bindValue(':gmail_access_token', $entry['gmail_access_token']);
         $st->bindValue(':linkedin_access_token', $this->encodeLinkedinToken($entry['linkedin_access_token']));
+        $st->bindValue(':attach_email_header', $this->encodeBoolean($entry['attach_email_header']));
         $st->bindValue(':id', $entry['id'], \PDO::PARAM_INT);
         $st->execute();
     }

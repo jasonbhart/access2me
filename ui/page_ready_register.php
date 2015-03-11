@@ -62,7 +62,9 @@ if ($_POST) {
             'name' => $fullname,
             'username' => $username,
             'password' => $auth->encodePassword($password),
-            'gmail_access_token' => null
+            'gmail_access_token' => null,
+            'linkedin_access_token' => null,
+            'attach_email_header' => true
         ];
         $userId = $userRepo->save($user);
 

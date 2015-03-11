@@ -26,7 +26,7 @@ require_once __DIR__ . "/helper/GmailImap.php";
 require_once __DIR__ . "/helper/Google.php";
 require_once __DIR__ . "/helper/Email.php";
 require_once __DIR__ . "/helper/Facebook.php";
-require_once __DIR__ . "/helper/FlashMessage.php";
+require_once __DIR__ . "/helper/FlashMessages.php";
 require_once __DIR__ . "/helper/Http.php";
 require_once __DIR__ . "/helper/Linkedin.php";
 require_once __DIR__ . "/helper/MessageProcessor.php";
