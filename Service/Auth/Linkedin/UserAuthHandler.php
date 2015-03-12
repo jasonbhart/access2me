@@ -43,7 +43,7 @@ class UserAuthHandler extends Auth\AbstractHandler
 
         $userRepo->save($user);
 
-        Helper\FlashMessage::add('You have successfully linked LinkedIn account', Helper\FlashMessage::SUCCESS);
+        Helper\FlashMessages::add('You have successfully linked LinkedIn account', Helper\FlashMessages::SUCCESS);
 
         Helper\Http::redirect($linkedinRequest->redirectUrl);
         exit;

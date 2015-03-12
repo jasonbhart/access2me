@@ -93,6 +93,7 @@ CREATE TABLE `users` (
   `password` varchar(64) NOT NULL,
   `gmail_access_token` text DEFAULT NULL,
   `linkedin_access_token` text NULL,
+  `attach_email_header` TINYINT DEFAULT 1,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;

@@ -60,14 +60,14 @@ class IndexController
         $mesgRepo = new Model\MessageRepository($db);
         
         if ($action != 'allow' && $action != 'deny') {
-            Helper\FlashMessage::add('Unknown action', Helper\FlashMessage::ERROR);
+            Helper\FlashMessages::add('Unknown action', Helper\FlashMessages::ERROR);
             return;
         }
 
         // get message
         $message = $mesgRepo->getById($messageId);
         if (!$message) {
-            Helper\FlashMessage::add('Message not exists', Helper\FlashMessage::ERROR);
+            Helper\FlashMessages::add('Message not exists', Helper\FlashMessages::ERROR);
             return;
         }
 
@@ -82,7 +82,7 @@ class IndexController
                 $action == 'allow' ? 'whitelist' : 'blacklist',
                 htmlentities($email)
             );
-            Helper\FlashMessage::add($msg, Helper\FlashMessage::ERROR);
+            Helper\FlashMessages::add($msg, Helper\FlashMessages::ERROR);
             return;
         }
 
@@ -91,7 +91,7 @@ class IndexController
         // add email
         if ($this->addEmailToUserList($email, $access, $user, $db)) {
             $msg = 'Sender <b>' . htmlentities($email) . '</b> ' . ($action == 'allow' ? 'whitelisted' : 'blacklisted');
-            Helper\FlashMessage::add($msg, Helper\FlashMessage::SUCCESS);
+            Helper\FlashMessages::add($msg, Helper\FlashMessages::SUCCESS);
         }
     }
 
@@ -146,7 +146,7 @@ class IndexController
             $user['linkedin_access_token'] = null;
             $userRepo = new Model\UserRepository($this->db);
             $userRepo->save($user);
-            Helper\FlashMessage::add('You have successfully unlinked LinkedIn account', Helper\FlashMessage::SUCCESS);
+            Helper\FlashMessages::add('You have successfully unlinked LinkedIn account', Helper\FlashMessages::SUCCESS);
             // redirect back to this page
             Helper\Http::redirect(Helper\Registry::getRouter()->getUrl('home'));
         }
@@ -214,11 +214,11 @@ class IndexController
                 $userListRepo->save($entry);
             }
 
-            Helper\FlashMessage::add('Profile updated!', Helper\FlashMessage::SUCCESS);
+            Helper\FlashMessages::add('Profile updated!', Helper\FlashMessages::SUCCESS);
         } else {
             // show errors on next page load
             foreach ($errors as $error) {
-                Helper\FlashMessage::add($error, Helper\FlashMessage::ERROR);
+                Helper\FlashMessages::add($error, Helper\FlashMessages::ERROR);
             }
         }
 
@@ -289,7 +289,7 @@ try {
     $userRepo->save($u);
 
     // request new permissions
-    Helper\Http::redirect(Helper\Registry::getRouter('gmail_oauth'));
+    Helper\Http::redirect(Helper\Registry::getRouter()->getUrl('gmail_oauth'));
 }
 
 ?>
@@ -300,8 +300,6 @@ try {
 <!-- Page content -->
 <div id="page-content">
     <?php include('inc/page_status_icons.php'); ?>
-
-    <?php echo Helper\FlashMessage::toHTML(); ?>
 
     <!-- Table Styles Block -->
     <div class="block">

@@ -12,5 +12,14 @@
  *
  */
 ?>
+
+    <script type="text/javascript">
+        ;(function() {
+            var messages = <?php echo json_encode(\Access2Me\Helper\Template::getFlashMessages()); ?>;
+            for (var i=0; i<messages.length; i++)
+                App.flashMessages.add(messages[i].message, messages[i].type);
+        })();
+    </script>
+
     </body>
 </html>

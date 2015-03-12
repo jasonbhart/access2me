@@ -17,7 +17,8 @@ class Router
             ]
         ],
         'registration_success' => '/ui/registration_success.php',
-        'sender_verification' => '/verify.php'
+        'sender_verification' => '/verify.php',
+        'sidebar_handler' => '/ui/sidebar_handler.php'
     ];
 
     protected $appConfig;

@@ -34,4 +34,14 @@ abstract class AbstractRepository
             return null;
         }
     }
+
+    protected function encodeBoolean($value)
+    {
+        return boolval($value);
+    }
+
+    protected function decodeBoolean($value)
+    {
+        return boolval($value);
+    }
 }

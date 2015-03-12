@@ -20,6 +20,7 @@
     <!-- Preloader -->
     <!-- Preloader functionality (initialized in js/app.js) - pageLoading() -->
     <!-- Used only if page preloader enabled from inc/config (PHP version) or the class 'page-loading' is added in #page-wrapper element (HTML version) -->
+
     <div class="preloader">
         <div class="inner">
             <!-- Animation spinner for all modern browsers -->
@@ -30,6 +31,12 @@
         </div>
     </div>
     <!-- END Preloader -->
+
+    <!-- Flash messages -->
+    <div id="flash-messages-wrapper">
+        <div id="flash-messages"></div>
+    </div>
+    <!-- End Flash messages -->
 
     <!-- Page Container -->
     <!-- In the PHP version you can set the following options from inc/config file -->

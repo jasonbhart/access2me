@@ -207,64 +207,16 @@ class Email
         return $body;
     }
 
-    protected static function getUnverifiedHeader($data)
-    {
-        $text = Registry::getTwig()->render('email/header/unverified.html.twig', $data);
-        
-        // build our info header
-        $altBody = new \ezcMailText('This is the body in plain text for non-HTML mail clients');
-        $body = new \ezcMailText($text);
-        $body->subType = 'html';
-
-        $header = new \ezcMailMultipartAlternative($altBody, $body);
-        
-        return $header;
-    }
-
-    protected static function getUserListedHeader($data)
-    {
-        // generate header
-        $text = Registry::getTwig()->render('email/header/userlisted.html.twig', $data);
-
-        // build our info header
-        $altBody = new \ezcMailText('This is the body in plain text for non-HTML mail clients');
-        $body = new \ezcMailText($text);
-        $body->subType = 'html';
-
-        $header = new \ezcMailMultipartAlternative($altBody, $body);
-        
-        return $header;
-    }
-
-    /**
-     * Get content of access2.me info header
-     * 
-     * @param array $data
-     * @return \ezcMailMultipartAlternative
-     */
-    public static function getInfoHeader($data)
-    {
-        $infoText = Registry::getTwig()->render('email/header/verified.html.twig', $data);
-
-        // build our info header
-        $altInfoBody = new \ezcMailText('This is the body in plain text for non-HTML mail clients');
-        $infoBody = new \ezcMailText($infoText);
-        $infoBody->subType = 'html';
-
-        $info = new \ezcMailMultipartAlternative($altInfoBody, $infoBody);
-        
-        return $info;
-    }
-
     /**
      * Builds new message ready to be send to user
-     * used for whitelisted senders
-     * 
+     *
      * @param array $to user entity
      * @param array $message message entity
+     * @param string|null $header
+     * @param array $options options to customize email (from_name)
      * @return \ezcMail
      */
-    public static function buildMessage($to, $message, $header = null)
+    public static function buildMessage($to, $message, $header = null, $options = [])
     {
         // get message body of the original message
         $body = self::getMessageBody(
@@ -277,7 +229,7 @@ class Email
         }
 
         // build new message
-        $fromName = $message['from_name'];
+        $fromName = isset($options['from_name']) ? $options['from_name']: $message['from_name'];
 
         $newMail = new \ezcMail();
         $newMail->from = new \ezcMailAddress('noreply@access2.me', $fromName);
@@ -293,77 +245,13 @@ class Email
         return $newMail;
     }
 
-    public static function buildUnverifiedMessage($to, $message, $data)
+    public static function buildAlternativeMessage($text, $alternative)
     {
-        // get message body of the original message
-        $body = self::getMessageBody(
-            $message['header'] . "\r\n\r\n" . $message['body']
-        );
+        $altBody = new \ezcMailText($alternative);
+        $body = new \ezcMailText($text);
+        $body->subType = 'html';
 
-        // join our header and content of the original message
-        $info = self::getUnverifiedHeader($data);
-        $newBody = new \ezcMailMultipartMixed($info, $body);
-
-        // build new message
-        $fromName = $message['from_email'];
-
-        $newMail = new \ezcMail();
-        $newMail->from = new \ezcMailAddress('noreply@access2.me', $fromName);
-        $newMail->to = array(new \ezcMailAddress($to['mailbox']));
-        $newMail->setHeader('Reply-To', $message['reply_email']);
-        $newMail->setHeader('X-Mailer', '');
-        $newMail->subject = $message['subject'];
-        $newMail->body = $newBody;
-
-        // do not include User-Agent header in the mail
-        $newMail->appendExcludeHeaders(array('User-Agent'));
-        
-        return $newMail;
-    }
-
-    
-    public static function buildUserListProcessedMessage($to, $message, $data)
-    {
-        // join our header and content of the original message
-        $header = self::getUserListedHeader($data);
-        return self::buildMessage($to, $message, $header);
-    }
-
-    /**
-     * Builds new message ready to be send to user
-     * by prepending info header to original message and filling in
-     * all required info 
-     * 
-     * @param array $to user entity
-     * @param array $message message entity
-     * @param \Access2Me\Helper\ProfileCombiner or array $fromContact contact build from profile
-     * @return \ezcMail
-     */
-    public static function buildVerifiedMessage($to, $message, $data)
-    {
-        // get message body of the original message
-        $body = self::getMessageBody(
-            $message['header'] . "\r\n\r\n" . $message['body']
-        );
-
-        // join our header and content of the original message
-        $info = self::getInfoHeader($data);
-        $newBody = new \ezcMailMultipartMixed($info, $body);
-
-        // build new message
-        $fromName = $data['profile']['full_name'];
-
-        $newMail = new \ezcMail();
-        $newMail->from = new \ezcMailAddress('noreply@access2.me', $fromName);
-        $newMail->to = array(new \ezcMailAddress($to['mailbox']));
-        $newMail->setHeader('Reply-To', $message['reply_email']);
-        $newMail->setHeader('X-Mailer', '');
-        $newMail->subject = $message['subject'];
-        $newMail->body = $newBody;
-
-        // do not include User-Agent header in the mail
-        $newMail->appendExcludeHeaders(array('User-Agent'));
-        
-        return $newMail;
+        $message = new \ezcMailMultipartAlternative($altBody, $body);
+        return $message;
     }
 }

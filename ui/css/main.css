@@ -3539,3 +3539,32 @@ p, .table, .alert, .carousel {
         margin-right: 0;
     }
 }
+
+/*
+=================================================================
+ FLASH MESSAGES
+=================================================================
+*/
+#flash-messages-wrapper {
+    position: fixed;
+    top: 40px;
+    left: 0px;
+    right: 0px;
+    z-index: 1050;
+}
+
+#flash-messages {
+    margin: auto;
+    width: 400px;
+}
+
+#flash-messages .alert {
+    margin-bottom: 3px;
+    padding-left: 3px;
+    padding-top: 3px;
+    padding-bottom: 3px;
+}
+
+#flash-messages .alert .close {
+    top: 0px;
+}
