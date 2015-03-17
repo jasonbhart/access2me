@@ -1,0 +1,33 @@
+<div>
+    <form novalidate class="form-inline">
+        <input type="hidden" class="filter-id" ng-model="id" />
+        <div class="form-group" style="vertical-align: top">
+            <select name="filter-type" class="filter-type form-control"
+                    ng-options="type.name for type in metadata.types track by type.id" ng-model="type">
+            </select>
+        </div>
+        <div class="form-group" style="vertical-align: top">
+            <select name="filter-property" class="filter-property form-control"
+                    ng-options="property.name for property in type.properties" ng-model="property" ng-change="propertyChanged()">
+            </select>
+        </div>
+        <div class="form-group" style="vertical-align: top">
+            <select name="filter-method" class="filter-method form-control"
+                    ng-options="method.description for method in metadata.compTypes[property.type]" ng-model="method">
+            </select>
+        </div>
+        <div class="form-group" style="vertical-align: top">
+            <input type="text" name="filter-value" class="filter-value form-control" placeholder="Value" ng-model="value" required>
+        </div>
+        <div class="form-group" style="vertical-align: top">
+            <button type="submit" class="btn btn-effect-ripple btn-sm btn-primary form-save" ng-click="save({filter: getFilter()})">
+                <i class="fa fa-check"></i> Save
+            </button>
+        </div>
+        <div class="form-group" style="vertical-align: top">
+            <button type="button" class="btn btn-effect-ripple btn-sm btn-primary form-cancel" ng-click="cancel()">
+                <i class="fa fa-fire"></i> Cancel
+            </button>
+        </div>
+    </form>
+</div>

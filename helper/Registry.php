@@ -2,6 +2,8 @@
 
 namespace Access2Me\Helper;
 
+use Access2Me\Filter;
+use Access2Me\Filter\TypeFactory;
 use Access2Me\Helper;
 use Access2Me\Model;
 use Access2Me\ProfileProvider;
@@ -202,5 +204,18 @@ class Registry
         }
 
         return self::$auth;
+    }
+
+    /**
+     * @return Filter\Type\AbstractType[]
+     */
+    public static function getFilterTypes()
+    {
+        return [
+            TypeFactory::COMMON => TypeFactory::getInstance(TypeFactory::COMMON),
+            TypeFactory::LINKEDIN => TypeFactory::getInstance(TypeFactory::LINKEDIN),
+            TypeFactory::FACEBOOK => TypeFactory::getInstance(TypeFactory::FACEBOOK),
+            TypeFactory::TWITTER => TypeFactory::getInstance(TypeFactory::TWITTER)
+        ];
     }
 }

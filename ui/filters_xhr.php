@@ -3,6 +3,7 @@
 require_once __DIR__ . '/../boot.php';
 
 use Access2Me\Helper;
+use Access2Me\Filter;
 use Access2Me\Model;
 
 $db = new Database();
@@ -17,19 +18,35 @@ $action = isset($_GET['action']) ? $_GET['action'] : null;
 // save
 if ($action == 'save') {
     $id = isset($_POST['id']) ? (int)$_POST['id'] : 0;
-    $fieldName = isset($_POST['field']) ? $_POST['field'] : null;
-    $filterType = isset($_POST['type']) ? (int)$_POST['type'] : 0;
-    $filterValue = isset($_POST['value']) ? $_POST['value'] : null;
+    $typeId = isset($_POST['type']) ? (int)$_POST['type'] : 0;
+    $propertyId = isset($_POST['property']) ? $_POST['property'] : null;
+    $methodId = isset($_POST['method']) ? (int)$_POST['method'] : 0;
+    $value = isset($_POST['value']) ? $_POST['value'] : null;
 
-    $fields = \Filter::getFilterableFields();
-    $filterTypes = \Filter::getTypes();
+    // validate type
+    $filterTypes = Helper\Registry::getFilterTypes();
 
-    if (!isset($fields[$fieldName])
-        || !isset($filterTypes[$filterType])
-        || empty($filterValue)
-    ) {
-        echo json_encode(array('status' => 'error'));
-        exit;
+    if (!isset($filterTypes[$typeId])) {
+        Helper\Http::jsonResponse(['status' => 'error', 'message' => 'Unknown filter type']);
+    }
+
+    $filterType = $filterTypes[$typeId];
+
+    // validate property
+    if (!isset($filterType->properties[$propertyId])) {
+        Helper\Http::jsonResponse(['status' => 'error', 'message' => 'Unknown property']);
+    }
+
+    // validate method
+    $property = $filterType->properties[$propertyId];
+    $compType = Filter\ComparatorFactory::getInstance($property['type']);
+
+    if (!isset($compType->methods[$methodId])) {
+        Helper\Http::jsonResponse(['status' => 'error', 'message' => 'Unknown method']);
+    }
+
+    if (empty($value)) {
+        Helper\Http::jsonResponse(['status' => 'error', 'message' => 'Invalid value']);
     }
 
     // add filter
@@ -48,20 +65,20 @@ if ($action == 'save') {
 
         $db->update(
             'filters',
-            array('type', 'field', 'value'),
-            array($filterType, $fieldName, $filterValue),
+            array('type', 'property', 'method', 'value'),
+            array($typeId, $propertyId, $methodId, $value),
             'id = ?',
             array($id)
         );
     } else {            // insert
         $id = $db->insert('filters',
-                array('user_id', 'type', 'field', 'value'),
-                array($user['id'], $filterType, $fieldName, $filterValue)
+                array('user_id', 'type', 'property', 'method', 'value'),
+                array($user['id'], $typeId, $propertyId, $methodId, $value)
         );
     }
-    
-    echo json_encode(array('status' => 'success', 'id' => $id));
-    exit;
+
+    Helper\Http::jsonResponse(['status' => 'success', 'id' => $id]);
+
 } else if ($action == 'delete') {           // delete
     $id = isset($_POST['id']) ? (int)$_POST['id'] : 0;
 
@@ -78,7 +95,7 @@ if ($action == 'save') {
         exit;
     }
     
-    Filter::delete($id, $db);
+    \Filter::delete($id, $db);
     echo json_encode(array('status' => 'success', 'id' => $id));
     exit;
 }

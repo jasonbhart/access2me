@@ -1,268 +1,201 @@
 var Filters = function() {
 
-    var data;
+    var init = function(angular, data) {
+        'use strict';
 
-    var service = {
-        getFilterById: function (id) {
-            var a = _.find(data.filters, function(filter) {
-                return filter.id == id;
-            });
-            return a;
-        },
+        var a2mApp = angular.module('access2me', []);
 
-        save: function(filter, callback) {
-            return $.post('/ui/filters_xhr.php?action=save',
-                filter,
-                callback,
-                'json'
-            );
-        },
-
-        delete: function($id, callback) {
-            return $.post('/ui/filters_xhr.php?action=delete',
-                {id: $id},
-                callback,
-                'json'
-            );
-        },
-        
-        toViewModel: function(filter) {
-            return {
-                'id': filter.id || 0,
-                'field': data.fields[filter.field],
-                'condition': data.conditions[filter.type],
-                'value': filter.value
-            }
-        }
-    };
-
-    var editForm = function() {
-        var callbacks = {};
-        var $form = $('#form-filter-edit');
-
-        function closeForm() {
-            if (typeof(callbacks.close) === 'function') {
-                callbacks.close();
-            }
-
-            callbacks = {};
-            $form.detach();
-        }
-
-        var control = {
-            getData: function() {
-                var record = {
-                    'id': $form.find('.filter-id').val(),
-                    'field': $form.find('.field-name').val(),
-                    'type': $form.find('.filter-type').val(),
-                    'value': $form.find('.filter-value').val()
-                };
-
-                return record;
-            },
-            setData: function(filter) {
-                $form.find('.filter-id').val(filter.id);
-                $form.find('.field-name').val(filter.field);
-                $form.find('.filter-type').val(filter.type);
-                $form.find('.filter-value').val(filter.value);
-            },
-            open: function(el, saveCallback, cancelCallback, closeCallback) {
-                callbacks.save = saveCallback;
-                callbacks.cancel = cancelCallback;
-                callbacks.close = closeCallback;
-                // todo: do not show button if handler is not passed
-                $form.appendTo(el);
-            },
-            save: function() {
-                if (typeof(callbacks.save) === 'function') {
-                    callbacks.save();
+        // send requests encoded as form data
+        a2mApp.config(function ($httpProvider) {
+            $httpProvider.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded';
+            $httpProvider.defaults.transformRequest = function(data) {
+                if (data === undefined) {
+                    return data;
                 }
-                closeForm();
-            },
-            cancel: function() {
-                if (typeof(callbacks.cancel) === 'function') {
-                    callbacks.cancel();
-                }
-                closeForm();
-            },
-            close: closeForm
-        };
 
-        // validation
-        $form.validate({
-            errorClass: 'help-block animation-slideUp',
-            errorElement: 'div',
-            errorPlacement: function(error, e) {
-                e.parents('.form-group').append(error);
-            },
-            highlight: function(e) {
-                $(e).closest('.form-group').removeClass('has-success has-error').addClass('has-error');
-                $(e).closest('.help-block').remove();
-            },
-            success: function(e) {
-                if (e.closest('.form-group').find('.help-block').length === 2) {
-                    e.closest('.help-block').remove();
-                } else {
-                    e.closest('.form-group').removeClass('has-success has-error');
-                    e.closest('.help-block').remove();
-                }
-            },
-            submitHandler: function (e) {
-                control.save();
-            },
-            rules: {
-                'field-name': {
-                    required: true
-                },
-                'filter-type': {
-                    required: true
-                },
-                'value': {
-                    required: true,
-                    minlength: 1
-                }
-            },
-            messages: {
-                'field-name': {
-                    required: 'Please select field to compare with'
-                },
-                'filter-type': {
-                    required: 'Please select condition'
-                },
-                'value': {
-                    required: 'Please enter value'
-                }
+                return jQuery.param(data);
             }
         });
-        
-        // handlers
-        $form.find('.form-cancel').click(control.cancel);
 
-        $form.detach().show();
-
-        return control;
-    }();
-    
-    var FiltersView = function() {
-
-        function onFilterEdit() {
-            var $placeHolder = $($(this).parents('td')[0]).prev();
-
-            editForm.close();
-
-            // hide filter content
-            var $filterContent = $placeHolder.find('.filter-content');
-            $filterContent.hide();
-
-            // show edit form
-            var filterId = $placeHolder.find('.filter-content').data('id');
-            var filter = service.getFilterById(filterId);
-            
-            editForm.setData(filter);
-            editForm.open(
-                $placeHolder,
-                function() {    // save
-                    var data = editForm.getData();
-                    service.save(data, function (response) {
-                        if (!response || response.status == 'error') {
-                            alert('Can\'t save filter');
-                            return;
-                        }
-
-                        // render new filter content
-                        var template = $.templates('#filter-content-template');
-
-                        // copy values back to filters
-                        filter.field = data.field;
-                        filter.type = data.type;
-                        filter.value = data.value;
-
-                        data = service.toViewModel(data);
-                        var html = template.render(data);
-                        $filterContent.replaceWith(html);
-                        editForm.close();
-                    });
+        a2mApp.factory('filterService', ['$http', function($http) {
+            var metadata = data.metadata;
+            return  {
+                metadata: metadata,
+                getFilters: function() {
+                    return data.filters;
                 },
-                null,           // cancel
-                function() {    // close
-                    $placeHolder.find('.filter-content').show();
-                }
-            );
-        }
+                getFilterMeta: function(filter) {
+                    filter = filter || {};
 
-        function onFilterDelete() {
-            if (!confirm('Are you sure you want to delete filter ?')) {
-                return;
+                    var info = { id: filter.id, value: filter.value };
+
+                    // common, linkedin
+                    var types = metadata.types;
+                    info.type = _.find(types, function(type) {
+                        return type.id == filter.type;
+                    });
+
+                    info.type = info.type || types[0];
+                    var properties = info.type.properties;
+
+                    info.property = _.find(properties, function(property) {
+                        return property.id == filter.property;
+                    });
+
+                    info.property = info.property || properties[0];
+
+                    var methods = metadata.compTypes[info.property.type];
+
+                    info.method = _.find(methods, function(method) {
+                        return method.id == filter.method;
+                    });
+
+                    info.method = info.method || methods[0];
+
+                    return info;
+                },
+                save: function(filter) {
+                    return $http.post('/ui/filters_xhr.php?action=save', filter);
+                },
+                delete: function(id) {
+                    return $http.post('/ui/filters_xhr.php?action=delete', {id: id});
+                }
+            };
+        }]);
+
+
+        a2mApp.controller('filtersController', ['$scope', 'filterService', function($scope, filterService) {
+
+            // filter formating
+            $scope.formatFilter = function(filter) {
+                var metadata = filterService.metadata;
+
+                // common, linkedin
+                var type = _.find(metadata.types, function(type) {
+                    return type.id == filter.type;
+                });
+
+                // lastName, age
+                var property = _.find(type.properties, function(property) {
+                    return property.id == filter.property;
+                });
+
+                // lesser, greater
+                var method = _.find(metadata.compTypes[property.type], function(method) {
+                    return method.id == filter.method;
+                });
+
+                return type.name + ': ' + property.name + ' ' + method.description + ' ' + filter.value;
             }
 
-            // get filter id;
-            var $placeHolder = $($(this).parents('td')[0]).prev();
-            var filterId = $placeHolder.find('.filter-content').data('id');
-            service.delete(filterId, function(response) {
-                if (!response || response.status == 'error') {
-                    alert('Can\'t delete filter');
+            // handers
+            $scope.addNew = false;
+
+            $scope.create = function(filter) {
+                console.log(filter);
+                filterService.save(filter).success(function(data) {
+                    if (!data.status || data.status != 'success') {
+                        App.flashMessages.add(data.message || 'error', 'error');
+                        return;
+                    }
+
+                    // new value
+                    $scope.filters.unshift({
+                        id: data.id,
+                        type: filter.type,
+                        property: filter.property,
+                        method: filter.method,
+                        value: filter.value
+                    });
+
+                    $scope.addNew = false;
+                });
+            }
+
+            $scope.update = function(filter) {
+                console.log(filter);
+                return filterService.save(filter).success(function(data) {
+                    if (!data.status || data.status != 'success') {
+                        App.flashMessages.add(data.message || 'error', 'error');
+                        return;
+                    }
+
+                    var existing = _.find($scope.filters, function (f) {
+                        return f.id == filter.id;
+                    });
+                    existing.type = filter.type;
+                    existing.property = filter.property;
+                    existing.method = filter.method;
+                    existing.value = filter.value;
+
+                    existing.editing = false;
+                });
+            }
+
+            $scope.delete = function(filter) {
+                if (!confirm('Are you sure you want to delete filter ?')) {
                     return;
                 }
 
-                _.remove(data.filters, function(f) {
-                    return f.id == filterId;
-                });
-                
-                editForm.close();
-                $placeHolder.parent().remove();
-            });
-        }
-
-        var controller = {
-            render: function(data) {
-                var records = [];
-                // prepare template data
-                for (var i = 0; i < data.filters.length; i++) {
-                    records.push(service.toViewModel(data.filters[i]));
-                }
-
-                var template = $.templates('#filter-template');
-                var $html = $(template.render(records));
-                // bind event handlers
-                $html.find('.filter-edit').click(onFilterEdit);
-                $html.find('.filter-delete').click(onFilterDelete);
-                // show content
-                $('#filters-holder').html($html);
-            }
-        };
-
-        // handler for `Add new filter`
-        $('#filter-new').click(function() {
-            editForm.close();
-            
-            editForm.open(
-                $(this).parent(),
-                function() {    // save
-                    var formData = editForm.getData();
-                    service.save(formData, function (response) {
-                        if (!response || response.status == 'error') {
-                            alert('Can\'t save filter');
-                            return;
-                        }
-
-                        formData.id = response.id;
-
-                        data.filters.unshift(formData);
-                        editForm.close();
-                        
-                        controller.render(data);
+                // remove filter
+                filterService.delete(filter.id).success(function(data) {
+                    if (!data.status || data.status != 'success') {
+                        App.flashMessages.add(data.message || 'error', 'error');
+                        return;
+                    }
+                    _.remove($scope.filters, function (f) {
+                        return f.id == filter.id;
                     });
-                }
-            );
-        });
+                });
+            };
 
-        return controller;
-    }();
+            $scope.filters = filterService.getFilters();
+
+        }]);
+
+        a2mApp.directive('a2mFilterEdit', ['filterService', function(filterService) {
+            return {
+                restrict: 'E',
+                scope: {
+                    cancel: '&onCancel',
+                    save: '&onSave',
+                    filter: '='
+                },
+                controller: function ($scope) {
+                    $scope.metadata = filterService.metadata;
+
+                    // initialize model variables
+                    var info = filterService.getFilterMeta($scope.filter);
+                    $scope.id = info.id;
+                    $scope.type = info.type;
+                    $scope.property = info.property;
+                    $scope.method = info.method;
+                    $scope.value = info.value;
+
+                    $scope.$watch('type', function(type) {
+                        $scope.property = type.properties[0];
+                    });
+
+                    $scope.$watch('property', function(property) {
+                        $scope.method = $scope.metadata.compTypes[property.type][0];
+                    });
+
+                    $scope.getFilter = function() {
+                        return {
+                            id: $scope.id,
+                            type: $scope.type.id,
+                            property: $scope.property.id,
+                            method: $scope.method.id,
+                            value: $scope.value || ''
+                        };
+                    }
+                },
+                templateUrl: 'templates/filter-edit.html'
+            }
+        }]);
+    }
 
     return {
-        init: function(filterData) {
-            data = filterData;
-            FiltersView.render(data);
-        }
+        init: init
     };
 }();
