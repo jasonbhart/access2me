@@ -18,6 +18,8 @@ class ProfileCombiner
     protected $profiles = array();
 
     public $linkedin;
+    public $facebook;
+    public $twitter;
     public $crunchBase;
     public $angelList;
     public $fullContact;
@@ -34,6 +36,8 @@ class ProfileCombiner
         // some profiles can be requested directly for specific properties
         $map = [
             Service\Service::LINKEDIN => 'linkedin',
+            Service\Service::FACEBOOK => 'facebook',
+            Service\Service::TWITTER => 'twitter',
             Service\Service::CRUNCHBASE => 'crunchBase',
             Service\Service::ANGELLIST => 'angelList',
             Service\Service::FULLCONTACT => 'fullContact',

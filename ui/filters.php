@@ -4,112 +4,135 @@
 <?php include 'inc/page_head.php'; ?>
 
 <?php
+use Access2Me\Filter;
+use Access2Me\Filter\Comparator;
 use Access2Me\Helper;
+
+
+/**
+ * Returns filter descriptions (metadata)
+ * Used to display add/edit filter form
+ *
+ * @param Filter\Type\AbstractType[] $types
+ * @return array
+ */
+function getFilterMetadata($types)
+{
+    $data = [
+        'types' => [],
+    ];
+
+    $comparators = [];
+
+    // process types
+    foreach ($types as $pid=>$type) {
+        // collect available properties
+        $properties = [];
+        foreach ($type->properties as $id => $property) {
+            $properties[] = [
+                'id' => $id,
+                'type' => $property['type'],
+                'name' => $property['name']
+            ];
+
+            // collect comparator ids
+            $comparators[$property['type']] = true;
+        }
+
+        $data['types'][] = [
+            'id' => $pid,
+            'name' => $type->name,
+            'properties' => $properties
+        ];
+    }
+
+    // methods (lesser, equals, ...)
+    foreach ($comparators as $type=>$val) {
+        $methods = [];
+        foreach (Filter\ComparatorFactory::getInstance($type)->methods as $id=>$m)
+            $methods[] = array_merge(['id'=>$id], $m);
+        $data['compTypes'][$type] = $methods;
+    }
+
+    return $data;
+}
 
 $db = new Database;
 $auth = Helper\Registry::getAuth();
 $userId = $auth->getLoggedUser()['id'];
 
 // prepare filters for render
-$filters = array();
-foreach (Filter::getFiltersByUserId($userId, $db) as $filter) {
+$filters = [];
+foreach (\Filter::getFiltersByUserId($userId, $db) as $filter) {
     $filters[] = array(
         'id' => $filter['id'],
-        'field' => $filter['field'],
         'type' => $filter['type'],
+        'property' => $filter['property'],
+        'method' => $filter['method'],
         'value' => $filter['value']
     );
 }
 
+$filterTypes = Helper\Registry::getFilterTypes();
+$metadata = getFilterMetadata($filterTypes);
 ?>
 
-<div id="page-content">
-    <div class="block">
+<div id="page-content" ng-app="access2me">
+    <div class="block" ng-controller="filtersController">
         <!-- Table Styles Title -->
         <div class="block-title clearfix">
             <h1>Filtering</h1>
         </div>
 
         <div>
-            <button id="filter-new" class="btn-effect-ripple btn-success btn-sm">Add new filter</button>
+            <button class="btn-effect-ripple btn-success btn-sm" ng-click="addNew=true">Add new filter</button>
         </div>
-        
-        <form id="form-filter-edit" class="form-inline" style="display: none">
-            <input type="hidden" class="filter-id" />
-            <div class="form-group" style="vertical-align: top">
-                <select name="field-name" class="field-name form-control">
-                    <?php foreach (Filter::getFilterableFields() as $field=>$name): ?>
-                        <option value="<?php echo htmlentities($field); ?>"><?php echo htmlentities($name); ?></option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
-            <div class="form-group" style="vertical-align: top">
-                <select name="filter-type" class="filter-type form-control">
-                    <?php foreach (Filter::getTypes() as $type): ?>
-                        <option value="<?php echo $type; ?>"><?php echo htmlentities(Filter::getConditionNameByType($type)); ?></option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
-            <div class="form-group" style="vertical-align: top">
-                <input type="text" name="value" class="filter-value form-control" placeholder="Value">
-            </div>
-            <div class="form-group" style="vertical-align: top">
-                <button type="submit" class="btn btn-effect-ripple btn-sm btn-primary form-save"><i class="fa fa-check"></i> Save</button>
-            </div>
-            <div class="form-group" style="vertical-align: top">
-                <button type="button" class="btn btn-effect-ripple btn-sm btn-primary form-cancel"><i class="fa fa-fire"></i> Cancel</button>
-            </div>
-        </form>
 
-        <!-- filters -->
+        <a2m-filter-edit on-cancel="addNew=false" on-save="create(filter)" filter="" ng-show="addNew"></a2m-filter-edit>
+
         <div class="table-responsive">
-            <table id="general-table" class="table table-striped table-bordered table-vcenter table-hover">
+            <table class="table table-striped table-bordered table-vcenter table-hover">
                 <thead>
-                    <tr>
-                        <th style="width: 80px;" class="text-center">
-                            <label class="csscheckbox csscheckbox-primary">
-                                <input type="checkbox">
-                                <span></span>
-                            </label>
-                        </th>
-                        <th>Filter</th>
-                        <th style="width: 120px;" class="text-center">
-                            <i class="fa fa-flash"></i>
-                        </th>
-                    </tr>
+                <tr>
+                    <th style="width: 80px;" class="text-center">
+                        <label class="csscheckbox csscheckbox-primary">
+                            <input type="checkbox">
+                            <span></span>
+                        </label>
+                    </th>
+                    <th>Filter</th>
+                    <th style="width: 120px;" class="text-center">
+                        <i class="fa fa-flash"></i>
+                    </th>
+                </tr>
                 </thead>
-                <tbody id="filters-holder">
+                <tbody>
+                <tr ng-repeat="filter in filters track by filter.id">
+                    <td class="text-center">
+                        <label class="csscheckbox csscheckbox-primary">
+                            <input type="checkbox">
+                            <span></span>
+                        </label>
+                    </td>
+                    <td>
+                        <div ng-show="!filter.editing">{{ formatFilter(filter) }}</div>
+                        <a2m-filter-edit filter="filter" on-cancel="filter.editing=false" on-save="update(filter, formData)" ng-show="filter.editing"/>
+                    </td>
+                    <td class="text-center">
+                        <a href="javascript:void(0)" data-toggle="tooltip" title="Edit filter"
+                           class="btn btn-effect-ripple btn-sm btn-success filter-edit"
+                           ng-click="filter.editing=true"><i class="fa fa-pencil"></i></a>
+                        <a href="javascript:void(0)" data-toggle="tooltip" title="Delete filter"
+                           class="btn btn-effect-ripple btn-sm btn-danger filter-delete"
+                           ng-click="delete(filter)"><i class="fa fa-times"></i></a>
+                    </td>
+                </tr>
                 </tbody>
             </table>
         </div>
+
     </div>
 </div>
-
-<script id="filter-content-template" type="text/x-jsrender">
-    <div class="filter-content" data-id="{{:id}}">
-        {{:field}} {{:condition}} {{:value}}
-    </div>
-</script>
-
-<script id="filter-template" type="text/x-jsrender">
-<tr>
-    <td class="text-center">
-        <label class="csscheckbox csscheckbox-primary">
-            <input type="checkbox">
-            <span></span>
-        </label>
-    </td>
-    <td>
-        {{include tmpl="#filter-content-template" /}}
-    </td>
-    <td class="text-center">
-        <a href="javascript:void(0)" data-toggle="tooltip" title="Edit filter"
-           class="btn btn-effect-ripple btn-sm btn-success filter-edit"><i class="fa fa-pencil"></i></a>
-        <a href="javascript:void(0)" data-toggle="tooltip" title="Delete filter"
-           class="btn btn-effect-ripple btn-sm btn-danger filter-delete"><i class="fa fa-times"></i></a>
-    </td>
-</tr>
-</script>
 
 <?php include 'inc/page_footer.php'; ?>
 <?php include 'inc/template_scripts.php'; ?>
@@ -117,18 +140,16 @@ foreach (Filter::getFiltersByUserId($userId, $db) as $filter) {
 <!-- Load and execute javascript code used only in this page -->
 <script src="js/vendor/jsrender.min.js"></script>
 <script src="js/vendor/lodash.min.js"></script>
+<script src="js/vendor/angular.min.js"></script>
 <script src="js/pages/formsWizard.js"></script>
 <script src="js/pages/filters.js"></script>
 <script>$(function(){ FormsWizard.init(); });</script>
 <script>
-    $(function() {
-        var data = {
-            fields: <?php echo json_encode(\Filter::getFilterableFields()); ?>,
-            conditions: <?php echo json_encode(\Filter::getConditions()); ?>,
-            filters: <?php echo json_encode($filters); ?>
-        };
-        Filters.init(data);
-    });
-</script>
+    var data = {
+        metadata: <?php echo json_encode($metadata); ?>,
+        filters: <?php echo json_encode($filters); ?>
+    };
 
+    Filters.init(window.angular, data);
+</script>
 <?php include 'inc/template_end.php'; ?>

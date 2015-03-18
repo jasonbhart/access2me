@@ -3,6 +3,7 @@
 use Access2Me\Model\Profile;
 use Access2Me\Helper;
 
+
 class Filter
 {
 
@@ -42,102 +43,60 @@ class Filter
     }
     //--------------------------------------------------------------------------
 
+    protected function getValue($data, $property)
+    {
+        if (is_array($data)) {
+            return $data[$property];
+        } else if (is_object($data)) {
+            return $data->{$property};
+        }
+
+        throw new \Exception('Can\'t get property on non-object/array');
+    }
+
+    protected function getProfileValue($filter)
+    {
+        $map = [
+            \Access2Me\Filter\TypeFactory::COMMON => $this->contact,
+            \Access2Me\Filter\TypeFactory::LINKEDIN => $this->contact->linkedin,
+            \Access2Me\Filter\TypeFactory::FACEBOOK => $this->contact->facebook,
+            \Access2Me\Filter\TypeFactory::TWITTER => $this->contact->twitter
+        ];
+
+        return $this->getValue($map[$filter['type']], $filter['property']);
+    }
 
     public function processFilters() {
+        $this->status = true;
         $this->failedFilters = [];
-        
 
-        if (isset($this->filters)) {
-            foreach ($this->filters AS $filter) {
-                switch ($filter['type']) {
-                    case "1":
-                        $response = $this->mustBe($filter);
-                        break;
-                    case "2":
-                        $response = $this->mustNotBe($filter);
-                        break;
-                    case "3":
-                        $response = $this->mustBeGreater($filter);
-                        break;
-                    case "4":
-                        $response = $this->mustNotBeGreater($filter);
-                        break;
-                }
+        if (!isset($this->filters)) {
+            return;
+        }
 
-                if (isset($response) && $response === false) {
-                    $this->status = false;
-                    $this->failedFilters[] = $filter;
-                }
+        $filterTypes = Helper\Registry::getFilterTypes();
+
+        foreach ($this->filters as $filter) {
+            $type = $filterTypes[$filter['type']];
+            $property = $type->properties[$filter['property']];
+
+            // some profiles may return few values (Combined profile)
+            // so convert value to array
+            $value = (array)$this->getProfileValue($filter);
+
+            $comparator = \Access2Me\Filter\ComparatorFactory::getInstance($property['type']);
+            $result = false;
+            foreach ($value as $val) {
+                $result = $result || $comparator->compare($filter['method'], $val, $filter['value']);
+            }
+
+            if ($result === false) {
+                $this->status = false;
+                $this->failedFilters[] = $filter;
             }
         }
     }
     //--------------------------------------------------------------------------
-
-    /**
-     * Apply filter func to each value in certain field
-     * (fields can contain multiple value - ProfileCombiner)
-     * All fields must match
-     * 
-     * @param \Access2Me\Model\Profile\Profile|\Access2Me\Helper\ProfileCombiner $filter
-     * @param callable $condition
-     */
-    private function applyFilter($field, $condition)
-    {
-        $values = (array)$this->contact->{$field};
- 
-        $result = true;
-        foreach ($values as $value) {
-            $result = $result && call_user_func($condition, $value);
-        }
-        
-        return $result;
-    }
-
-    private function mustBe($filter) {
-        $filterValue = strtolower($filter['value']);
-        return $this->applyFilter(
-            $filter['field'],
-            function($value) use($filterValue) {
-                return $filterValue == strtolower($value);
-            }
-        );
-    }
-    //--------------------------------------------------------------------------
-
-
-    private function mustNotBe($filter) {
-        $filterValue = strtolower($filter['value']);
-        return $this->applyFilter(
-            $filter['field'],
-            function($value) use($filterValue) {
-                return $filterValue != strtolower($value);
-            }
-        );
-    }
-    //--------------------------------------------------------------------------
-
-
-    private function mustBeGreater($filter) {
-        return $this->applyFilter(
-            $filter['field'],
-            function($value) use($filter) {
-                return $filter['value'] > $value;
-            }
-        );
-    }
-    //--------------------------------------------------------------------------
-
-
-    private function mustNotBeGreater($filter) {
-        return $this->applyFilter(
-            $filter['field'],
-            function($value) use($filter) {
-                return $filter['value'] < $value;
-            }
-        );
-    }
-    //--------------------------------------------------------------------------
-
 
     static public function getFiltersByUserId($userId, Database $db) {
         if (!$db) {
@@ -182,69 +141,21 @@ class Filter
     }
     //--------------------------------------------------------------------------
 
-
-    static public function getConditionNameByType($type) {
-        switch ($type) {
-            case '1':
-                return 'Must be equal to';
-            break;
-            case '2':
-                return 'Must NOT be equal to';
-            break;
-            case '3':
-                return 'Must be greater than';
-            break;
-            case '4':
-                return 'Must NOT be greater than';
-            break;
-        }
-    }
-    //--------------------------------------------------------------------------
-
-    public static function getTypes()
-    {
-        return self::$types;
-    }
-
-    public static function getConditions()
-    {
-        $conditions = array();
-        foreach (self::$types as $type) {
-            $conditions[$type] = self::getConditionNameByType($type);
-        }
-        
-        return $conditions;
-    }
-
-    /**
-     * Get profile properties that have @displayName
-     * 
-     * @return array
-     */
-    public static function getFilterableFields()
-    {
-        $refl = new \ReflectionClass('\Access2Me\Model\Profile\Profile');
-        $fields = array();
-        foreach ($refl->getProperties(\ReflectionProperty::IS_PUBLIC) as $prop) {
-            $displayName = Profile\ProfileRepository::getDisplayName($prop);
-            if ($displayName) {
-                $fields[$prop->getName()] = $displayName;
-            }
-        }
-
-        return $fields;
-    }
-
     public function getFailedFilters()
     {
         $result = [];
-        $descr = self::getFilterableFields();
+        $filterTypes = Helper\Registry::getFilterTypes();
+
         foreach ($this->failedFilters as $filter) {
-            $result[] = $descr[$filter['field']]
-                . ' ' . mb_strtolower(self::getConditionNameByType($filter['type']))
-                . ' ' . $filter['value'];
+            $type = $filterTypes[$filter['type']];
+            $property = $type->properties[$filter['property']];
+
+            $comparator = \Access2Me\Filter\ComparatorFactory::getInstance($property['type']);
+            $method = $comparator->methods[$filter['method']];
+
+            $result[] = $type->name . ': ' . $property['name'] . ' ' . $method['description'] . ' ' . $filter['value'];
         }
-        
+
         return $result;
     }
 }

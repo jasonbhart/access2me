@@ -590,8 +590,9 @@ var App = function() {
                     + '<div>' + message + '</div>'
                     + '</div>';
 
-                html = jQuery(html);
+                html = jQuery(html).hide();
                 $('#flash-messages').append(html);
+                html.fadeIn();
 
                 // remove message after N ms
                 setTimeout(function() { html.fadeOut('slow', function() { html.remove(); } ); }, 10000);
