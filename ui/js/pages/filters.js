@@ -157,6 +157,7 @@ var Filters = function() {
             return {
                 restrict: 'E',
                 scope: {
+                    visible: "=",
                     cancel: '&onCancel',
                     save: '&onSave',
                     filter: '='
@@ -164,29 +165,50 @@ var Filters = function() {
                 controller: function ($scope) {
                     $scope.metadata = filterService.metadata;
 
-                    // initialize model variables
-                    var info = filterService.getFilterMeta($scope.filter);
-                    $scope.id = info.id;
-                    $scope.type = info.type;
-                    $scope.property = info.property;
-                    $scope.method = info.method;
-                    $scope.value = info.value;
+                    // reset elements on show
+                    var reset = function() {
+                        var info = filterService.getFilterMeta($scope.filter);
+                        $scope.data = $scope.$new(true);
+                        $scope.data.id = info.id;
+                        $scope.data.type = info.type;
+                        $scope.data.property = info.property;
+                        $scope.data.method = info.method;
+                        $scope.data.value = info.value;
 
-                    $scope.$watch('type', function(type) {
-                        $scope.property = type.properties[0];
-                    });
+                        $scope.data.$watch('type', function(typeNew, typeOld) {
+                            // init
+                            if (typeNew === typeOld) {
+                                return;
+                            }
 
-                    $scope.$watch('property', function(property) {
-                        $scope.method = $scope.metadata.compTypes[property.type][0];
+                            $scope.data.property = typeNew.properties[0];
+                        });
+
+                        $scope.data.$watch('property', function(propertyNew, propertyOld) {
+                            // init
+                            if (propertyNew === propertyOld) {
+                                return;
+                            }
+
+                            $scope.data.method = $scope.metadata.compTypes[propertyNew.type][0];
+                        });
+                    };
+
+                    reset();
+
+                    $scope.$watch('visible', function(visible) {
+                        if (visible) {
+                            reset();
+                        }
                     });
 
                     $scope.getFilter = function() {
                         return {
-                            id: $scope.id,
-                            type: $scope.type.id,
-                            property: $scope.property.id,
-                            method: $scope.method.id,
-                            value: $scope.value || ''
+                            id: $scope.data.id,
+                            type: $scope.data.type.id,
+                            property: $scope.data.property.id,
+                            method: $scope.data.method.id,
+                            value: $scope.data.value || ''
                         };
                     }
                 },

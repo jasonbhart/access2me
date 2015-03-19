@@ -1,23 +1,23 @@
-<div>
+<div ng-show="visible">
     <form novalidate class="form-inline">
-        <input type="hidden" class="filter-id" ng-model="id" />
+        <input type="hidden" class="filter-id" ng-model="data.id" />
         <div class="form-group" style="vertical-align: top">
             <select name="filter-type" class="filter-type form-control"
-                    ng-options="type.name for type in metadata.types track by type.id" ng-model="type">
+                    ng-options="type.name for type in metadata.types track by type.id" ng-model="data.type">
             </select>
         </div>
         <div class="form-group" style="vertical-align: top">
             <select name="filter-property" class="filter-property form-control"
-                    ng-options="property.name for property in type.properties" ng-model="property" ng-change="propertyChanged()">
+                    ng-options="property.name for property in data.type.properties track by property.id" ng-model="data.property">
             </select>
         </div>
         <div class="form-group" style="vertical-align: top">
             <select name="filter-method" class="filter-method form-control"
-                    ng-options="method.description for method in metadata.compTypes[property.type]" ng-model="method">
+                    ng-options="method.description for method in metadata.compTypes[data.property.type]" ng-model="data.method">
             </select>
         </div>
         <div class="form-group" style="vertical-align: top">
-            <input type="text" name="filter-value" class="filter-value form-control" placeholder="Value" ng-model="value" required>
+            <input type="text" name="filter-value" class="filter-value form-control" placeholder="Value" ng-model="data.value" required>
         </div>
         <div class="form-group" style="vertical-align: top">
             <button type="submit" class="btn btn-effect-ripple btn-sm btn-primary form-save" ng-click="save({filter: getFilter()})">

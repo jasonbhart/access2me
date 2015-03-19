@@ -63,7 +63,14 @@ class Filter
             \Access2Me\Filter\TypeFactory::TWITTER => $this->contact->twitter
         ];
 
-        return $this->getValue($map[$filter['type']], $filter['property']);
+        $profile = $map[$filter['type']];
+
+        // return null if profile is not available
+        if (!$profile) {
+            return null;
+        }
+
+        return $this->getValue($profile, $filter['property']);
     }
 
     public function processFilters() {

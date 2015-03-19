@@ -88,7 +88,7 @@ $metadata = getFilterMetadata($filterTypes);
             <button class="btn-effect-ripple btn-success btn-sm" ng-click="addNew=true">Add new filter</button>
         </div>
 
-        <a2m-filter-edit on-cancel="addNew=false" on-save="create(filter)" filter="" ng-show="addNew"></a2m-filter-edit>
+        <a2m-filter-edit on-cancel="addNew=false" on-save="create(filter)" visible="addNew"></a2m-filter-edit>
 
         <div class="table-responsive">
             <table class="table table-striped table-bordered table-vcenter table-hover">
@@ -116,7 +116,7 @@ $metadata = getFilterMetadata($filterTypes);
                     </td>
                     <td>
                         <div ng-show="!filter.editing">{{ formatFilter(filter) }}</div>
-                        <a2m-filter-edit filter="filter" on-cancel="filter.editing=false" on-save="update(filter, formData)" ng-show="filter.editing"/>
+                        <a2m-filter-edit filter="filter" on-cancel="filter.editing=false" on-save="update(filter, formData)" visible="filter.editing"/>
                     </td>
                     <td class="text-center">
                         <a href="javascript:void(0)" data-toggle="tooltip" title="Edit filter"
