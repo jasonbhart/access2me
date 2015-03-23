@@ -2,6 +2,7 @@
 
 namespace Access2Me\Helper;
 
+use Access2Me\Filter;
 use Access2Me\Model;
 
 class ProcessingResult
@@ -43,14 +44,21 @@ class MessageProcessor
      * @var \Access2Me\Helper\UserListTokenManager
      */
     private $userListTokenManager;
-    
-    public function __construct($user, $db, $storage, $userSendersList, $userListTokenManager)
+
+    /**
+     * User's filters
+     * @var Model\Filter[]
+     */
+    private $filters;
+
+    public function __construct($user, $db, $storage, $userSendersList, $userListTokenManager, $filters)
     {
         $this->user = $user;
         $this->db = $db;
         $this->storage = $storage;
         $this->userSendersList = $userSendersList;
         $this->userListTokenManager = $userListTokenManager;
+        $this->filters = $filters;
     }
 
     // get folder from user settings
@@ -289,14 +297,13 @@ class MessageProcessor
 
         $result = new ProcessingResult();
         $data = ['profile' => $profile];
-        // todo: move filter out of class
-        $filter = new \Filter($this->user['id'], $profile, $this->db);
-        $filter->processFilters();
+        $filterProcessor = new Filter\Processor($this->filters);
+        $status = $filterProcessor->process($profile);
 
-        if ($filter->status === true) {
+        if ($status === true) {
             $result->status = Model\MessageRepository::STATUS_FILTER_PASSED;
         } else {
-            $data['failed_filters'] = $filter->getFailedFilters();
+            $data['failed_filters'] = $filterProcessor->getFailedFilters();
             $result->status = Model\MessageRepository::STATUS_FILTER_FAILED;
         }
         

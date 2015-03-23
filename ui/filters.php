@@ -7,6 +7,7 @@
 use Access2Me\Filter;
 use Access2Me\Filter\Comparator;
 use Access2Me\Helper;
+use Access2Me\Model;
 
 
 /**
@@ -61,17 +62,20 @@ $db = new Database;
 $auth = Helper\Registry::getAuth();
 $userId = $auth->getLoggedUser()['id'];
 
+$filterRepo = new Model\FiltersRepository($db);
 // prepare filters for render
-$filters = [];
-foreach (\Filter::getFiltersByUserId($userId, $db) as $filter) {
-    $filters[] = array(
-        'id' => $filter['id'],
-        'type' => $filter['type'],
-        'property' => $filter['property'],
-        'method' => $filter['method'],
-        'value' => $filter['value']
-    );
-}
+$filters = array_map(
+    function(Model\Filter $filter) {
+        return [
+            'id' => $filter->getId(),
+            'type' => $filter->getType(),
+            'property' => $filter->getProperty(),
+            'method' => $filter->getMethod(),
+            'value' => $filter->getValue()
+        ];
+    },
+    $filterRepo->findByUserId($userId)
+);
 
 $filterTypes = Helper\Registry::getFilterTypes();
 $metadata = getFilterMetadata($filterTypes);

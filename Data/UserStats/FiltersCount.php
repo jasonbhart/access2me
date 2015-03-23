@@ -3,6 +3,7 @@
 namespace Access2Me\Data\UserStats;
 
 use Access2Me\Data\UserStats;
+use Access2Me\Model\FiltersRepository;
 
 class FiltersCount implements ResourceInterface 
 {
@@ -21,14 +22,9 @@ class FiltersCount implements ResourceInterface
         return UserStats::FILTERS_COUNT;
     }
 
-    /**
-     * @todo Refactor
-     */
     public function get($user)
     {
-        $query = 'SELECT COUNT(1) cnt FROM `' . \Filter::TABLE_NAME . '` WHERE `user_id` = :user_id';
-        $res = $this->db->getArray($query, ['user_id' => $user['id']]);
-        
-        return $res !== false ? (int)$res[0]['cnt'] : 0;
+        $repo = new FiltersRepository($this->db);
+        return $repo->getCountByUser($user['id']);
     }
 }

@@ -212,7 +212,7 @@ var Filters = function() {
                         };
                     }
                 },
-                templateUrl: 'templates/filter-edit.html'
+                templateUrl: 'js/templates/filter-edit.html'
             }
         }]);
     }
