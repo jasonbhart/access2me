@@ -96,18 +96,6 @@ class Template
         'zerply' => 'zerply.png',
     ];
 
-    public static function getGenderIcon($gender)
-    {
-        $gender = strtolower($gender);
-        if ($gender == 'male') {
-            return self::$baseUrl . 'male.png';
-        } else if ($gender == 'female') {
-            return self::$baseUrl . 'female.png';
-        }
-
-        throw new \Exception('Unknown gender');
-    }
-
     public static function getServiceIcon($serviceId)
     {
         if (!isset(self::$serviceIcons[$serviceId])) {

@@ -135,7 +135,6 @@ class Registry
             
             $env['cache'] = self::$appConfig['twigCache'] ? self::$appConfig['projectRoot'] . '/tmp/cache/twig' : false;
             self::$twig = new \Twig_Environment($loader, $env);
-            self::$twig->addFunction(new \Twig_SimpleFunction('gender_icon', ['\Access2Me\Helper\Template', 'getGenderIcon']));
             self::$twig->addFunction(new \Twig_SimpleFunction('messenger_icon', ['\Access2Me\Helper\Template', 'getMessengerIcon']));
             self::$twig->addFunction(new \Twig_SimpleFunction('format_money', ['\Access2Me\Helper\Template', 'formatMoney']));
             self::$twig->addFunction(new \Twig_SimpleFunction('service_icon', ['\Access2Me\Helper\Template', 'getServiceIcon']));

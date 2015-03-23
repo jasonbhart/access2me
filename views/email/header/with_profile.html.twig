@@ -97,8 +97,8 @@
                                     {% if fullContact.gender %}
                                         <td style="width:35%; padding-right:10px;font-family:'Trebuchet MS', Arial, Helvetica, sans-serif;">
                                             <strong>Gender:</strong>
-                                            <span style="vertical-align:middle;font-size:0; line-height:0; display:inline-block;">
-                                                <img src="{{ gender_icon(fullContact.gender) }}" />
+                                            <span style="vertical-align:middle; display:inline-block;">
+                                                {{ fullContact.gender }}
                                             </span>
                                         </td>
                                     {% endif %}
