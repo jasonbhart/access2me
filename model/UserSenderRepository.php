@@ -114,11 +114,6 @@ class UserSenderRepository
             $result = $entry['id'];
         }
         
-        if ($result) {
-            // process related sender
-            $this->updateAccessTypeOfRelatedSender($entry);
-        }
-        
         return $result;
     }
 
@@ -131,21 +126,5 @@ class UserSenderRepository
             . ' WHERE `id` = :id';
 
         return $this->db->execute($query, ['id' => $id]);
-    }
-    
-    private function updateAccessTypeOfRelatedSender($entry) {
-        if ($entry['type'] == self::TYPE_DOMAIN) {
-            $query = 'UPDATE `' . self::TABLE_NAME . '`'
-            . ' SET `access` = :access'
-            . ' WHERE `user_id` = :user_id'
-            . ' AND `sender` LIKE :sender';
-
-            $conn = $this->db->getConnection();
-            $st = $conn->prepare($query);
-            $st->bindValue(':user_id', $entry['user_id'], \PDO::PARAM_INT);
-            $st->bindValue(':access', $entry['access'], \PDO::PARAM_INT);
-            $st->bindValue(':sender', "%" . $entry['sender']);
-            $st->execute();
-        }
     }
 }
