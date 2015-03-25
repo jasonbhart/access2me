@@ -3,7 +3,6 @@
 namespace Access2Me\Helper;
 
 use Access2Me\Filter;
-use Access2Me\Filter\TypeFactory;
 use Access2Me\Helper;
 use Access2Me\Model;
 use Access2Me\ProfileProvider;
@@ -141,6 +140,7 @@ class Registry
             self::$twig->addFunction(new \Twig_SimpleFunction('service_icon', ['\Access2Me\Helper\Template', 'getServiceIcon']));
             self::$twig->addFunction(new \Twig_SimpleFunction('social_icon', ['\Access2Me\Helper\Template', 'getSocialIcon']));
             self::$twig->addFunction(new \Twig_SimpleFunction('twitter_profile_url', ['\Access2Me\Helper\Template', 'getTwitterProfileUrl']));
+            self::$twig->addFunction(new \Twig_SimpleFunction('url', ['\Access2Me\Helper\Template', 'getUrl']));
         }
         
         return self::$twig;
@@ -212,10 +212,26 @@ class Registry
     public static function getFilterTypes()
     {
         return [
-            TypeFactory::COMMON => TypeFactory::getInstance(TypeFactory::COMMON),
-            TypeFactory::LINKEDIN => TypeFactory::getInstance(TypeFactory::LINKEDIN),
-            TypeFactory::FACEBOOK => TypeFactory::getInstance(TypeFactory::FACEBOOK),
-            TypeFactory::TWITTER => TypeFactory::getInstance(TypeFactory::TWITTER)
+            TypeFactory::COMMON,
+            TypeFactory::LINKEDIN,
+            TypeFactory::FACEBOOK,
+            TypeFactory::TWITTER
         ];
+    }
+
+    /**
+     * @return \Access2Me\Filter\TypeFactory
+     */
+    public static function getFilterTypeFactory()
+    {
+        return new Filter\TypeFactory();
+    }
+
+    /**
+     * @return \Access2Me\Filter\ComparatorFactory
+     */
+    public static function getFilterComparatorFactory()
+    {
+        return new Filter\ComparatorFactory();
     }
 }

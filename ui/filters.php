@@ -13,11 +13,12 @@ use Access2Me\Model;
 /**
  * Returns filter descriptions (metadata)
  * Used to display add/edit filter form
- *
- * @param Filter\Type\AbstractType[] $types
- * @return array
+ * 
+ * @param Filter\TypeFactory $filterFactory
+ * @param Filter\ComparatorFactory $comparatorFactory
+ * @return type
  */
-function getFilterMetadata($types)
+function getFilterMetadata($filterFactory, $comparatorFactory)
 {
     $data = [
         'types' => [],
@@ -26,7 +27,8 @@ function getFilterMetadata($types)
     $comparators = [];
 
     // process types
-    foreach ($types as $pid=>$type) {
+    foreach ($filterFactory->types as $typeId) {
+        $type = $filterFactory->create($typeId);
         // collect available properties
         $properties = [];
         foreach ($type->properties as $id => $property) {
@@ -41,7 +43,7 @@ function getFilterMetadata($types)
         }
 
         $data['types'][] = [
-            'id' => $pid,
+            'id' => $typeId,
             'name' => $type->name,
             'properties' => $properties
         ];
@@ -50,7 +52,7 @@ function getFilterMetadata($types)
     // methods (lesser, equals, ...)
     foreach ($comparators as $type=>$val) {
         $methods = [];
-        foreach (Filter\ComparatorFactory::getInstance($type)->methods as $id=>$m)
+        foreach ($comparatorFactory->create($type)->methods as $id=>$m)
             $methods[] = array_merge(['id'=>$id], $m);
         $data['compTypes'][$type] = $methods;
     }
@@ -77,8 +79,9 @@ $filters = array_map(
     $filterRepo->findByUserId($userId)
 );
 
-$filterTypes = Helper\Registry::getFilterTypes();
-$metadata = getFilterMetadata($filterTypes);
+$filterFactory = Helper\Registry::getFilterTypeFactory();
+$comparatorFactory = Helper\Registry::getFilterComparatorFactory();
+$metadata = getFilterMetadata($filterFactory, $comparatorFactory);
 ?>
 
 <div id="page-content" ng-app="access2me">

@@ -200,7 +200,7 @@ class Template
         return self::$user;
     }
 
-    public static function getRoute($routeName, $params=[])
+    public static function getUrl($routeName, $params=[])
     {
         return Registry::getRouter()->getUrl($routeName, $params);
     }

@@ -10,19 +10,20 @@ $auth = Helper\Registry::getAuth();
 
 if (isset($_GET['action']) && $_GET['action'] == 'logout' && $auth->isAuthenticated()) {
     $auth->logout();
-    header('Location: login.php');
-    exit;
-}
-
-if ($auth->isAuthenticated()) {
-    header('Location: index.php');
-    exit;
+    Helper\Http::redirect(Helper\Registry::getRouter()->getUrl('login'));
 }
 
 // redirect on success login
 $redirectTo = null;
 if (!empty($_REQUEST['redirect_to'])) {
     $redirectTo = $_REQUEST['redirect_to'];
+}
+
+if ($auth->isAuthenticated()) {
+    if ($redirectTo)
+        Helper\Http::redirect($redirectTo);
+    else
+        Helper\Http::redirect(Helper\Registry::getRouter()->getUrl('home'));
 }
 
 if ($_POST) {
@@ -36,11 +37,10 @@ if ($_POST) {
             $auth->login($username, $password, $remember);
 
             if (empty($redirectTo)) {
-                $redirectTo = 'index.php';
+                $redirectTo = Helper\Registry::getRouter()->getUrl('home');
             }
 
-            header('Location: ' . $redirectTo);
-            exit;
+            Helper\Http::redirect($redirectTo);
         } catch (AuthException $ex) {
             $errorMessage = $ex->getMessage();
         }

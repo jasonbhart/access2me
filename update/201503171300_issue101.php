@@ -49,7 +49,7 @@ $map = [
     'connections' => [ Filter\TypeFactory::LINKEDIN, 'connections' ]
 ];
 
-$filterTypes = Helper\Registry::getFilterTypes();
+$filterTypes = Helper\Registry::getFilterTypeFactory()->types;
 
 // convert
 $query = 'SELECT * FROM `filters`';

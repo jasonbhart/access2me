@@ -28,7 +28,7 @@ $user = Template::getCurrentUser();
             <!-- Profile -->
             <div class="sidebar-section">
                 <h2 class="text-light">Profile</h2>
-                <form action="<?php echo htmlentities(Template::getRoute('sidebar_handler')); ?>" method="post" id="form-side-profile" class="form-control-borderless">
+                <form action="<?php echo htmlentities(Template::getUrl('sidebar_handler')); ?>" method="post" id="form-side-profile" class="form-control-borderless">
                     <div class="form-group">
                         <label for="side-profile-name">Name</label>
                         <input type="text" id="side-profile-fullname" name="side-profile-fullname" class="form-control" value="<?php echo htmlentities($user['name']); ?>">
@@ -68,16 +68,16 @@ $user = Template::getCurrentUser();
             <div class="sidebar-section">
                 <h2 class="text-light">Services</h2>
                 <?php if ($user['linkedin_access_token']): ?>
-                <a href="<?php echo htmlentities(Template::getRoute('sidebar_handler', ['unlink' => 'linkedin'])); ?>" class="btn btn-effect-ripple btn-danger">Unlink LinkedIn</a>
+                <a href="<?php echo htmlentities(Template::getUrl('sidebar_handler', ['unlink' => 'linkedin'])); ?>" class="btn btn-effect-ripple btn-danger">Unlink LinkedIn</a>
                 <?php else: ?>
-                <a href="<?php echo htmlentities(Template::getRoute('sidebar_handler', ['linkto' => 'linkedin'])); ?>" class="btn btn-effect-ripple btn-primary">Link to LinkedIn</a>
+                <a href="<?php echo htmlentities(Template::getUrl('sidebar_handler', ['linkto' => 'linkedin'])); ?>" class="btn btn-effect-ripple btn-primary">Link to LinkedIn</a>
                 <?php endif; ?>
             </div>
 
             <!-- Settings -->
             <div class="sidebar-section">
                 <h2 class="text-light">Settings</h2>
-                <form action="<?php echo htmlentities(Template::getRoute('sidebar_handler', ['set-option' => ''])); ?>" method="post" class="form-horizontal form-control-borderless" onsubmit="return false;">
+                <form action="<?php echo htmlentities(Template::getUrl('sidebar_handler', ['set-option' => ''])); ?>" method="post" class="form-horizontal form-control-borderless" onsubmit="return false;">
                     <div class="form-group">
                         <label class="col-xs-7 control-label-fixed">Attach email header</label>
                         <div class="col-xs-5">
@@ -100,7 +100,7 @@ $user = Template::getCurrentUser();
                         </div>
                     </div>
                     <div class="form-group remove-margin">
-                        <button type="submit" class="btn btn-effect-ripple btn-primary" onclick="window.location.href='<?php echo htmlentities(Template::getRoute('logout')); ?>';">Logout</button>
+                        <button type="submit" class="btn btn-effect-ripple btn-primary" onclick="window.location.href='<?php echo htmlentities(Template::getUrl('logout')); ?>';">Logout</button>
                     </div>
                 </form>
             </div>

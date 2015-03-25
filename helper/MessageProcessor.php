@@ -303,7 +303,6 @@ class MessageProcessor
         if ($status === true) {
             $result->status = Model\MessageRepository::STATUS_FILTER_PASSED;
         } else {
-            $data['failed_filters'] = $filterProcessor->getFailedFilters();
             $result->status = Model\MessageRepository::STATUS_FILTER_FAILED;
         }
         

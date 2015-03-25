@@ -8,7 +8,7 @@ class ComparatorFactory
     const NUMERIC = 1;
     const TEXT = 2;
 
-    public static function getInstance($type)
+    public function create($type)
     {
         if ($type == self::NUMERIC) {
             return new Comparator\NumericComparator();

@@ -25,13 +25,13 @@ if ($action == 'save') {
     $value = isset($_POST['value']) ? $_POST['value'] : null;
 
     // validate type
-    $filterTypes = Helper\Registry::getFilterTypes();
+    $filterFactory = Helper\Registry::getFilterTypeFactory();
 
-    if (!isset($filterTypes[$typeId])) {
+    if (!in_array($typeId, $filterFactory->types)) {
         Helper\Http::jsonResponse(['status' => 'error', 'message' => 'Unknown filter type']);
     }
 
-    $filterType = $filterTypes[$typeId];
+    $filterType = $filterFactory->create($typeId);
 
     // validate property
     if (!isset($filterType->properties[$propertyId])) {
@@ -40,7 +40,7 @@ if ($action == 'save') {
 
     // validate method
     $property = $filterType->properties[$propertyId];
-    $compType = Filter\ComparatorFactory::getInstance($property['type']);
+    $compType = Helper\Registry::getFilterComparatorFactory()->create($property['type']);
 
     if (!isset($compType->methods[$methodId])) {
         Helper\Http::jsonResponse(['status' => 'error', 'message' => 'Unknown method']);

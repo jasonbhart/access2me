@@ -17,6 +17,7 @@ class Router
             ]
         ],
         'registration_success' => '/ui/registration_success.php',
+        'sender_profile' => '/ui/sender_profile.php',
         'sender_verification' => '/verify.php',
         'sidebar_handler' => '/ui/sidebar_handler.php'
     ];
