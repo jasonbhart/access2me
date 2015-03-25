@@ -36,17 +36,8 @@ foreach ($userSenderRepo->findByUserAndAccess($userId, $access) as $sender) {
     $senders[] = [
         'id' => $sender['id'],
         'sender' => $sender['sender'],
-        'type' => $sender['type'],
-        'access' => $sender['access']
+        'type' => $sender['type']
     ];
-}
-
-// allow only opposite access
-$accessTypes = [];
-if ($type == 'whitelisted') {
-    $accessTypes[Model\UserSenderRepository::ACCESS_DENIED] = 'denied';
-} else {
-    $accessTypes[Model\UserSenderRepository::ACCESS_ALLOWED] = 'allowed';
 }
 
 $types = [
@@ -57,7 +48,7 @@ $types = [
 $viewData = [
     'entries' => $senders,
     'types' => $types,
-    'accessTypes' => $accessTypes
+    'access' => $access
 ];
 ?>
 
@@ -85,13 +76,6 @@ $viewData = [
                 </select>
             </div>
             <div class="form-group" style="vertical-align: top">
-                <select name="entry-access" class="entry-access form-control">
-                    <?php foreach ($accessTypes as $id=>$name): ?>
-                        <option value="<?php echo $id; ?>"><?php echo $name; ?></option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
-            <div class="form-group" style="vertical-align: top">
                 <button type="submit" class="btn btn-effect-ripple btn-sm btn-primary form-save"><i class="fa fa-check"></i> Save</button>
             </div>
             <div class="form-group" style="vertical-align: top">
@@ -112,7 +96,6 @@ $viewData = [
                         </th>
                         <th>Sender</th>
                         <th>Type</th>
-                        <th>Access</th>
                         <th style="width: 120px;" class="text-center">
                             <i class="fa fa-flash"></i>
                         </th>
@@ -128,7 +111,6 @@ $viewData = [
 <script id="entry-content-template" type="text/x-jsrender">
     <td>{{:sender}}</td>
     <td>{{:type}}</td>
-    <td>{{:access}}</td>
 </script>
 
 <script id="entry-template" type="text/x-jsrender">

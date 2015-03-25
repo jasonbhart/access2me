@@ -20,7 +20,7 @@ if ($action == 'save') {
     $id = isset($_POST['id']) ? (int)$_POST['id'] : 0;
     $sender = isset($_POST['sender']) ? $_POST['sender'] : null;
     $type = isset($_POST['type']) ? (int)$_POST['type'] : 0;
-    $access = isset($_POST['access']) ? (int)$_POST['access'] : 0;
+    $access = isset($_GET['access']) ? (int)$_GET['access'] : 0;
 
     // validate data
     if (!in_array($type, [Model\UserSenderRepository::TYPE_DOMAIN, Model\UserSenderRepository::TYPE_EMAIL])

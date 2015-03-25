@@ -15,7 +15,7 @@ var UserSenders = function() {
         },
 
         save: function(entry) {
-            return $.post('/ui/user_senders_xhr.php?action=save',
+            return $.post('/ui/user_senders_xhr.php?action=save&access='+data.access,
                 entry,
                 null,
                 'json'
@@ -34,8 +34,7 @@ var UserSenders = function() {
             return {
                 'id': entry.id || 0,
                 'sender': entry.sender,
-                'type': data.types[entry.type],
-                'access': data.accessTypes[entry.access]
+                'type': data.types[entry.type]
             }
         }
     };
@@ -50,8 +49,7 @@ var UserSenders = function() {
                 var entry = {
                     'id': $form.find('.entry-id').val(),
                     'sender': $form.find('.entry-sender').val(),
-                    'type': $form.find('.entry-type').val(),
-                    'access': $form.find('.entry-access').val()
+                    'type': $form.find('.entry-type').val()
                 };
 
                 return entry;
@@ -60,7 +58,6 @@ var UserSenders = function() {
                 $form.find('.entry-id').val(entry.id);
                 $form.find('.entry-sender').val(entry.sender);
                 $form.find('.entry-type').val(entry.type);
-                $form.find('.entry-access').val(entry.access);
             },
             hide: function() {
                 $form.hide();
@@ -131,10 +128,6 @@ var UserSenders = function() {
                 'entry-type': {
                     required: true
                 },
-                'entry-access': {
-                    required: true,
-                    
-                }
             },
             messages: {
                 'entry-sender': {
@@ -144,9 +137,6 @@ var UserSenders = function() {
                 'entry-type': {
                     required: 'Please select sender\'s type'
                 },
-                'entry-access': {
-                    required: 'Please select sender\'s access'
-                }
             }
         });
 
@@ -171,10 +161,10 @@ var UserSenders = function() {
             var $placeHolder = $container.find('td:eq(1)');
 
             // remove unneeded columns
-            $container.find('td:eq(2), td:eq(3)').remove();
+            $container.find('td:eq(2)').remove();
 
             // enlarge placeholder
-            $placeHolder.attr('colspan', 3);
+            $placeHolder.attr('colspan', 2);
             $placeHolder.empty();
 
             // prepare form data
@@ -203,7 +193,6 @@ var UserSenders = function() {
                         // copy values back to entries
                         entry.sender = response.sender;
                         entry.type = formData.type;
-                        entry.access = formData.access;
                     });
                 },
                 close: function() {
@@ -279,7 +268,6 @@ var UserSenders = function() {
                         if (entry) {
                             entry.sender = response.sender;
                             entry.type = formData.type;
-                            entry.access = formData.access;
                         } else {
                             formData.id = response.id;
                             formData.sender = response.sender;
