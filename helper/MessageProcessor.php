@@ -305,7 +305,8 @@ class MessageProcessor
         } else {
             $result->status = Model\MessageRepository::STATUS_FILTER_FAILED;
         }
-        
+
+        $data['sender'] = $message['from_email'];
         $data['whitelist_url']  = $this->buildWhitelistUrl($message['from_email']);
         $data['blacklist_url']  = $this->buildBlacklistUrl($message['from_email']);
         $data['profile'] = $this->getProfileViewData($profile);
