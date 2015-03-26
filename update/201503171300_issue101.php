@@ -21,15 +21,15 @@ $query = 'ALTER TABLE `filters` CHANGE `field` `property` VARCHAR (100) NOT NULL
 $db->execute($query);
 
 $mapTextType = [
-    \Filter::EQUAL_TO => Filter\Comparator\TextComparator::EQUALS,
-    \Filter::NOT_EQUAL_TO => Filter\Comparator\TextComparator::NOT_EQUALS,
+    1 => Filter\Comparator\TextComparator::EQUALS,
+    2 => Filter\Comparator\TextComparator::NOT_EQUALS,
 ];
 
 $mapNumericType = [
-    \Filter::EQUAL_TO => Filter\Comparator\NumericComparator::EQUALS,
-    \Filter::NOT_EQUAL_TO => Filter\Comparator\NumericComparator::NOT_EQUALS,
-    \Filter::GREATER_THAN => Filter\Comparator\NumericComparator::GREATER,
-    \Filter::NOT_GREATER_THAN => Filter\Comparator\NumericComparator::NOT_GREATER
+    1 => Filter\Comparator\NumericComparator::EQUALS,
+    2 => Filter\Comparator\NumericComparator::NOT_EQUALS,
+    3 => Filter\Comparator\NumericComparator::GREATER,
+    4 => Filter\Comparator\NumericComparator::NOT_GREATER
 ];
 
 $map = [
@@ -49,7 +49,7 @@ $map = [
     'connections' => [ Filter\TypeFactory::LINKEDIN, 'connections' ]
 ];
 
-$filterTypes = Helper\Registry::getFilterTypes();
+$filterTypes = Helper\Registry::getFilterTypeFactory()->types;
 
 // convert
 $query = 'SELECT * FROM `filters`';

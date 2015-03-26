@@ -7,16 +7,18 @@
 use Access2Me\Filter;
 use Access2Me\Filter\Comparator;
 use Access2Me\Helper;
+use Access2Me\Model;
 
 
 /**
  * Returns filter descriptions (metadata)
  * Used to display add/edit filter form
- *
- * @param Filter\Type\AbstractType[] $types
- * @return array
+ * 
+ * @param Filter\TypeFactory $filterFactory
+ * @param Filter\ComparatorFactory $comparatorFactory
+ * @return type
  */
-function getFilterMetadata($types)
+function getFilterMetadata($filterFactory, $comparatorFactory)
 {
     $data = [
         'types' => [],
@@ -25,7 +27,8 @@ function getFilterMetadata($types)
     $comparators = [];
 
     // process types
-    foreach ($types as $pid=>$type) {
+    foreach ($filterFactory->types as $typeId) {
+        $type = $filterFactory->create($typeId);
         // collect available properties
         $properties = [];
         foreach ($type->properties as $id => $property) {
@@ -40,7 +43,7 @@ function getFilterMetadata($types)
         }
 
         $data['types'][] = [
-            'id' => $pid,
+            'id' => $typeId,
             'name' => $type->name,
             'properties' => $properties
         ];
@@ -49,7 +52,7 @@ function getFilterMetadata($types)
     // methods (lesser, equals, ...)
     foreach ($comparators as $type=>$val) {
         $methods = [];
-        foreach (Filter\ComparatorFactory::getInstance($type)->methods as $id=>$m)
+        foreach ($comparatorFactory->create($type)->methods as $id=>$m)
             $methods[] = array_merge(['id'=>$id], $m);
         $data['compTypes'][$type] = $methods;
     }
@@ -61,20 +64,24 @@ $db = new Database;
 $auth = Helper\Registry::getAuth();
 $userId = $auth->getLoggedUser()['id'];
 
+$filterRepo = new Model\FiltersRepository($db);
 // prepare filters for render
-$filters = [];
-foreach (\Filter::getFiltersByUserId($userId, $db) as $filter) {
-    $filters[] = array(
-        'id' => $filter['id'],
-        'type' => $filter['type'],
-        'property' => $filter['property'],
-        'method' => $filter['method'],
-        'value' => $filter['value']
-    );
-}
+$filters = array_map(
+    function(Model\Filter $filter) {
+        return [
+            'id' => $filter->getId(),
+            'type' => $filter->getType(),
+            'property' => $filter->getProperty(),
+            'method' => $filter->getMethod(),
+            'value' => $filter->getValue()
+        ];
+    },
+    $filterRepo->findByUserId($userId)
+);
 
-$filterTypes = Helper\Registry::getFilterTypes();
-$metadata = getFilterMetadata($filterTypes);
+$filterFactory = Helper\Registry::getFilterTypeFactory();
+$comparatorFactory = Helper\Registry::getFilterComparatorFactory();
+$metadata = getFilterMetadata($filterFactory, $comparatorFactory);
 ?>
 
 <div id="page-content" ng-app="access2me">

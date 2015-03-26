@@ -1,0 +1,182 @@
+<div id="page-content">
+    {% if error is defined %}
+    <div class="alert alert-danger">{{ error }}</div>
+    {% else %}
+    <div class="block">
+        <div class="block-title clearfix">
+            <h1>Filters</h1>
+        </div>
+        {% if filterStat %}
+        <ul>
+            {% for filter in filterStat %}
+            <li class="{% if filter.status %}alert alert-success{% else %}alert alert-danger{% endif %}">
+                <div>{{ filter.condition }}</div>
+                <div>{% if filter.status %}AND{% else %}BUT{%endif%} {{ filter.value }} </div>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        You have no filters
+        {% endif %}
+    </div>
+
+    {% if profiles is defined %}
+    <div class="block">
+        <!-- Table Styles Title -->
+        <div class="block-title clearfix">
+            <h1>Profile of {{ profiles.sender }}</h1>
+        </div>
+
+        {% if profiles.profile.linkedin %}
+        {% set data = profiles.profile.linkedin %}
+        <div class="panel panel-default">
+            <div class="panel-heading">Linkedin</div>
+            <table class="table">
+                {% if data.pictureUrl %}
+                <tr>
+                    <td>Picture</td><td><img src="{{ data.pictureUrl }}" /></td>
+                </tr>
+                {% endif %}
+                <tr>
+                    <td>First Name</td><td>{{ data.firstName }}</td>
+                </tr>
+                <tr>
+                    <td>Last Name</td><td>{{ data.lastName }}</td>
+                </tr>
+                <tr>
+                    <td>Email</td><td>{{ data.email }}</td>
+                </tr>
+                <tr>
+                    <td>Link to profile</td><td><a href="{{ data.profileUrl}}">link</a></td>
+                </tr>
+                <tr>
+                    <td>Headline</td><td>{{ data.headline }}</td>
+                </tr>
+                <tr>
+                    <td>Location</td><td>{{ data.location }}</td>
+                </tr>
+                <tr>
+                    <td>Industry</td><td>{{ data.industry }}</td>
+                </tr>
+                <tr>
+                    <td>Self summary</td><td>{{ data.summary }}</td>
+                </tr>
+                <tr>
+                    <td>Specialties</td><td>{{ data.specialties }}</td>
+                </tr>
+                <tr>
+                    <td>Associations</td><td>{{ data.associations }}</td>
+                </tr>
+                <tr>
+                    <td>Interests</td><td>{{ data.interests }}</td>
+                </tr>
+                <tr>
+                    <td>Connections</td><td>{{ data.connections }}</td>
+                </tr>
+                <tr>
+                    <td>Total positions</td><td>{{ data.positions|length }}</td>
+                </tr>
+
+                {% if data.positions %}
+                <tr>
+                    <td>Positions</td>
+                    <td>
+                        {% for position in data.positions %}
+                        <table class="table">
+                            <tr>
+                                <td>Company</td>
+                                <td>{{ position.company }}</td>
+                            </tr>
+                            <tr>
+                                <td>Title</td>
+                                <td>{{ position.title }}</td>
+                            </tr>
+                            <tr>
+                                <td>Summary</td>
+                                <td>{{ position.summary }}</td>
+                            </tr>
+                            <tr>
+                                <td>Is active</td>
+                                <td>{{ position.active }}</td>
+                            </tr>
+                        </table>
+                        {% endfor %}
+                    </td>
+                </tr>
+                {% endif %}
+            </table>
+        </div>
+        {% endif %}
+
+        {% if profiles.profile.facebook %}
+        {% set data = profiles.profile.facebook %}
+        <div class="panel panel-default">
+            <div class="panel-heading">Facebook</div>
+            <table class="table">
+                <tr>
+                    <td>Picture</td><td><img src="{{ data.pictureUrl }}" /></td>
+                </tr>
+                <tr>
+                    <td>Name</td><td>{{ data.fullName }}</td>
+                </tr>
+                <tr>
+                    <td>Email</td><td>{{ data.email }}</td>
+                </tr>
+                <tr>
+                    <td>Biography</td><td>{{ data.biography }}</td>
+                </tr>
+                <tr>
+                    <td>Birthday</td><td>{{ data.birthday }}</td>
+                </tr>
+                <tr>
+                    <td>Gender</td><td>{{ data.gender }}</td>
+                </tr>
+                <tr>
+                    <td>Link to profile</td><td><a href="{{ data.profileUrl }}">link</a></td>
+                </tr>
+                <tr>
+                    <td>Location</td><td>{{ data.location }}</td>
+                </tr>
+                <tr>
+                    <td>Website</td><td>{{ data.website }}</td>
+                </tr>
+            </table>
+        </div>
+        {% endif %}
+
+        {% if profiles.profile.twitter %}
+        {% set data = profiles.profile.twitter %}
+        <div class="panel panel-default">
+            <div class="panel-heading">Twitter</div>
+            <table class="table">
+                <tr>
+                    <td>Picture</td><td><img src="{{ data.pictureUrl }}" /></td>
+                </tr>
+                <tr>
+                    <td>Name</td><td>{{ data.fullName }}</td>
+                </tr>
+                <tr>
+                    <td>Description</td><td>{{ data.summary }}</td>
+                </tr>
+                <tr>
+                    <td>Location</td><td>{{ data.location }}</td>
+                </tr>
+            </table>
+        </div>
+        {% endif %}
+
+        {% if profiles.profile.angellist %}
+        {% set data = profiles.profile.angellist %}
+        <div class="panel panel-default">
+            <div class="panel-heading">AngelList</div>
+            <table class="table">
+                <tr>
+                    <td>Company URL</td><td><a href="{{ data.company_url }}">{{ data.domain }}</a></td>
+                </tr>
+            </table>
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+    {% endif %}
+</div>

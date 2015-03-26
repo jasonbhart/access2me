@@ -122,12 +122,15 @@ class Database
     //--------------------------------------------------------------------------
 
 
-    public function getArray($statement, $data = array())
+    public function getArray($statement, $data = array(), $className=null)
     {
         try {
             $select = $this->link->prepare($statement);
             $select->execute($data);
-            $results = $select->fetchAll(PDO::FETCH_ASSOC);
+            if ($className)
+                $results = $select->fetchAll(\PDO::FETCH_CLASS, $className);
+            else
+                $results = $select->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
             Logging::logDBErrorAndExit($e->getMessage());
         }

@@ -10,7 +10,14 @@ class TypeFactory
     const FACEBOOK = 3;
     const TWITTER = 4;
 
-    public static function getInstance($type)
+    public $types = [
+        self::COMMON,
+        self::LINKEDIN,
+        self::FACEBOOK,
+        self::TWITTER
+    ];
+
+    public function create($type)
     {
         if ($type == self::COMMON) {
             return new Type\CommonType();

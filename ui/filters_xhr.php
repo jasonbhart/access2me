@@ -8,6 +8,7 @@ use Access2Me\Model;
 
 $db = new Database();
 $auth = Helper\Registry::getAuth();
+$filterRepo = new Model\FiltersRepository($db);
 
 if (!$auth->isAuthenticated()) {
     Helper\Http::generate403();
@@ -24,13 +25,13 @@ if ($action == 'save') {
     $value = isset($_POST['value']) ? $_POST['value'] : null;
 
     // validate type
-    $filterTypes = Helper\Registry::getFilterTypes();
+    $filterFactory = Helper\Registry::getFilterTypeFactory();
 
-    if (!isset($filterTypes[$typeId])) {
+    if (!in_array($typeId, $filterFactory->types)) {
         Helper\Http::jsonResponse(['status' => 'error', 'message' => 'Unknown filter type']);
     }
 
-    $filterType = $filterTypes[$typeId];
+    $filterType = $filterFactory->create($typeId);
 
     // validate property
     if (!isset($filterType->properties[$propertyId])) {
@@ -39,7 +40,7 @@ if ($action == 'save') {
 
     // validate method
     $property = $filterType->properties[$propertyId];
-    $compType = Filter\ComparatorFactory::getInstance($property['type']);
+    $compType = Helper\Registry::getFilterComparatorFactory()->create($property['type']);
 
     if (!isset($compType->methods[$methodId])) {
         Helper\Http::jsonResponse(['status' => 'error', 'message' => 'Unknown method']);
@@ -49,40 +50,38 @@ if ($action == 'save') {
         Helper\Http::jsonResponse(['status' => 'error', 'message' => 'Invalid value']);
     }
 
-    // add filter
+
     $user = $auth->getLoggedUser();
+
+    // add filter
     if ($id > 0) {      // update
         
-        $filter = \Filter::getFilterById($id, $db);
+        $filter = $filterRepo->getById($id);
         if ($filter === null) {
             Helper\Http::generate404();
         }
 
         // check if user is the owner
-        if ($filter['user_id'] != $user['id']) {
+        if ($filter->getUserId() != $user['id']) {
             Helper\Http::generate403();
         }
-
-        $db->update(
-            'filters',
-            array('type', 'property', 'method', 'value'),
-            array($typeId, $propertyId, $methodId, $value),
-            'id = ?',
-            array($id)
-        );
     } else {            // insert
-        $id = $db->insert('filters',
-                array('user_id', 'type', 'property', 'method', 'value'),
-                array($user['id'], $typeId, $propertyId, $methodId, $value)
-        );
+        $filter = new Model\Filter();
+        $filter->setUserId($user['id']);
     }
+
+    $filter->setType($typeId);
+    $filter->setProperty($propertyId);
+    $filter->setMethod($methodId);
+    $filter->setValue($value);
+    $id = $filterRepo->save($filter);
 
     Helper\Http::jsonResponse(['status' => 'success', 'id' => $id]);
 
 } else if ($action == 'delete') {           // delete
     $id = isset($_POST['id']) ? (int)$_POST['id'] : 0;
 
-    $filter = \Filter::getFilterById($id, $db);
+    $filter = $filterRepo->getById($id);
     if ($filter === null) {
         Helper\Http::generate404();
         exit;
@@ -90,12 +89,12 @@ if ($action == 'save') {
 
     // check if user is the owner
     $user = $auth->getLoggedUser();
-    if ($filter['user_id'] != $user['id']) {
+    if ($filter->getUserId() != $user['id']) {
         Helper\Http::generate403();
         exit;
     }
-    
-    \Filter::delete($id, $db);
+
+    $filterRepo->delete($filter->getId());
     echo json_encode(array('status' => 'success', 'id' => $id));
     exit;
 }
