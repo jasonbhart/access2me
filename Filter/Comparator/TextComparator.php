@@ -53,6 +53,6 @@ class TextComparator
 
     public function contains($value1, $value2)
     {
-        return mb_strpos($value1, $value2) >= 0;
+        return mb_strpos($value1, $value2) !== false;
     }
 }

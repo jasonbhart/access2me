@@ -1,8 +1,4 @@
 <?php require_once __DIR__ . "/login-check.php"; ?>
-<?php include 'inc/config.php'; $template['header_link'] = 'THE END OF SPAM AS WE KNOW IT'; ?>
-<?php include 'inc/template_start.php'; ?>
-<?php include 'inc/page_head.php'; ?>
-
 <?php
 use Access2Me\Helper;
 use Access2Me\Model;
@@ -51,7 +47,9 @@ $viewData = [
     'access' => $access
 ];
 ?>
-
+<?php include 'inc/config.php'; $template['header_link'] = 'THE END OF SPAM AS WE KNOW IT'; ?>
+<?php include 'inc/template_start.php'; ?>
+<?php include 'inc/page_head.php'; ?>
 <div id="page-content">
     <div class="block">
         <!-- Table Styles Title -->
