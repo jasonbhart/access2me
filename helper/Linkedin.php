@@ -74,13 +74,13 @@ class Linkedin
         return isset($person[0]) ? $person[0] : false;
     }
 
-    public function getLoginUrl($state, $callbackUrl)
+    public function getLoginUrl($state, $scopes=[], $callbackUrl)
     {
         $params = [
             'response_type' => 'code',
             'client_id' => $this->config['clientId'],
             'state' => $state,
-            'scope' => implode(' ', $this->config['permissions']),
+            'scope' => implode(' ', $scopes),
             'redirect_uri' => $callbackUrl
         ];
 

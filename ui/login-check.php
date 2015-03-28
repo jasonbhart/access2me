@@ -8,6 +8,5 @@ $db = new Database;
 $auth = Helper\Registry::getAuth();
 
 if (!$auth->isAuthenticated()) {
-    header('Location: login.php');
-    exit;
+    Helper\Http::redirect(Helper\Registry::getRouter()->getUrl('login'));
 }

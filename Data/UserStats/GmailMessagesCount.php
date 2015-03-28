@@ -3,7 +3,7 @@
 namespace Access2Me\Data\UserStats;
 
 use Access2Me\Data\UserStats;
-use Access2Me\Service\Gmail;
+use Access2Me\Service\Google\Gmail;
 
 class GmailMessagesCount extends GmailResource
 {

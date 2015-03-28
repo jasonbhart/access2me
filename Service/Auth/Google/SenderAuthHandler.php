@@ -1,6 +1,6 @@
 <?php
 
-namespace Access2Me\Service\Auth\Linkedin;
+namespace Access2Me\Service\Auth\Google;
 
 use Access2Me\Helper;
 use Access2Me\Model;
@@ -14,12 +14,12 @@ class SenderAuthHandler extends Auth\AbstractHandler
     public function __construct($appConfig)
     {
         $this->appConfig = $appConfig;
-        $this->handledTypes[] = 'Access2Me\Service\Auth\Linkedin\SenderAuthRequest';
+        $this->handledTypes[] = 'Access2Me\Service\Auth\Google\SenderAuthRequest';
     }
 
     public function handle($serviceRequest, $serviceResponse)
     {
-        $accessToken = $serviceResponse['access_token'];
+        $accessToken = $serviceResponse;
 
         $db = new \Database();
         $mesgRepo = new Model\MessageRepository($db);
@@ -34,12 +34,12 @@ class SenderAuthHandler extends Auth\AbstractHandler
         // create new or update existing sender
         $email = $message['from_email'];
         $senderRepo = new Model\SenderRepository($db);
-        $sender = $senderRepo->getByEmailAndService($email, Service\Service::LINKEDIN);
+        $sender = $senderRepo->getByEmailAndService($email, Service\Service::GOOGLE);
 
         if ($sender == null) {
             $sender = new Model\Sender();
             $sender->setSender($email);
-            $sender->setService(Service\Service::LINKEDIN);
+            $sender->setService(Service\Service::GOOGLE);
         }
 
         // we always have new token here whether user was authenticated before or not

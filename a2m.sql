@@ -61,7 +61,7 @@ CREATE TABLE `senders` (
   `id` int AUTO_INCREMENT NOT NULL,
   `sender` varchar(64) NOT NULL,
   `service` int(3) NOT NULL,
-  `oauth_key` tinytext NOT NULL,
+  `oauth_key` text NOT NULL,
   `created_at` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   `expires_at` datetime DEFAULT '0000-00-00 00:00:00',
   PRIMARY KEY (`id`)

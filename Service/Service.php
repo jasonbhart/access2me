@@ -12,4 +12,5 @@ class Service {
     const KLOUT = 7;
     const GITHUB = 8;
     const ABOUTME = 9;
+    const GOOGLE = 10;
 }

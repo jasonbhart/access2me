@@ -46,6 +46,5 @@ class UserAuthHandler extends Auth\AbstractHandler
         Helper\FlashMessages::add('You have successfully linked LinkedIn account', Helper\FlashMessages::SUCCESS);
 
         Helper\Http::redirect($linkedinRequest->redirectUrl);
-        exit;
     }
 }

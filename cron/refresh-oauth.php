@@ -38,9 +38,9 @@ class UserTokensRefresher
     }
 
     /**
-     * Refreshes Gmail token
+     * Refreshes Google token
      */
-    public function refreshGmail()
+    public function refreshGoogle()
     {
         try {
             if (!$this->user['gmail_access_token']) {
@@ -70,11 +70,11 @@ class UserTokensRefresher
             if ($ex instanceof Google_Auth_Exception) {
                 $this->user['gmail_access_token'] = null;
                 Logging::getLogger()->error(
-                    sprintf('Can\'t refresh user\'s gmail token anymore, not valid refresh token (userId: %d)', $this->user['id'])
+                    sprintf('Can\'t refresh user\'s google token anymore, not valid refresh token (userId: %d)', $this->user['id'])
                 );
             } else {
                 Logging::getLogger()->error(
-                    sprintf('Can\'t refresh gmail token for user: %d', $this->user['id']),
+                    sprintf('Can\'t refresh google token for user: %d', $this->user['id']),
                     ['exception' => $ex]
                 );
             }
@@ -119,7 +119,7 @@ class UserTokensRefresher
 
     public function refresh()
     {
-        $this->refreshGmail();
+        $this->refreshGoogle();
         $this->refreshLinkedIn();
     }
 }
@@ -127,14 +127,11 @@ class UserTokensRefresher
 $db = new Database();
 $userRepo = new Model\UserRepository($db);
 
-$authProvider = new Helper\GoogleAuthProvider($appConfig['services']['gmail'], $userRepo);
+$authProvider = new Helper\GoogleAuthProvider($appConfig['services']['google'], $userRepo);
 $tokenRefresher = new Service\TokenRefresher($appConfig);
 
-// refresh gmail access token for every user
+// refresh access tokens for every user
 foreach ($userRepo->findAll() as $user) {
-    if ($user['id'] != 4)
-        continue;
-
     $refresher = new UserTokensRefresher($user, $authProvider, $tokenRefresher);
     $refresher->refresh();
     $userRepo->save($refresher->getUser());

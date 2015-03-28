@@ -22,11 +22,11 @@ abstract class AbstractHandler
     }
 
     /**
-     * Process linkedin response using requested data
+     * Process service response using requested data
      *
-     * @param $linkedinRequest data associated with linkedin request
-     * @param $linkedinResponse data returned by linkedin
+     * @param $serviceRequest data associated with service request
+     * @param $serviceResponse data returned by service
      * @return mixed depends on handler
      */
-    abstract public function handle($linkedinRequest, $linkedinResponse);
+    abstract public function handle($serviceRequest, $serviceResponse);
 }

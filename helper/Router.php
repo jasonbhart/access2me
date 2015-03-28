@@ -7,8 +7,8 @@ class Router
 {
     protected $routes = [
         'home' => '/ui/index.php',
-        'gmail_settings' => '/ui/gmail-config.php',
-        'gmail_oauth' => '/ui/gmailoauth.php',
+        'google_config' => '/ui/gmail-config.php',
+        'gmail_settings' => '/ui/gmail-settings.php',
         'login' => '/ui/login.php',
         'logout' => [
             'url' => '/ui/login.php',
