@@ -4,6 +4,7 @@
 // https://developers.facebook.com/blog/post/2011/05/13/how-to--handle-expired-access-tokens/
 // https://developers.facebook.com/docs/roadmap/completed-changes/offline-access-removal
 // https://dev.twitter.com/oauth/overview/faq
+// https://developers.google.com/accounts/docs/OAuth2WebServer#refresh
 
 namespace Access2Me\Service;
 
@@ -54,6 +55,8 @@ class TokenRefresher
             $expiresAt = $token->getExpiresAt();
         } elseif ($serviceId == Service::TWITTER) {
             $expiresAt = $now->add(new \DateInterval('P30D'));      // twitter token doesn't have expiration time, assume 30 days
+        } elseif ($serviceId == Service::GOOGLE) {
+            $expiresAt = $now->add(new \DateInterval('P30D'));      // google's refresh token never expires
         }
 
         return [
@@ -93,6 +96,7 @@ class TokenRefresher
                 $facebook->validate();
                 $token = $facebook->getSession()->getAccessToken();
                 $time = $this->extendExpireTime($serviceId, $token);
+                $token = (string)$token;
             } catch (FacebookRequestException $ex) {
                 return false;
             }
@@ -105,6 +109,20 @@ class TokenRefresher
                 $time = $this->extendExpireTime($serviceId, null);
             } catch (Helper\TwitterException $ex) {
                 // can't fetch profile
+                return false;
+            }
+        } else if ($serviceId == Service::GOOGLE) {
+            try {
+                $config = $this->appConfig['services']['google'];
+                $client = new \Google_Client();
+                $client->setClientId($config['client_id']);
+                $client->setClientSecret($config['client_secret']);
+                // refresh
+                $client->setAccessToken($token);
+                $client->refreshToken($client->getRefreshToken());
+                $token = $client->getAccessToken();
+                $time = $this->extendExpireTime($serviceId, $token);
+            } catch (\Exception $ex) {
                 return false;
             }
         } else {

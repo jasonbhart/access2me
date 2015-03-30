@@ -55,7 +55,7 @@ $primary_nav = array(
     ),
     array(
         'name'  => 'Gmail Settings',
-        'url'   => 'gmail-config.php',
+        'url'   => \Access2Me\Helper\Template::getUrl('gmail_settings'),
         'icon'  => 'fa fa-rocket'
     ),
     [

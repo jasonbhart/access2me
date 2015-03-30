@@ -95,7 +95,7 @@ class RecipientsImporter
 
 $db = new Database;
 $userRepo = new Model\UserRepository($db);
-$authProvider = new Helper\GoogleAuthProvider($appConfig['services']['gmail'], $userRepo);
+$authProvider = new Helper\GoogleAuthProvider($appConfig['services']['google'], $userRepo);
 
 foreach ($userRepo->findAll() as $user) {
     try {

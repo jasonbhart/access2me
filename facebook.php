@@ -8,7 +8,7 @@ use Facebook\FacebookRedirectLoginHelper;
 
 use Access2Me\Helper;
 use Access2Me\Model;
-use Access2Me\Service\Service;
+use Access2Me\Service;
 
 /*
  * TODO:
@@ -58,25 +58,27 @@ try {
         // create new or update existing sender
         $email = $message['from_email'];
         $senderRepo = new Model\SenderRepository($db);
-        $sender = $senderRepo->getByEmailAndService($email, Service::FACEBOOK);
+        $sender = $senderRepo->getByEmailAndService($email, Service\Service::FACEBOOK);
 
         if ($sender == null) {
             $sender = new Model\Sender();
             $sender->setSender($email);
-            $sender->setService(Service::FACEBOOK);
+            $sender->setService(Service\Service::FACEBOOK);
         }
-        
-        $sender->setOAuthKey($session->getToken());
 
-        // fetch user's profile
-        $senders = array($sender);
-        $defaultProfileProvider = Helper\Registry::getProfileProvider();
-        $profile = $defaultProfileProvider->getProfile($senders, Service::FACEBOOK);
+        $token = $session->getAccessToken();
+        $sender->setOAuthKey((string)$token);
+
+        $tokenRefresher = new Service\TokenRefresher($appConfig);
+        $expTime = $tokenRefresher->extendExpireTime($sender->getService(), $token);
+        $sender->setCreatedAt($expTime['created_at']);
+        $sender->setExpiresAt($expTime['expires_at']);
 
         $senderRepo->save($sender);
 
         // sender is verified, mark message as allowed to be processed (filtering, sending to recipient)
-        $db->updateOne('messages', 'status', '2', 'from_email', $email);
+        $message['status'] = Model\MessageRepository::STATUS_VERIFIED;
+        $messageRepo->save($message);
 
         // show user auth completed
         require_once 'views/auth_completed.html';

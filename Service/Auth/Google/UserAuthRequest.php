@@ -1,6 +1,6 @@
 <?php
 
-namespace Access2Me\Service\Auth\Linkedin;
+namespace Access2Me\Service\Auth\Google;
 
 use Access2Me\Service\Auth;
 
@@ -14,6 +14,6 @@ class UserAuthRequest extends Auth\AbstractRequest
     {
         $this->userId = $userId;
         $this->redirectUrl = $redirectUrl;
-        $this->requiredScopes = [Auth\Linkedin::SCOPE_BASIC_PROFILE, Auth\Linkedin::SCOPE_CONTACT_INFO];
+        $this->requiredScopes = [\Google_Service_Gmail::MAIL_GOOGLE_COM, Auth\Google::SCOPE_CONTACTS];
     }
 }

@@ -84,6 +84,10 @@ class Registry
                 Service::ABOUTME => [
                     'authRequired' => false,
                     'provider' => new ProfileProvider\Aboutme($services['aboutme'])
+                ],
+                Service::GOOGLE => [
+                    'authRequired' => true,
+                    'provider' => new ProfileProvider\Google($services['google'])
                 ]
             ];
 
@@ -106,7 +110,7 @@ class Registry
 
         $userRepo = new Model\UserRepository($db);
         $authProvider = new Helper\GoogleAuthProvider(
-            self::$appConfig['services']['gmail'],
+            self::$appConfig['services']['google'],
             $userRepo
         );
 

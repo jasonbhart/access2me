@@ -1,5 +1,5 @@
 <?php
 
-namespace Access2Me\Service\Auth\Linkedin;
+namespace Access2Me\Service\Auth;
 
 class AuthException extends \Exception { }

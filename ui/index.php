@@ -5,6 +5,7 @@
 use Access2Me\Helper;
 use Access2Me\Model;
 use Access2Me\Service;
+use Access2Me\Service\Auth;
 
 class IndexController
 {
@@ -282,14 +283,18 @@ try {
         'gmail_messages_count' => $userStats->get(Access2Me\Data\UserStats::GMAIL_MESSAGES_COUNT),
     ];
 } catch (\Google_Exception $ex) {
-    // clear gmail access token
+    // clear google access token
     $userRepo = new Access2Me\Model\UserRepository($db);
     $u = $userRepo->getById($user['id']);
     $u['gmail_access_token'] = null;
     $userRepo->save($u);
 
     // request new permissions
-    Helper\Http::redirect(Helper\Registry::getRouter()->getUrl('gmail_oauth'));
+    $request = new Auth\Google\UserAuthRequest($user['id'], Helper\Registry::getRouter()->getUrl('home'));
+    $manager = new Auth\Google($appConfig['services']['google']);
+    // send request
+    $manager->requestAuth($request);
+    exit;
 }
 
 ?>

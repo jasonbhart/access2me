@@ -1,6 +1,6 @@
 <?php
 
-namespace Access2Me\Service;
+namespace Access2Me\Service\Google;
 
 class Gmail
 {

@@ -1,9 +1,8 @@
 <?php
 
-namespace Access2Me\Service\Auth\Linkedin;
+namespace Access2Me\Service\Auth\Google;
 
 use Access2Me\Service\Auth;
-
 
 class SenderAuthRequest extends Auth\AbstractRequest
 {
@@ -15,6 +14,6 @@ class SenderAuthRequest extends Auth\AbstractRequest
     public function __construct($messageId)
     {
         $this->messageId = $messageId;
-        $this->requiredScopes = [Auth\Linkedin::SCOPE_BASIC_PROFILE, Auth\Linkedin::SCOPE_CONTACT_INFO];
+        $this->requiredScopes = [\Google_Service_Plus::PLUS_LOGIN, \Google_Service_Plus::PLUS_ME];
     }
 }

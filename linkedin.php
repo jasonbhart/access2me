@@ -8,8 +8,6 @@ require_once __DIR__ . "/boot.php";
 use Access2Me\Helper;
 use Access2Me\Service\Auth\Linkedin;
 
-$db = new Database;
-
 try {
     $manager = new Linkedin($appConfig['services']['linkedin']);
     $manager->addHandler(new Linkedin\SenderAuthHandler($appConfig));

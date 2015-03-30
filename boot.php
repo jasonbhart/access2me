@@ -73,6 +73,7 @@ require_once __DIR__ . "/ProfileProvider/CrunchBase.php";
 require_once __DIR__ . "/ProfileProvider/Facebook.php";
 require_once __DIR__ . "/ProfileProvider/FullContact.php";
 require_once __DIR__ . "/ProfileProvider/GitHub.php";
+require_once __DIR__ . "/ProfileProvider/Google.php";
 require_once __DIR__ . "/ProfileProvider/Klout.php";
 require_once __DIR__ . "/ProfileProvider/Aboutme.php";
 require_once __DIR__ . "/ProfileProvider/Linkedin.php";
@@ -81,21 +82,29 @@ require_once __DIR__ . "/ProfileProvider/Profile/CrunchBase.php";
 require_once __DIR__ . "/ProfileProvider/Profile/Facebook.php";
 require_once __DIR__ . "/ProfileProvider/Profile/FullContact.php";
 require_once __DIR__ . "/ProfileProvider/Profile/GitHub.php";
-require_once __DIR__ . "/Service/Auth/Linkedin.php";
+require_once __DIR__ . "/ProfileProvider/Profile/Google.php";
 require_once __DIR__ . "/Service/Auth/AbstractHandler.php";
-require_once __DIR__ . "/Service/Auth/Linkedin/AuthException.php";
+require_once __DIR__ . "/Service/Auth/AbstractManager.php";
+require_once __DIR__ . "/Service/Auth/AbstractRequest.php";
+require_once __DIR__ . "/Service/Auth/AuthException.php";
+require_once __DIR__ . "/Service/Auth/Google.php";
+require_once __DIR__ . "/Service/Auth/Google/SenderAuthHandler.php";
+require_once __DIR__ . "/Service/Auth/Google/SenderAuthRequest.php";
+require_once __DIR__ . "/Service/Auth/Google/UserAuthHandler.php";
+require_once __DIR__ . "/Service/Auth/Google/UserAuthRequest.php";
+require_once __DIR__ . "/Service/Auth/Linkedin.php";
 require_once __DIR__ . "/Service/Auth/Linkedin/SenderAuthHandler.php";
 require_once __DIR__ . "/Service/Auth/Linkedin/SenderAuthRequest.php";
 require_once __DIR__ . "/Service/Auth/Linkedin/UserAuthHandler.php";
 require_once __DIR__ . "/Service/Auth/Linkedin/UserAuthRequest.php";
 require_once __DIR__ . "/Service/GitHub/Search.php";
 require_once __DIR__ . "/Service/Google/Contacts.php";
+require_once __DIR__ . "/Service/Google/Gmail.php";
 require_once __DIR__ . "/Service/AngelList.php";
 require_once __DIR__ . "/Service/CrunchBase.php";
 require_once __DIR__ . "/Service/FullContact.php";
 require_once __DIR__ . "/Service/Klout.php";
 require_once __DIR__ . "/Service/Aboutme.php";
-require_once __DIR__ . "/Service/Gmail.php";
 require_once __DIR__ . "/Service/Service.php";
 require_once __DIR__ . "/Service/TokenRefresher.php";
 
@@ -124,10 +133,6 @@ $facebookAuth = array(
 $linkedinAuth = [
     'clientId'     => '75dl362rayg47t',
     'clientSecret' => 'eCxKfjOpunoO9rSj',
-    'permissions' => [
-        'r_basicprofile',
-        'r_contactinfo',
-    ],
     'callback_url' => $localUrl . '/linkedin.php'
 ];
 
@@ -158,9 +163,10 @@ $appConfig = array(
         'no_reply' => 'noreply@access2.me'
     ],
     'services' => [
-        'gmail' => [
+        'google' => [
             'client_id' => '523467224320-5evqo2ovdnqqntulu3531298cp8hfh12.apps.googleusercontent.com',
-            'client_secret' => '8s74XEEucknNhYb6keO0yzBw'
+            'client_secret' => '8s74XEEucknNhYb6keO0yzBw',
+            'callback_url' => $localUrl . '/ui/gmail-config.php'
         ],
         'linkedin' => $linkedinAuth,
         'facebook' => $facebookAuth,
