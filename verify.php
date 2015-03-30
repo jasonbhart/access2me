@@ -77,7 +77,7 @@ if ($messageId) {
                             <li><a href="<?php echo $localUrl; ?>/twitter.php?message_id=<?php echo $_GET['message_id']; ?>"><img src="images/twitter.png"></a></li>
                             <li>
                                 <a href="<?php echo $localUrl; ?>/verify.php?vtype=google&message_id=<?php echo htmlentities($messageId); ?>">
-                                    Google+
+                                    <img src="images/google-plus.png"></a>
                                 </a>
                             </li>
                                 
