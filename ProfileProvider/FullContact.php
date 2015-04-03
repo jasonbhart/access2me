@@ -20,13 +20,13 @@ class FullContact implements ProfileProviderInterface
      * @param \Access2Me\Model\Sender $sender
      * @return array|object
      */
-    public function fetchProfile(\Access2Me\Model\Sender $sender)
+    public function fetchProfile(\Access2Me\Model\Sender $sender, array $dependencies = [])
     {
         try {
             $email = $sender->getSender();
 
             $fullContact = new Service\FullContact($this->serviceConfig);
-            $personData = $fullContact->getPerson($email, Service\FullContactPersonType::EMAIL);
+            $personData = $fullContact->getPerson($email, Service\FullContact::PERSON_TYPE_EMAIL);
             
             $profile = $this->parsePersonData($personData);
             

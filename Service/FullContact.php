@@ -6,13 +6,10 @@ use GuzzleHttp;
 
 class FullContactException extends \Exception {}
 
-class FullContactPersonType
-{
-    const EMAIL = 1;
-}
-
 class FullContact
 {
+    const PERSON_TYPE_EMAIL = 1;
+
     private $apiUrl = 'https://api.fullcontact.com/v2/';
     
     private $config;
@@ -51,7 +48,7 @@ class FullContact
             'apiKey' => $this->config['api_key']
         ];
 
-        if ($type == FullContactPersonType::EMAIL) {
+        if ($type == self::PERSON_TYPE_EMAIL) {
             $params['email'] = $query;
         }
 

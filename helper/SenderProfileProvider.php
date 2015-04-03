@@ -20,6 +20,112 @@ interface SenderProfileProviderInterface
     function getProfile($request, $providerId);
 }
 
+class ProviderDependencyHelper
+{
+    public $providers;
+    public $providerIds;
+
+    public function __construct($providers, $providerIds)
+    {
+        $this->providers = $providers;
+        $this->providerIds = $providerIds;
+    }
+
+    /**
+     * @param array $profiles
+     * @param array $depTypes what dependency types must be fullfilled
+     * @return array
+     */
+    protected function getWithFulfilledDeps(array $profiles, array $depTypes = [])
+    {
+        $provider = null;
+        $dependencies = [];
+
+        foreach ($this->providerIds as $i=>$pid) {
+            $prov = $this->providers[$pid];
+            $deps = isset($prov['dependencies']) ? $prov['dependencies'] : [];
+            $dependencies = [];
+
+            $met = true;
+            foreach ($deps as $pid=>$dtype) {
+                // do we have dependency already fulfilled ?
+                if (isset($profiles[$pid]) && !empty($profiles[$pid])) {
+                    // collect dependencies
+                    $dependencies[$pid] = $profiles[$pid];
+                    continue;
+                }
+
+                // we are looking only for the wanted dependencies ($depTypes) to be met
+                // ex: it can be 'optional' while $depTypes contain only 'required'
+                if (!in_array($dtype, $depTypes)) {
+                    continue;
+                }
+
+                $met = false;
+                break;
+            }
+            
+            if ($met) {
+                $provider = $prov;
+                break;
+            }
+        }
+
+        $result = [
+            'providerId' => 0,
+            'provider' => $provider,
+            'dependencies' => $dependencies
+        ];
+
+        // unset found providerId
+        if ($provider != null) {
+            unset($this->providerIds[$i]);
+            $result['providerId'] = $pid; 
+        }
+        
+        return $result;
+    }
+
+    /**
+     * Find provider that has all dependencies met
+     * We need this for some providers that depend on others
+     * Ex: Klout depends on Twitter or Google 
+     * 
+     * @param array $providerIds
+     * @param array $profiles
+     * @return array
+     */
+    public function getNextProvider(array $profiles)
+    {
+        /*
+         * ex: Klout depends on twitter and google (both optional)
+         * in case twitter dep is fulfilled and google is not then first rule wont match
+         * but second will match because only 'required' deps are required
+         * All deps (twitter in this case) will be collected
+         */
+        // at first try to find those with both required and optional dependencies fulfilled
+        $provider = $this->getWithFulfilledDeps(
+            $profiles,
+            [
+                \Access2Me\ProfileProvider\ProfileProviderInterface::DEPENDENCY_REQUIRED,
+                \Access2Me\ProfileProvider\ProfileProviderInterface::DEPENDENCY_OPTIONAL
+            ]
+        );
+
+        // fallback only to required fulfilled
+        if ($provider['provider'] == null) {
+            $provider = $this->getWithFulfilledDeps(
+                $profiles,
+                [
+                    \Access2Me\ProfileProvider\ProfileProviderInterface::DEPENDENCY_REQUIRED
+                ]
+            );
+        }
+
+        return $provider;
+    }    
+}
+
 class SenderProfileProvider implements SenderProfileProviderInterface
 {
     /**
@@ -70,15 +176,28 @@ class SenderProfileProvider implements SenderProfileProviderInterface
         $serviceMap = $this->getServiceMap($services);
         $providerIds = !empty($providerIds) ? $providerIds : array_keys($this->getProviders());
 
-        // collect profiles
-        $result = [];
         foreach ($providerIds as $pid) {
-
             if (!isset($this->providers[$pid])) {
-                throw new \Exception('Unknown provider ' . $pid);
+                throw new \Exception('Unknown profile type requested: ' . $pid);
+            }
+        }
+        
+        $depHelper = new ProviderDependencyHelper($this->providers, $providerIds);
+        
+        // collect profiles
+        $profiles = [];
+        while (true) {
+
+            $next = $depHelper->getNextProvider($profiles);
+
+            // we don't have provider or not all dependencies are met for it
+            if ($next['provider'] == null) {
+                break;
             }
 
-            $provider = $this->providers[$pid];
+            $pid = $next['providerId'];
+            $provider = $next['provider'];
+            $dependencies = $next['dependencies'];
             $profile = null;
             
             try {
@@ -88,21 +207,28 @@ class SenderProfileProvider implements SenderProfileProviderInterface
                     if (isset($serviceMap[$pid])) {
                         $profile = $provider['provider']->fetchProfile(
                             /*$sender,*/
-                            $serviceMap[$pid]
+                            $serviceMap[$pid],
+                            $dependencies
                         );
                     }
                     // do not call provider if auth is not specified
                 } else {
-                    $profile = $provider['provider']->fetchProfile($sender);
+                    $profile = $provider['provider']->fetchProfile($sender, $dependencies);
                 }
             } catch (\Access2Me\ProfileProvider\ProfileProviderException $ex) {
                 \Logging::getLogger()->debug($ex->getMessage(), array('exception' => $ex));
             }
 
-            $result[$pid] = $profile;
+            $profiles[$pid] = $profile;
         }
 
-        return $result;
+        // we can have unprocessed profile providers in case dependencies are not met
+        // mark them as failed
+        foreach ($depHelper->providerIds as $pid) {
+            $profiles[$pid] = null;
+        }
+
+        return $profiles;
     }
 
     public function getProfile($request, $providerId)

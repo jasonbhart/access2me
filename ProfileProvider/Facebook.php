@@ -23,7 +23,7 @@ class Facebook implements ProfileProviderInterface
      * @param \Access2Me\Model\Sender $sender
      * @return array
      */
-    public function fetchProfile(\Access2Me\Model\Sender $sender)
+    public function fetchProfile(\Access2Me\Model\Sender $sender, array $dependencies = [])
     {
         try {
             // initialize facebook session

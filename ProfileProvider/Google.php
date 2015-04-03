@@ -19,7 +19,7 @@ class Google implements ProfileProviderInterface
      * @param \Access2Me\Model\Sender $sender
      * @return array
      */
-    public function fetchProfile(\Access2Me\Model\Sender $sender)
+    public function fetchProfile(\Access2Me\Model\Sender $sender, array $dependencies = [])
     {
         try {
             $client = new \Google_Client();
@@ -29,7 +29,6 @@ class Google implements ProfileProviderInterface
             $gplus = new \Google_Service_Plus($client);
             $data = $gplus->people->get('me');
             $profile = $this->convertToProfile($data);
-            var_dump($profile);
             return $profile;
         } catch (\Google_Exception $ex) {
             throw new ProfileProviderException('Can\'t fetch profile', 0, $ex);
