@@ -4,7 +4,14 @@ namespace Access2Me\Model\Profile;
 
 class Profile
 {
-     /**
+
+    /**
+     * service profile id
+     * @var type 
+     */
+    public $id;
+
+    /**
      * @displayName First name
      */
     public $firstName;

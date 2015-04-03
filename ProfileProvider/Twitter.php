@@ -21,7 +21,7 @@ class Twitter implements ProfileProviderInterface
      * @param \Access2Me\Model\Sender $sender
      * @return array
      */
-    public function fetchProfile(\Access2Me\Model\Sender $sender)
+    public function fetchProfile(\Access2Me\Model\Sender $sender, array $dependencies = [])
     {
         try {
             $twitter = new Helper\Twitter($this->serviceConfig);
@@ -38,6 +38,7 @@ class Twitter implements ProfileProviderInterface
     {
         // FIXME: Twitter doesn't provide email
         $profile = new Profile\Profile();
+        $profile->id = $data['id'];
         $profile->fullName = $data['name'];
         $profile->summary = $data['description'];
         $profile->location = $data['location'];

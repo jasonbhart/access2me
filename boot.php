@@ -83,6 +83,7 @@ require_once __DIR__ . "/ProfileProvider/Profile/Facebook.php";
 require_once __DIR__ . "/ProfileProvider/Profile/FullContact.php";
 require_once __DIR__ . "/ProfileProvider/Profile/GitHub.php";
 require_once __DIR__ . "/ProfileProvider/Profile/Google.php";
+require_once __DIR__ . "/ProfileProvider/Profile/Klout.php";
 require_once __DIR__ . "/Service/Auth/AbstractHandler.php";
 require_once __DIR__ . "/Service/Auth/AbstractManager.php";
 require_once __DIR__ . "/Service/Auth/AbstractRequest.php";

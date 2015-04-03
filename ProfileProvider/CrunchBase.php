@@ -24,7 +24,7 @@ class CrunchBase implements ProfileProviderInterface
      * @param \Access2Me\Model\Sender $sender
      * @return Profile\CrunchBase|null
      */
-    public function fetchProfile(\Access2Me\Model\Sender $sender)
+    public function fetchProfile(\Access2Me\Model\Sender $sender, array $dependencies = [])
     {
         try {
             $address = $sender->getSender();

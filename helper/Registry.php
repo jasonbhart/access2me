@@ -75,7 +75,11 @@ class Registry
                 ],
                 Service::KLOUT => [
                     'authRequired' => false,
-                    'provider' => new ProfileProvider\Klout($services['klout'])
+                    'provider' => new ProfileProvider\Klout($services['klout']),
+                    'dependencies' => [
+                        Service::TWITTER => ProfileProvider\ProfileProviderInterface::DEPENDENCY_OPTIONAL,
+                        Service::GOOGLE => ProfileProvider\ProfileProviderInterface::DEPENDENCY_OPTIONAL
+                    ]
                 ],
                 Service::GITHUB => [
                     'authRequired' => false,
