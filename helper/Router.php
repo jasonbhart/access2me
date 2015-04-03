@@ -19,7 +19,9 @@ class Router
         'registration_success' => '/ui/registration_success.php',
         'sender_profile' => '/ui/sender_profile.php',
         'sender_verification' => '/verify.php',
-        'sidebar_handler' => '/ui/sidebar_handler.php'
+        'sidebar_handler' => '/ui/sidebar_handler.php',
+        'user_sender_manage' => '/ui/user_senders.php',
+        'user_sender_enroll' => '/user_senders.php',
     ];
 
     protected $appConfig;
@@ -57,6 +59,21 @@ class Router
 
         $url = $this->appConfig['projectUrl'] . $url;
 
+        return $url;
+    }
+
+    public function getUserSenderEnrollUrl($token, $userId, $email, $accessType)
+    {
+        $url = $this->getUrl(
+            'user_sender_enroll',
+            [
+                'token' => $token,
+                'uid' => $userId,
+                'email' => $email,
+                'access_type' => $accessType
+            ]
+        );
+        
         return $url;
     }
 }

@@ -30,7 +30,7 @@ foreach ($userRepo->findAll() as $user) {
         $userSendersList = new Helper\UserListProvider($user['id'], $userSenderRepo);
 
         // token generator for whitelisting
-        $tokenManager = new Helper\UserListTokenManager($appConfig['secret']);
+        $tokenManager = Helper\Registry::getUserListTokenManager();
 
         $filterRepo = new Model\FiltersRepository($db);
         $filters = $filterRepo->findByUserId($user['id']);

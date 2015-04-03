@@ -11,8 +11,8 @@ $type = isset($_GET['type']) ? $_GET['type'] : null;
 
 // redirect to the home page if invalid type requested
 if ($type != 'whitelisted' && $type != 'blacklisted') {
-    header('Location: ' . $appConfig['projectUrl'] . '/ui');
-    exit;
+    $url = Helper\Registry::getRouter()->getUrl('user_sender_manage', ['type' => 'whitelisted']);
+    Helper\Http::redirect($url);
 }
 
 // process request

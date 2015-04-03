@@ -102,35 +102,17 @@ class MessageProcessor
         }
     }
 
-    private function buildWhitelistUrl($email)
+    private function buildUserSenderEnrollUrl($email, $accessType)
     {
         $tokenManager = $this->userListTokenManager;
-        
-        $baseUrl = 'http://app.access2.me/user_senders.php?';
         $token = $tokenManager->generateToken($this->user['id'], $email);
-        $url = $baseUrl . http_build_query([
-            'token' => $token,
-            'uid' => $this->user['id'],
-            'email' => $email,
-            'access_type' => Model\UserSenderRepository::ACCESS_ALLOWED
-        ]);
 
-        return $url;
-    }
-    
-    private function buildBlacklistUrl($email)
-    {
-        $tokenManager = $this->userListTokenManager;
-        
-        $baseUrl = 'http://app.access2.me/user_senders.php?';
-        $token = $tokenManager->generateToken($this->user['id'], $email);
-        $url = $baseUrl . http_build_query([
-            'token' => $token,
-            'uid' => $this->user['id'],
-            'email' => $email,
-            'access_type' => Model\UserSenderRepository::ACCESS_DENIED
-        ]);
-
+        $url = Registry::getRouter()->getUserSenderEnrollUrl(
+            $token,
+            $this->user['id'],
+            $email,
+            $accessType
+        );
         return $url;
     }
 
@@ -158,8 +140,8 @@ class MessageProcessor
     {
         // append message to Unverified folder if it was not already appended
         if (!$message['appended_to_unverified']) {
-            $data['whitelist_url'] = $this->buildWhitelistUrl($message['from_email']);
-            $data['blacklist_url'] = $this->buildBlacklistUrl($message['from_email']);
+            $data['whitelist_url'] = $this->buildUserSenderEnrollUrl($message['from_email'], Model\UserSenderRepository::ACCESS_ALLOWED);
+            $data['blacklist_url'] = $this->buildUserSenderEnrollUrl($message['from_email'], Model\UserSenderRepository::ACCESS_DENIED);
             $header = $this->buildMessageHeader($this->user, 'email/header/unverified.html.twig', $data);
             $mail = Email::buildMessage($this->user, $message, $header);
 
@@ -307,8 +289,8 @@ class MessageProcessor
         }
 
         $data['sender'] = $message['from_email'];
-        $data['whitelist_url']  = $this->buildWhitelistUrl($message['from_email']);
-        $data['blacklist_url']  = $this->buildBlacklistUrl($message['from_email']);
+        $data['whitelist_url']  = $this->buildUserSenderEnrollUrl($message['from_email'], Model\UserSenderRepository::ACCESS_ALLOWED);
+        $data['blacklist_url']  = $this->buildUserSenderEnrollUrl($message['from_email'], Model\UserSenderRepository::ACCESS_DENIED);
         $data['profile'] = $this->getProfileViewData($profile);
 
         $header = $this->buildMessageHeader($this->user, 'email/header/verified.html.twig', $data);

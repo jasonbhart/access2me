@@ -4,20 +4,29 @@
     {% else %}
     <div class="block">
         <div class="block-title clearfix">
-            <h1>Filters</h1>
+            <h1>Filters &amp; Userlist</h1>
         </div>
-        {% if filterStat %}
-        <ul>
-            {% for filter in filterStat %}
-            <li class="{% if filter.status %}alert alert-success{% else %}alert alert-danger{% endif %}">
-                <div>{{ filter.condition }}</div>
-                <div>{% if filter.status %}AND{% else %}BUT{%endif%} {{ filter.value }} </div>
-            </li>
-            {% endfor %}
-        </ul>
-        {% else %}
-        You have no filters
-        {% endif %}
+        <div class="block-section">
+            {% if filterStat %}
+            <ul>
+                {% for filter in filterStat %}
+                <li class="{% if filter.status %}alert alert-success{% else %}alert alert-danger{% endif %}">
+                    <div>{{ filter.condition }}</div>
+                    <div>{% if filter.status %}AND{% else %}BUT{%endif%} {{ filter.value }} </div>
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            You have no filters
+            {% endif %}
+        </div>
+
+        <div class="block-section">
+            Add this sender to the 
+            <a style="color:#4fba81;" href="{{ whitelist_url }}">whitelist</a>
+            |
+            <a style="color:#ee2c33;" href="{{ blacklist_url }}">blacklist</a>
+        </div>
     </div>
 
     {% if profiles is defined %}
