@@ -55,7 +55,7 @@ function formatFiltersStat($filtersStat)
 }
 
 // controller like function :)
-function getSendersProfile()
+function getSendersProfile($user)
 {
     $data = [];
     $email = isset($_GET['email']) ? $_GET['email'] : null;
@@ -63,7 +63,6 @@ function getSendersProfile()
     $db = new Database;
 
     // check if current user has messages from the sender
-    $user = Helper\Registry::getAuth()->getLoggedUser();
     $mesgRepo = new Model\MessageRepository($db);
     $messages = $mesgRepo->findByUserAndSender($user['id'], $email);
    
@@ -97,6 +96,22 @@ function getSendersProfile()
         $filterProcessor->process($data['profiles']['profile']);
         
         $data['filterStat'] = formatFiltersStat($filterProcessor->getStat());
+        
+        // build whitelist/blacklist urls
+        $token = Helper\Registry::getUserListTokenManager()->generateToken($user['id'], $email);
+        $data['whitelist_url'] = Helper\Registry::getRouter()->getUserSenderEnrollUrl(
+            $token,
+            $user['id'],
+            $email,
+            Model\UserSenderRepository::ACCESS_ALLOWED
+        );
+        $data['blacklist_url'] = Helper\Registry::getRouter()->getUserSenderEnrollUrl(
+            $token,
+            $user['id'],
+            $email,
+            Model\UserSenderRepository::ACCESS_DENIED
+        );
+
        
     } catch (Exception $ex) {
         $errMsg = 'Can\'t retrieve profile of ' . $email;
@@ -109,7 +124,8 @@ function getSendersProfile()
 }
 
 try {
-    $data = getSendersProfile();
+    $user = Helper\Registry::getAuth()->getLoggedUser();
+    $data = getSendersProfile($user);
 } catch (\Exception $ex) {
     Logging::getLogger()->error($ex->getMessage(), array('exception' => $ex));
     Helper\Http::generate500();

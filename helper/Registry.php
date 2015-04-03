@@ -241,4 +241,9 @@ class Registry
     {
         return new Filter\ComparatorFactory();
     }
+
+    public static function getUserListTokenManager()
+    {
+        return new Helper\UserListTokenManager(self::$appConfig['secret']);
+    }
 }
