@@ -95,13 +95,13 @@ class Registry
                 ]
             ];
 
-            $profileProvider = new SenderProfileProvider($profileProviders);
-
             $cacheRepo = new Model\CacheRepository(self::getDatabase());
             $cache = new Helper\Cache($cacheRepo);
-            $cached = new CachedSenderProfileProvider($cache, $profileProvider);
+            $senderProfileCache = new SenderProfileCache($cache);
+            $profileProvider = new SenderProfileProvider($profileProviders);
+            $profileProvider->setCache($senderProfileCache);
 
-            self::$profileProvider = new NormalizedSenderProfileProvider($cached);
+            self::$profileProvider = new NormalizedSenderProfileProvider($profileProvider);
         }
 
         return self::$profileProvider;
@@ -148,6 +148,7 @@ class Registry
             self::$twig->addFunction(new \Twig_SimpleFunction('social_icon', ['\Access2Me\Helper\Template', 'getSocialIcon']));
             self::$twig->addFunction(new \Twig_SimpleFunction('twitter_profile_url', ['\Access2Me\Helper\Template', 'getTwitterProfileUrl']));
             self::$twig->addFunction(new \Twig_SimpleFunction('url', ['\Access2Me\Helper\Template', 'getUrl']));
+            self::$twig->addFunction(new \Twig_SimpleFunction('format_age_range', ['\Access2Me\Helper\Template', 'formatAgeRange']));
         }
         
         return self::$twig;
