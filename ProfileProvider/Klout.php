@@ -25,11 +25,22 @@ class Klout implements ProfileProviderInterface
     {
         try {
             $klout = new Service\Klout($this->serviceConfig);
-            
+
+            // try twitter at first
             if (isset($dependencies[Service\Service::TWITTER])) {
-                $servId = $dependencies[Service\Service::TWITTER]->id;
-                $kloutId = $klout->getKloutId($servId, Service\Klout::NETWORK_TWITTER);
-            } elseif (isset($dependencies[Service\Service::GOOGLE])) {
+                try {
+                    $servId = $dependencies[Service\Service::TWITTER]->id;
+                    $kloutId = $klout->getKloutId($servId, Service\Klout::NETWORK_TWITTER);
+                } catch (Service\KloutException $ex) {
+                    \Logging::getLogger()->debug(
+                        'Can\'t get kloutId by twitterId',
+                        ['exception' => $ex]
+                    );
+                }
+            }
+
+            // try google next
+            if (!isset($koutId) && isset($dependencies[Service\Service::GOOGLE])) {
                 $servId = $dependencies[Service\Service::GOOGLE]->id;
                 $kloutId = $klout->getKloutId($servId, Service\Klout::NETWORK_GOOGLE);
             }

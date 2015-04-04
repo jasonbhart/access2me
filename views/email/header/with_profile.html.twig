@@ -26,6 +26,12 @@
         </a>&nbsp;&nbsp; 
     {% endif %}
 
+    {% if profile.google %}
+        <a href="{{ profile.google.profileUrl }}" style="border-radius:50%; display:inline-block; border:1px solid #d1d1d1; overflow:hidden; width:20px; height:20px; font-size:0; line-height:0;vertical-align:middle;">
+            <img style="width:20px; height:20px;" src="{{ social_icon('googleplus') }}" width="20" height="20" alt="Google+" />
+        </a>&nbsp;&nbsp; 
+    {% endif %}
+
 {% endblock %}
 
 {% block content %}
@@ -60,97 +66,147 @@
 
         <table width="100%" border="0" cellspacing="0" cellpadding="0"  style="border-collapse:collapse;">
             {% if profile.linkedin.primaryTwitterAccount or profile.klout %}
-                <tr>
-                    {% if profile.linkedin.primaryTwitterAccount %}
-                    {% set account = profile.linkedin.primaryTwitterAccount %}
-                        <td style="padding:6px 0;border-top:1px solid #554a56; line-height:20px;font-family:'Trebuchet MS', Arial, Helvetica, sans-serif; font-size:13px;color:#e5e5e5;">
+            <tr>
+                <td>
+                    <table width="100%" border="0" cellspacing="0" cellpadding="0"  style="border-collapse:collapse;">
+                        <tr>
+                            <td>
+                            {% if profile.linkedin.primaryTwitterAccount %}
+                            {% set account = profile.linkedin.primaryTwitterAccount %}
+                            <td style="padding:6px 0;border-top:1px solid #554a56; line-height:20px;font-family:'Trebuchet MS', Arial, Helvetica, sans-serif; font-size:13px;color:#e5e5e5;">
 
+                                    <span style="float:left; width:35%; margin-right:10px;">
+                                        <strong>Twitter account:</strong> 
+                                        <a style="color:#4fba81;" href="{{ twitter_profile_url(account.id) }}">
+                                            {{ account.name }}
+                                        </a>
+                                    </span>
+                            </td>
+                            {% endif %}
+
+                            {% if profile.klout %}
+                            <td style="padding:6px 0;border-top:1px solid #554a56; line-height:20px;font-family:'Trebuchet MS', Arial, Helvetica, sans-serif; font-size:13px;color:#e5e5e5;">
                                 <span style="float:left; width:35%; margin-right:10px;">
-                                    <strong>Twitter account:</strong> 
-                                    <a style="color:#4fba81;" href="{{ twitter_profile_url(account.id) }}">
-                                        {{ account.name }}
-                                    </a>
+                                    <strong>Klout score:</strong> 
+                                    <span style="color:#4fba81;">
+                                        {{ profile.klout.score|round(2, 'floor')}}
+                                    </span>
                                 </span>
-                        </td>
-                    {% endif %}
-                    
-                    {% if profile.klout %}
-                    <td style="padding:6px 0;border-top:1px solid #554a56; line-height:20px;font-family:'Trebuchet MS', Arial, Helvetica, sans-serif; font-size:13px;color:#e5e5e5;">
-                            <span style="float:left; width:35%; margin-right:10px;">
-                                <strong>Klout score:</strong> 
-                                <span style="color:#4fba81;">
-                                    {{ profile.klout.score|round(2, 'floor')}}
-                                </span>
-                            </span>
-                    </td>
-                    {% endif %}
-                </tr>
+                            </td>
+                            {% endif %}
+                        </tr>
+                    </table>
+                </td>
+            </tr>
             {% endif %}
 
             {% if (profile.full_contact or profile.crunch_base) %}
-                <tr>
-                    <td style="padding:6px 0; border-top:1px solid #554a56;color:#b7b7b7; line-height:20px;">
-                        <table width="100%" border="0" cellspacing="0" cellpadding="0"  style="border-collapse:collapse;">
-                            <tr>
-                                {% if profile.full_contact %}
-                                    {% set fullContact = profile.full_contact %}
-                                    {% if fullContact.gender %}
-                                        <td style="width:35%; padding-right:10px;font-family:'Trebuchet MS', Arial, Helvetica, sans-serif;">
-                                            <strong>Gender:</strong>
-                                            <span style="vertical-align:middle; display:inline-block;">
-                                                {{ fullContact.gender }}
-                                            </span>
-                                        </td>
-                                    {% endif %}
-                                {% endif %}
-
-                                {% if profile.crunch_base %}
-                                    <td style="padding:0;font-family:'Trebuchet MS', Arial, Helvetica, sans-serif;">
-                                        <strong>CrunchBase:</strong>
-                                        <a style="color:#4fba81;" href="{{ profile.crunch_base.homepageUrl }}">
-                                            {{ profile.crunch_base.name }}
-                                        </a>
-                                        <span style="background:#655b67 none; display:inline-block; padding:1px 5px; color:#b7b7b7;">
-                                            (total fundings: <strong style="color:#ee2c33; font-size:14px;">${{ format_money(profile.crunch_base.totalFunding) }}</strong>)
+            <tr>
+                <td style="padding:6px 0; border-top:1px solid #554a56;color:#b7b7b7; line-height:20px;">
+                    <table width="100%" border="0" cellspacing="0" cellpadding="0"  style="border-collapse:collapse;">
+                        <tr>
+                            {% if profile.full_contact %}
+                                {% set fullContact = profile.full_contact %}
+                                {% if fullContact.gender %}
+                                    <td style="width:35%; padding-right:10px;font-family:'Trebuchet MS', Arial, Helvetica, sans-serif;">
+                                        <strong>Gender:</strong>
+                                        <span style="vertical-align:middle; display:inline-block;">
+                                            {{ fullContact.gender }}
                                         </span>
                                     </td>
                                 {% endif %}
-                            </tr>
-                        </table>
-                    </td>
-                </tr>
+                            {% endif %}
+
+                            {% if profile.crunch_base %}
+                                <td style="padding:0;font-family:'Trebuchet MS', Arial, Helvetica, sans-serif;">
+                                    <strong>CrunchBase:</strong>
+                                    <a style="color:#4fba81;" href="{{ profile.crunch_base.homepageUrl }}">
+                                        {{ profile.crunch_base.name }}
+                                    </a>
+                                    <span style="background:#655b67 none; display:inline-block; padding:1px 5px; color:#b7b7b7;">
+                                        (total fundings: <strong style="color:#ee2c33; font-size:14px;">${{ format_money(profile.crunch_base.totalFunding) }}</strong>)
+                                    </span>
+                                </td>
+                            {% endif %}
+                        </tr>
+                    </table>
+                </td>
+            </tr>
             {% endif %}
 
             {%  if profile.github %}
-                {% set github = profile.github %}
-                {% set name = github.name|default(github.login) %}
-                <tr>
-                    <td style="padding:6px 0; border-top:1px solid #554a56;color:#b7b7b7; line-height:20px;">
-                        <table width="100%" border="0" cellspacing="0" cellpadding="0"  style="border-collapse:collapse;">
-                            <tr>
-                                <td style="width:35%; padding-right:10px;font-family:'Trebuchet MS', Arial, Helvetica, sans-serif;">
-                                    <strong>Github: </strong>
-                                    <a style="color:#4fba81;" href="{{ github.htmlUrl }}" title="{{ name }}">
-                                        {{ name }}
+            {% set github = profile.github %}
+            {% set name = github.name|default(github.login) %}
+            <tr>
+                <td style="padding:6px 0; border-top:1px solid #554a56;color:#b7b7b7; line-height:20px;">
+                    <table width="100%" border="0" cellspacing="0" cellpadding="0"  style="border-collapse:collapse;">
+                        <tr>
+                            <td style="width:35%; padding-right:10px;font-family:'Trebuchet MS', Arial, Helvetica, sans-serif;">
+                                <strong>Github: </strong>
+                                <a style="color:#4fba81;" href="{{ github.htmlUrl }}" title="{{ name }}">
+                                    {{ name }}
+                                </a>
+                                <span style="vertical-align:middle;font-size:0; line-height:0; display:inline-block;">
+                                    <a href="{{ github.htmlUrl }}" title="{{ name }}">
+                                        <img src="{{ github.avatarUrl }}" alt="{{ name }}" style="height: 20px; width: 20px;"/>
                                     </a>
-                                    <span style="vertical-align:middle;font-size:0; line-height:0; display:inline-block;">
-                                        <a href="{{ github.htmlUrl }}" title="{{ name }}">
-                                            <img src="{{ github.avatarUrl }}" alt="{{ name }}" style="height: 20px; width: 20px;"/>
-                                        </a>
-                                    </span>
-                                </td>
-                                <td style="padding:0;font-family:'Trebuchet MS', Arial, Helvetica, sans-serif;">
-                                    <strong>Github info :</strong>
-                                    <span style="background:#655b67 none; display:inline-block; padding:1px 5px; color:#b7b7b7;">
-                                        repositories: {{ github.publicReposCount }},
-                                        followers: {{ github.followersCount }},
-                                        following: {{ github.followingCount }}
-                                    </span>
-                                </td>
-                            </tr>
-                        </table>
-                    </td>
-                </tr>
+                                </span>
+                            </td>
+                            <td style="padding:0;font-family:'Trebuchet MS', Arial, Helvetica, sans-serif;">
+                                <strong>Github info:</strong>
+                                <span style="background:#655b67 none; display:inline-block; padding:1px 5px; color:#b7b7b7;">
+                                    repositories: {{ github.publicReposCount }},
+                                    followers: {{ github.followersCount }},
+                                    following: {{ github.followingCount }}
+                                </span>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+            {% endif %}
+
+            {%  if profile.google %}
+            {% set google = profile.google %}
+            {% set name = [google.firstName, google.lastName]|join(' ') %}
+            <tr>
+                <td style="padding:6px 0; border-top:1px solid #554a56;color:#b7b7b7; line-height:20px;">
+                    <table width="100%" border="0" cellspacing="0" cellpadding="0"  style="border-collapse:collapse;">
+                        <tr>
+                            <td style="width:35%; padding-right:10px;font-family:'Trebuchet MS', Arial, Helvetica, sans-serif;">
+                                <strong>Google+ account: </strong>
+                                <a style="color:#4fba81;" href="{{ google.profileUrl }}" title="{{ name }}">
+                                    {{ name }}
+                                </a>
+                                <span style="vertical-align:middle;font-size:0; line-height:0; display:inline-block;">
+                                    <a href="{{ google.profileUrl }}" title="{{ name }}">
+                                        <img src="{{ google.pictureUrl }}" alt="{{ name }}" style="height: 20px; width: 20px;"/>
+                                    </a>
+                                </span>
+                            </td>
+                            <td style="padding:0;font-family:'Trebuchet MS', Arial, Helvetica, sans-serif;">
+                                {% if google.gender or google.location or google.occupation or goole.ageRange %}
+                                <strong>Google+ info:</strong>
+                                <span style="background:#655b67 none; display:inline-block; padding:1px 5px; color:#b7b7b7;">
+                                    {% if google.gender %}
+                                    gender: {{ google.gender }}
+                                    {% endif %}
+                                    {% if google.location %}
+                                    location: {{ google.location }}
+                                    {% endif %}
+                                    {% if google.occupation %}
+                                    occupation: {{ google.occupation }}
+                                    {% endif %}
+                                    {% if google.ageRange %}
+                                    age: {{ format_age_range(google.ageRange) }}
+                                    {% endif %}
+                                </span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
             {% endif %}
         </table>
     {% endif %}

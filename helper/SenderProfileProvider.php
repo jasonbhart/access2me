@@ -3,6 +3,8 @@
 namespace Access2Me\Helper;
 
 use Access2Me\Helper;
+use Access2Me\Model;
+
 
 interface SenderProfileProviderInterface
 {
@@ -29,6 +31,10 @@ class ProviderDependencyHelper
     {
         $this->providers = $providers;
         $this->providerIds = $providerIds;
+        
+        // todo: add dependencies to the $providerIds
+        // this is needed in the case user requested only one provider
+        // but it depends on others
     }
 
     /**
@@ -47,11 +53,11 @@ class ProviderDependencyHelper
             $dependencies = [];
 
             $met = true;
-            foreach ($deps as $pid=>$dtype) {
+            foreach ($deps as $dpid=>$dtype) {
                 // do we have dependency already fulfilled ?
-                if (isset($profiles[$pid]) && !empty($profiles[$pid])) {
+                if (isset($profiles[$dpid]) && !empty($profiles[$dpid])) {
                     // collect dependencies
-                    $dependencies[$pid] = $profiles[$pid];
+                    $dependencies[$dpid] = $profiles[$dpid];
                     continue;
                 }
 
@@ -126,12 +132,65 @@ class ProviderDependencyHelper
     }    
 }
 
+
+class SenderProfileCache
+{
+    /**
+     * @var \Access2Me\Helper\CacheInterface
+     */
+    private $cache;
+
+    /**
+     * @var string in \DateInterval format
+     */
+    private $cachingPeriod = 'P2W';
+    private $cachingPeriodNegative = 'PT2H';        // for negative hits
+
+    public function __construct(Helper\CacheInterface $cache)
+    {
+        $this->cache = $cache;
+    }
+
+    protected function getKey($email, $providerId)
+    {
+        return $email . '_profile_' . $providerId;
+    }
+
+    /**
+     * @param \Access2Me\Model\Sender $sender
+     * @param int $providerId
+     * @return mixed fales in case there is no such cache record
+     */
+    public function get(Model\Sender $sender, $providerId)
+    {
+        try {
+            $key = $this->getKey($sender->getSender(), $providerId);
+            return $this->cache->get($key);
+        } catch (Helper\CacheException $ex) {
+            return false;
+        }
+    }
+
+    public function set(Model\Sender $sender, $providerId, $profile)
+    {
+        $key = $this->getKey($sender->getSender(), $providerId);
+        $cp = $profile === null ? $this->cachingPeriodNegative : $this->cachingPeriod;
+        $this->cache->set($key, $profile, $cp);
+    }
+}
+
+
 class SenderProfileProvider implements SenderProfileProviderInterface
 {
     /**
      * @var \Access2Me\ProfileProvider\ProfileProviderInterface[] 
      */
     protected $providers;
+
+    /**
+     * @var SenderProfileCache
+     */
+    protected $cache = null;
 
     /**
      * 
@@ -162,6 +221,11 @@ class SenderProfileProvider implements SenderProfileProviderInterface
         return $serviceMap;
     }
 
+    public function setCache(SenderProfileCache $cache)
+    {
+        $this->cache = $cache;
+    }
+
     /**
      * Collect info about sender
      * 
@@ -176,16 +240,27 @@ class SenderProfileProvider implements SenderProfileProviderInterface
         $serviceMap = $this->getServiceMap($services);
         $providerIds = !empty($providerIds) ? $providerIds : array_keys($this->getProviders());
 
+        // load profiles from cache
+        $profiles = [];
         foreach ($providerIds as $pid) {
             if (!isset($this->providers[$pid])) {
                 throw new \Exception('Unknown profile type requested: ' . $pid);
             }
+
+            if ($this->cache) {
+                $cached = $this->cache->get($sender, $pid);
+                if ($cached !== false) {
+                    $profiles[$pid] = $cached;
+                }
+            }
         }
+
+        // we need to fetch only not existing profiles
+        $providerIds = array_diff($providerIds, array_keys($profiles));
         
         $depHelper = new ProviderDependencyHelper($this->providers, $providerIds);
         
-        // collect profiles
-        $profiles = [];
+        // fetch profiles
         while (true) {
 
             $next = $depHelper->getNextProvider($profiles);
@@ -220,6 +295,9 @@ class SenderProfileProvider implements SenderProfileProviderInterface
             }
 
             $profiles[$pid] = $profile;
+            if ($this->cache) {
+                $this->cache->set($sender, $pid, $profile);
+            }
         }
 
         // we can have unprocessed profile providers in case dependencies are not met

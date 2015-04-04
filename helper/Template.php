@@ -140,6 +140,36 @@ class Template
         return (string)$result;
     }
 
+    /**
+     * @param array $range with min and max keys
+     */
+    public static function formatAgeRange($range)
+    {
+        $min = isset($range['min']) ? intval($range['min']) : null;
+        $max = isset($range['max']) ? intval($range['max']) : null;
+
+        $isInvalid = false;
+        
+        if ($min !== null && $max === null) {
+            $formatted = 'above ' . $min;
+            $isInvalid = !($min >= 0);
+        } else if ($min === null && $max !== null) {
+            $formatted = 'below ' . $max;
+            $isInvalid = !($max > 0);
+        } else if ($min !== null && $max !== null) {
+            $formatted = 'between ' . $min . ' and ' . $max;
+            $isInvalid = !($min >= 0 && $min < $max);
+        } else if ($min === null && $max === null) {
+            $formatted = 'not specified';
+        }
+
+        if ($isInvalid) {
+            $formatted .= ' (invalid)';
+        }
+        
+        return $formatted ;
+    }
+
     public static function getTwitterProfileUrl($userId)
     {
         return Twitter::getProfileUrl($userId);

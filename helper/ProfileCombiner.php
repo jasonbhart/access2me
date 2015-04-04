@@ -26,6 +26,7 @@ class ProfileCombiner
     public $gitHub;
     public $klout;
     public $aboutme;
+    public $google;
 
     /**
      * 
@@ -44,6 +45,7 @@ class ProfileCombiner
             Service\Service::GITHUB => 'gitHub',
             Service\Service::KLOUT => 'klout',
             Service\Service::ABOUTME => 'aboutme',
+            Service\Service::GOOGLE => 'google',
         ];
 
         foreach ($map as $sid => $name) {
@@ -57,6 +59,8 @@ class ProfileCombiner
         unset($profiles[Service\Service::FULLCONTACT]);
         unset($profiles[Service\Service::KLOUT]);
         unset($profiles[Service\Service::ABOUTME]);
+        unset($profiles[Service\Service::GITHUB]);
+        unset($profiles[Service\Service::GOOGLE]);
 
         // this profiles we use for combined properties
         $this->profiles = $profiles;
