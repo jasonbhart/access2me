@@ -51,16 +51,21 @@ $template = array(
 
 /* Primary navigation array (the primary navigation will be created automatically based on this array, up to 3 levels deep) */
 $primary_nav = array(
-    array(
+    [
         'name'  => 'Dashboard',
         'url'   => 'index.php',
         'icon'  => 'gi gi-compass'
-    ),
-    array(
+    ],
+    [
         'name'  => 'Gmail Settings',
         'url'   => \Access2Me\Helper\Template::getUrl('gmail_settings'),
         'icon'  => 'fa fa-rocket'
-    ),
+    ],
+    [
+        'name' => 'Emails',
+        'icon' => 'gi gi-address_book',
+        'url' => \Access2Me\Helper\Template::getUrl('user_emails')
+    ],
     [
         'name' => 'Senders',
         'icon' => 'gi gi-group',

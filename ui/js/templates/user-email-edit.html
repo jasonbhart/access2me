@@ -1,0 +1,18 @@
+<div ng-show="visible">
+    <form novalidate class="form-inline">
+        <input type="hidden" class="filter-id" ng-model="data.id" />
+        <div class="form-group" style="vertical-align: top">
+            <input type="text" name="email" class="filter-value form-control" placeholder="Email" ng-model="data.email" required>
+        </div>
+        <div class="form-group" style="vertical-align: top">
+            <button type="submit" class="btn btn-effect-ripple btn-sm btn-primary form-save" ng-click="save({record: getData()})">
+                <i class="fa fa-check"></i> Save
+            </button>
+        </div>
+        <div class="form-group" style="vertical-align: top">
+            <button type="button" class="btn btn-effect-ripple btn-sm btn-primary form-cancel" ng-click="cancel()">
+                <i class="fa fa-fire"></i> Cancel
+            </button>
+        </div>
+    </form>
+</div>

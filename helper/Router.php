@@ -20,6 +20,7 @@ class Router
         'sender_profile' => '/ui/sender_profile.php',
         'sender_verification' => '/verify.php',
         'sidebar_handler' => '/ui/sidebar_handler.php',
+        'user_emails' => '/ui/user_emails.php',
         'user_sender_manage' => '/ui/user_senders.php',
         'user_sender_enroll' => '/user_senders.php',
     ];
