@@ -241,6 +241,32 @@ LOCK TABLES `auth_tokens` WRITE;
 /*!40000 ALTER TABLE `auth_tokens` ENABLE KEYS */;
 UNLOCK TABLES;
 
+--
+-- Table structure for table `user_emails`
+--
+
+DROP TABLE IF EXISTS `user_emails`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `user_emails` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `email` varchar(64) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `user_id` (`user_id`),
+  CONSTRAINT `user_emails_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `user_emails`
+--
+
+LOCK TABLES `user_emails` WRITE;
+/*!40000 ALTER TABLE `user_emails` DISABLE KEYS */;
+/*!40000 ALTER TABLE `user_emails` ENABLE KEYS */;
+UNLOCK TABLES;
+
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;

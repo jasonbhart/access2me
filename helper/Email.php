@@ -112,53 +112,16 @@ class Email
     }
 
     /**
-     * Converts parsed email to the form to be stored in the database
-     *
-     * @param array $message
-     */
-    public static function toDatabaseRecord($message)
-    {
-        $mail = $message['mail'];
-        $record = array();
-
-        $record['message_id'] = $mail->messageId;
-        $record['from_name'] = $mail->from->name;
-        $record['from_email'] = $mail->from->email;
-        $record['to_email'] = $mail->to[0]->email;
-        $record['subject']   = $mail->subject;
-        $record['header']    = $message['raw_header'];
-        $record['body']      = $message['raw_body'];
-        $record['status']    = 0;
-        $record['appended_to_unverified'] = 0;
-        
-        // parse Date header
-        $record['created_at'] = self::parseDate($mail->getHeader('Date'));
-
-        $replyTo = \ezcMailTools::parseEmailAddress($mail->getHeader('Reply-To'));
-        
-        // parse headers to find Return-Path or From for reply_email
-        $record['reply_email'] = isset($replyTo)
-            ? $replyTo->email : $mail->from->email;
-        
-        return $record;
-    }
-
-    /**
      * Collects recipients from trace information.
      * Mail can be forwarded so there can be more than one recipient.
-     * Fallback value is address from the "To" header.
      * 
      * @param \ezcMail $mail
-     * @return array recipients from the last to first
+     * @return array recipients from the last (very last recipient) to first
      */
     public static function getTracedRecipients(\ezcMail $mail)
     {
         $headers = $mail->getHeader('Received', true);
         $parsed = self::parseReceivedHeaders($headers);
-        // fallback address
-        $parsed[] = [
-            'for' => \ezcMailTools::parseEmailAddress($mail->to[0]->email)
-        ];
 
         $recipients = [];
         foreach ($parsed as $received) {

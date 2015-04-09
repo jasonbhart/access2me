@@ -1,5 +1,10 @@
 <?php
 
+ini_set('error_log', __DIR__ . '/logs/error.log');
+ini_set('error_reporting', E_ALL);
+ini_set('display_error', 1);
+ini_set('display_startup_errors', 1);
+
 session_start();
 
 date_default_timezone_set('America/Los_Angeles');
@@ -50,22 +55,26 @@ require_once __DIR__ . "/helper/Template.php";
 require_once __DIR__ . "/helper/UserListProvider.php";
 require_once __DIR__ . "/helper/UserListTokenManager.php";
 require_once __DIR__ . "/helper/Validator.php";
-require_once __DIR__ . "/model/AbstractRepository.php";
-require_once __DIR__ . "/model/AuthTokenRepository.php";
-require_once __DIR__ . "/model/CacheRepository.php";
-require_once __DIR__ . "/model/FilterRepository.php";
-require_once __DIR__ . "/model/MessageRepository.php";
-require_once __DIR__ . "/model/SenderRepository.php";
-require_once __DIR__ . "/model/User/LinkedinToken.php";
-require_once __DIR__ . "/model/UserRepository.php";
-require_once __DIR__ . "/model/UserSenderRepository.php";
-require_once __DIR__ . "/model/Cache.php";
-require_once __DIR__ . "/model/Filter.php";
-require_once __DIR__ . "/model/Roles.php";
-require_once __DIR__ . "/model/Sender.php";
-require_once __DIR__ . "/model/Profile/Profile.php";
-require_once __DIR__ . "/model/Profile/Position.php";
-require_once __DIR__ . "/model/Profile/ProfileRepository.php";
+require_once __DIR__ . "/Message/OwnerGuesser.php";
+require_once __DIR__ . "/Message/Saver.php";
+require_once __DIR__ . "/Model/AbstractRepository.php";
+require_once __DIR__ . "/Model/AuthTokenRepository.php";
+require_once __DIR__ . "/Model/CacheRepository.php";
+require_once __DIR__ . "/Model/FilterRepository.php";
+require_once __DIR__ . "/Model/MessageRepository.php";
+require_once __DIR__ . "/Model/SenderRepository.php";
+require_once __DIR__ . "/Model/User/LinkedinToken.php";
+require_once __DIR__ . "/Model/UserEmail.php";
+require_once __DIR__ . "/Model/UserEmailRepository.php";
+require_once __DIR__ . "/Model/UserRepository.php";
+require_once __DIR__ . "/Model/UserSenderRepository.php";
+require_once __DIR__ . "/Model/Cache.php";
+require_once __DIR__ . "/Model/Filter.php";
+require_once __DIR__ . "/Model/Roles.php";
+require_once __DIR__ . "/Model/Sender.php";
+require_once __DIR__ . "/Model/Profile/Profile.php";
+require_once __DIR__ . "/Model/Profile/Position.php";
+require_once __DIR__ . "/Model/Profile/ProfileRepository.php";
 require_once __DIR__ . "/ProfileProvider/ProfileProviderInterface.php";
 require_once __DIR__ . "/ProfileProvider/ProfileProviderException.php";
 require_once __DIR__ . "/ProfileProvider/AngelList.php";
